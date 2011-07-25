@@ -1,9 +1,9 @@
 package it.polimi.ingsw.models.game.gods;
 
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.InternalError;
+import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.models.game.rules.DefaultRule;
-import it.polimi.ingsw.models.game.rules.GodPower;
 
 /**
  * Not implemented yet
@@ -13,23 +13,31 @@ public class Minotaur extends God {
     //Default action order
 
     @Override
-    public void activateGodPower(Worker worker) {
-        worker.getRules().addMovementRules("minotaurPower", GodPower::minotaurPower);
-        worker.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
+    public void activateGodPower(ActualRule rules) {
+        rules.addMovementRules("minotaurPower", (worker, target) -> {
+            if(target.isOccupiedByWorker()){
+                Vector2 destination = worker.getCurrentSpace().getPosition().getAfter(target.getPosition());
+                // TODO: Check player data
+                return !worker.getIdentity().getPlayer().equals(target.getWorkerData().getPlayer()) &&
+                        World.isInWorld(destination) &&
+                        !worker.getWorld().get(destination).isOccupied();
+            }
+            return true;
+        });
+        rules.getMovementRules().remove("defaultIsFreeFromWorker");
     }
 
     @Override
-    public void deactivateGodPower(Worker worker) {
-        worker.getRules().getMovementRules().remove("minotaurPower");
-        worker.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
+    public void deactivateGodPower(ActualRule rules) {
+        rules.getMovementRules().remove("minotaurPower");
+        rules.addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
     }
 
     @Override
-    public void forcePower(Worker worker, Space targetSpace){
-        if(targetSpace.getWorkerData().getPlayer().equals(worker.getPlayer())){
-            throw new UnsupportedOperationException("Should be fatal error");
+    public void forcePower(Worker worker, Space target){
+        if(worker.getIdentity().getPlayer().equals(target.getWorkerData().getPlayer())){
+            throw new InternalError("Cannot push your own worker");
         }
-        Worker opponentWorker = targetSpace.getWorker();
-        worker.push(opponentWorker, targetSpace);
+        worker.push(target.getWorkerData());
     }
 }

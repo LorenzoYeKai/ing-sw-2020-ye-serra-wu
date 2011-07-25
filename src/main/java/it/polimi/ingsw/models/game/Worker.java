@@ -1,139 +1,46 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
-import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-public class Worker implements WorkerData, Serializable {
-    private Space currentSpace;
-    private Space initialSpace;
+public class Worker {
+    private final WorkerData identity;
     private final Player player;
     private final World world;
-    private ActualRule rules;
-    private int index;
+    private final ActualRule rules;
+    private Space currentSpace;
 
     public Worker(Player player, int index) {
+        this.identity = new WorkerData(player, index);
         this.player = player;
         this.world = this.player.getGame().getWorld();
         this.rules = this.player.getGame().getRules();
         this.currentSpace = null;
-        this.initialSpace = null;
-        this.index = index;
-    }
-
-    public Worker(Worker copy){
-        this.player = copy.player;
-        this.world = copy.player.getGame().getPreviousWorld();
-        this.rules = copy.rules;
-        this.currentSpace = this.world.getSpaces(copy.currentSpace.getX(), copy.currentSpace.getY());
-        this.initialSpace = null;
-        this.index = copy.index;
     }
 
     /**
-     * Used by worker to move
-     * The move conditions checked are in the controller
+     * Get the {@link WorkerData} that identifies this worker.
+     *
+     * @return the {@link WorkerData} that identifies this worker
      */
-    public void move(Space targetSpace) {
-        victory(targetSpace); //Check win condition
-        setPosition(targetSpace);
-    }
-
-    /**
-     * Used by worker to build
-     * The build conditions are checked in the controller
-     */
-    public void buildBlock(Space targetSpace) {
-        targetSpace.addLevel();
-    }
-
-
-    /**
-     * Used by worker to build a dome
-     * The build conditions are checked in the controller
-     */
-    public void buildDome(Space targetSpace) {
-        targetSpace.setDome();
-    }
-
-    /**
-     * Checks if a movement is satisfying a win condition
-     */
-    public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
-        if (this.rules.winCondition(this.currentSpace, targetSpace)) {
-            this.setPosition(targetSpace);
-            System.out.println("Victory!!!!"); //For tests
-            this.player.getGame().announceVictory(this.player); //If true the game ends
-        }
-    }
-
-    /**
-     * Computes the available spaces for movement
-     */
-    public ArrayList<Space> computeAvailableSpaces(){
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        for(int i = 0; i < 5; i++){
-            for(int j = 0; j < 5; j++){
-                if(rules.canMoveThere(this.currentSpace, this.world.getSpaces(i, j))){
-                    availableSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return availableSpaces;
-    }
-
-    /**
-     * Computes the spaces where the worker is allowed to build a block
-     */
-    public ArrayList<Space> computeBuildableSpaces(){
-        ArrayList<Space> buildableSpaces = new ArrayList<Space>();
-        for(int i = 0; i < 5; i++){
-            for(int j = 0; j < 5; j++){
-                if(rules.canBuildThere(this.currentSpace, this.world.getSpaces(i, j))){
-                    buildableSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return buildableSpaces;
-    }
-
-    /**
-     * Computes the spaces where the worker is allowed to build a dome
-     */
-    public ArrayList<Space> computeDomeSpaces(){
-        ArrayList<Space> domeSpaces = new ArrayList<Space>();
-        for(int i = 0; i < 5; i++){
-            for(int j = 0; j < 5; j++){
-                if(rules.canBuildDomeThere(this.currentSpace, this.world.getSpaces(i, j))){
-                    domeSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return domeSpaces;
+    public WorkerData getIdentity() {
+        return this.identity;
     }
 
     public Space getCurrentSpace() {
         return this.currentSpace;
     }
 
-    @Override
-    public Space getFirstBuild(){
-        throw new UnsupportedOperationException("Not implemented yet!");
-    }
-
-    @Override
-    public Space getInitialSpace(){
-        return this.initialSpace;
-    }
-
-    @Override
+    @Deprecated
     public Player getPlayer() {
         return this.player;
     }
 
-    @Override
-    public World getWorld(){
+    public World getWorld() {
         return this.world;
     }
 
@@ -141,146 +48,243 @@ public class Worker implements WorkerData, Serializable {
         return this.rules;
     }
 
-    public int getX () {
-        return currentSpace.getX();
+    /**
+     * Computes the available spaces for movement.
+     *
+     * @return the list of spaces available for movement.
+     */
+    public List<Space> computeAvailableSpaces() {
+        return this.world.getData().stream()
+                .filter(space -> rules.canMoveThere(this, space))
+                .collect(Collectors.toList());
     }
 
-    public int getY () {
-        return currentSpace.getY();
+    /**
+     * Computes the spaces where the worker is allowed to build a block
+     *
+     * @return the list of spaces available for building blocks.
+     */
+    public List<Space> computeBuildableSpaces() {
+        return this.world.getData().stream()
+                .filter(space -> rules.canBuildThere(this, space))
+                .collect(Collectors.toList());
     }
 
-    private void setPosition(Space targetSpace) {
-        this.initialSpace = this.currentSpace;
+    /**
+     * Computes the spaces where the worker is allowed to build a dome
+     */
+    public List<Space> computeDomeSpaces() {
+        return this.world.getData().stream()
+                .filter(space -> rules.canBuildDomeThere(this, space))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the previous space occupied by the worker in the current turn.
+     *
+     * @return the previous space occupied by the worker in the current turn,
+     * or {@link Optional#empty()} if this worker hasn't performed any action
+     * yet in this turn.
+     */
+    public Optional<Space> getPreviousSpace() {
+        return this.world.peekPrevious().flatMap(previousWorld ->
+                previousWorld.stream().filter(space ->
+                        this.identity.equals(space.getWorkerData())
+                ).findAny()
+        );
+    }
+
+    /**
+     * Check whether the last action of this worker in the current turn is MOVE.
+     *
+     * @return true if the last action of this worker in the current turn is
+     * movement.
+     */
+    public boolean isLastActionMove() {
+        // forced move will not be (erroneously) detected as movement, because
+        // workers cannot be force-moved in their own turn, and after each turn,
+        // World.getPrevious() will be reset.
+
+        // get the position of previousSpace, and check whether
+        // this.currentSpace.getPosition() equals to the previous position.
+        // if the position has changed, then we can assume the last action is
+        // move.
+        Space previous = this.getPreviousSpace()
+                .orElseThrow(() -> new InternalError("Should not be called because there aren't any previous actions yet"));
+        return !this.currentSpace.getPosition().equals(previous.getPosition());
+    }
+
+    /**
+     * Get the {@link Space} in the current {@link World} where the worker
+     * has built a block in the previous action.
+     *
+     * @return the {@link Space} on which a block has been built previously,
+     * or {@link Optional#empty()} if worker didn't build in the last action,
+     * or if this worker hasn't performed any action yet in the current turn.
+     */
+    public Optional<Space> getPreviouslyBuiltBlock() {
+        return this.world.peekPrevious().flatMap(previousWorld ->
+                previousWorld.stream().filter(previousSpace -> {
+                    Space current = this.world.get(previousSpace.getPosition());
+                    return previousSpace.getLevel() < current.getLevel();
+                }).findAny()
+        );
+    }
+
+    /**
+     * Get the {@link Space} in the current {@link World} where the worker
+     * has built a dome in the previous action.
+     *
+     * @return the {@link Space} on which a dome has been built previously,
+     * or {@link Optional#empty()} if worker didn't build dome in the last
+     * action, or if this worker hasn't performed any action yet in the current
+     * turn.
+     */
+    public Optional<Space> getPreviouslyBuiltDome() {
+        return this.world.peekPrevious().flatMap(previousWorld ->
+                previousWorld.stream().filter(previousSpace -> {
+                    Space current = this.world.get(previousSpace.getPosition());
+                    return !previousSpace.isOccupiedByDome() && current.isOccupiedByDome();
+                }).findAny()
+        );
+    }
+
+    /**
+     * Get the {@link Space} in the current {@link World} where the worker
+     * has built a block or a dome.
+     *
+     * @return the {@link Space} on which a block or a  dome has been built
+     * previously, or {@link Optional#empty()} if worker didn't build dome in
+     * the last action, or if this worker hasn't performed any action yet in the
+     * current turn.
+     */
+    public Optional<Space> getPreviousBuild() {
+        return this.getPreviouslyBuiltBlock().or(this::getPreviouslyBuiltDome);
+    }
+
+    /**
+     * Set the start position
+     *
+     * @param startPosition the space where worker should stay.
+     */
+    public void setStartPosition(Space startPosition) {
         if (this.currentSpace != null) {
-            this.currentSpace.removeWorker();
+            throw new InternalError("Should not set start position");
         }
-        this.currentSpace = targetSpace;
-        targetSpace.setWorker(this);
+        this.currentSpace = startPosition.setWorker(this.identity);
+        this.world.update(this.currentSpace);
     }
 
-    public void setStartPosition(Space targetSpace){
-        if(this.currentSpace == null /*&& !this.player.isDefeated()*/){
-            this.currentSpace = targetSpace;
-            targetSpace.setWorker(this);
+    /**
+     * Move a worker.
+     * The move conditions should be already checked in the controller.
+     *
+     * @param targetSpace the destination space
+     */
+    public void move(Space targetSpace) {
+        this.victory(targetSpace); //Check win condition
+        this.setAndUpdatePosition(targetSpace);
+    }
+
+    /**
+     * Used by worker to build.
+     * The build conditions should be already checked in the controller.
+     *
+     * @param targetSpace the destination space
+     */
+    public void buildBlock(Space targetSpace) {
+        this.world.update(targetSpace.addLevel());
+    }
+
+    /**
+     * Used by worker to build a dome
+     * The build conditions should be already checked in the controller.
+     *
+     * @param targetSpace the destination space
+     */
+    public void buildDome(Space targetSpace) {
+        this.world.update(targetSpace.setDome());
+    }
+
+    /**
+     * Checks if a movement is satisfying a win condition
+     */
+    public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
+        if (this.rules.winCondition(this, targetSpace)) {
+            this.setAndUpdatePosition(targetSpace);
+            this.player.getGame().announceVictory(this.player); //If true the game ends
         }
     }
 
-    private void force(Space s){
-        this.currentSpace = s;
-        s.setWorker(this);
-    }
-
-    public void swap(Worker opponent, Space targetSpace){
-        this.move(targetSpace);
-        opponent.force(this.previousSpace());
-    }
-
-    public void push(Worker opponent, Space targetSpace){
-        opponent.force(this.world.pushSpace(this.currentSpace, targetSpace));
-        this.move(targetSpace);
-    }
-
-    public boolean hasMoved(){
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Worker w = this.player.getGame().getPreviousWorld().getSpaces(i, j).getWorker();
-                if(w != null){
-                    if(this.player.equals(w.player) && this.index == w.index && (this.getX() != w.getX() || this.getY() != w.getY())){
-                        return true;
-                    }
-                }
-            }
+    /**
+     * Swap the position between two workers.
+     * Used by {@link it.polimi.ingsw.models.game.gods.Apollo}'s God Power.
+     *
+     * @param target the target worker.
+     */
+    public void swap(WorkerData target) {
+        Worker targetWorker = this.getPlayer().getGame().getWorker(target);
+        if (this.equals(targetWorker)) {
+            throw new InternalError("Cannot swap self");
         }
-        return false;
-    }
-
-    public boolean hasBuiltBlock(){ //this will be called only when the worker is already unchangeable
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(player.getGame().getPreviousWorld().getSpaces(i, j).getLevel() != player.getGame().getWorld().getSpaces(i, j).getLevel()){
-                    return true;
-                }
-            }
+        try (var batchUpdateController = this.world.beginBatchUpdate()) {
+            Space targetSpace = targetWorker.currentSpace;
+            targetWorker.currentSpace = this.currentSpace.setWorker(target);
+            this.move(targetSpace);
+            // targetWorker.currentSpace is the previous space of this
+            // so it needs to be updated after this.move
+            this.world.update(targetWorker.currentSpace);
         }
-        return false;
     }
 
-    public boolean hasBuiltDome(){ //this will be called only when the worker is already unchangeable
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(!player.getGame().getPreviousWorld().getSpaces(i, j).isOccupiedByDome() && player.getGame().getWorld().getSpaces(i, j).isOccupiedByDome()){
-                    return true;
-                }
-            }
+    /**
+     * Push another worker.
+     * Used by {@link it.polimi.ingsw.models.game.gods.Minotaur}'s God Power.
+     *
+     * @param target the target worker.
+     */
+    public void push(WorkerData target) {
+        Worker targetWorker = this.getPlayer().getGame().getWorker(target);
+        if (this.equals(targetWorker)) {
+            throw new InternalError("Cannot push self");
         }
-        return false;
-    }
-
-    public boolean hasBuilt(){
-        return hasBuiltBlock() || hasBuiltDome();
-    }
-
-    public Space previousSpace(){
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Worker w = this.player.getGame().getPreviousWorld().getSpaces(i, j).getWorker();
-                if(w != null) {
-                    if (this.player.equals(w.player) && this.index == w.index && (this.getX() != w.getX() || this.getY() != w.getY())) {
-                        //has moved
-                        return this.player.getGame().getWorld().getSpaces(i, j);
-                    }
-                }
-            }
+        Vector2 ourPosition = this.currentSpace.getPosition();
+        Vector2 targetPosition = targetWorker.currentSpace.getPosition();
+        Vector2 destination = ourPosition.getAfter(targetPosition);
+        if (!World.isInWorld(destination)) {
+            throw new InternalError("Cannot push");
         }
-        //has NOT moved
-        return this.currentSpace;
-    }
-
-    public Space previousBuild(){ //this will be called only after the selected worker has built
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(player.getGame().getPreviousWorld().getSpaces(i, j).getLevel() != player.getGame().getWorld().getSpaces(i, j).getLevel()){
-                    return this.player.getGame().getWorld().getSpaces(i, j);
-                }
-            }
+        try (var batchUpdateController = this.world.beginBatchUpdate()) {
+            Space targetSpace = targetWorker.currentSpace;
+            targetWorker.currentSpace = this.world.get(destination).setWorker(target);
+            this.world.update(targetWorker.currentSpace);
+            this.move(targetSpace);
         }
-        return null;
     }
 
-    public Space previousDome(){ //this will be called only after the selected worker has built
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(!player.getGame().getPreviousWorld().getSpaces(i, j).isOccupiedByDome() && player.getGame().getWorld().getSpaces(i, j).isOccupiedByDome()){
-                    return this.player.getGame().getWorld().getSpaces(i, j);
-                }
-            }
+    /**
+     * Reset the worker to a specified space that already contains a matching
+     * {@link WorkerData}. Used mainly for undo.
+     *
+     * @param previousSpace the target space.
+     */
+    public void reset(Space previousSpace) {
+        if (!this.identity.equals(previousSpace.getWorkerData())) {
+            throw new InternalError("Invalid undo");
         }
-        return null;
+        this.currentSpace = previousSpace;
     }
 
-    public void removeWorkerWhenDefeated(){
-        this.currentSpace.removeWorker();
-        this.currentSpace=null;
-
+    // TODO: CHECK AGAIN
+    public void removeWorkerWhenDefeated() {
+        this.world.update(this.currentSpace.setWorker(null));
+        this.currentSpace = null;
     }
 
-    public int getIndex(){
-        return this.index;
+    private void setAndUpdatePosition(Space target) {
+        Space previousSpace = this.currentSpace.setWorker(null);
+        this.currentSpace = target.setWorker(this.identity);
+        this.world.update(previousSpace, this.currentSpace);
     }
-
-    public void workerUndo(World previousWorld){
-        if(!this.hasMoved()) {
-            previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY()).removeWorker(); //removes the dummy worker in previousWorld
-            this.currentSpace = previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY());
-        }
-        else{
-            Space previousSpace = this.previousSpace();
-            previousWorld.getSpaces(previousSpace.getX(), previousSpace.getY()).removeWorker();
-            this.currentSpace = previousWorld.getSpaces(previousSpace.getX(), previousSpace.getY());
-        }
-        previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY()).setWorker(this);
-    }
-
-
 }
 

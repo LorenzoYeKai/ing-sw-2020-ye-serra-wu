@@ -21,7 +21,7 @@ public class WorldDisplay extends ServerMessage implements Serializable {
 
 
     public WorldDisplay(Game game){
-        this.worldInfo = game.getWorld().printWorld(game.getListOfPlayers());
+        //this.worldInfo = game.getWorld().printWorld(game.getListOfPlayers());
         this.listOfPlayersAndGods = new HashMap<>();
         game.getListOfPlayers().forEach(p -> this.listOfPlayersAndGods.put(p.getName(), p.getGodType(p.getGod())));
     }

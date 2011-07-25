@@ -2,8 +2,7 @@ package it.polimi.ingsw.views.game;
 
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.game.GameStatus;
-import it.polimi.ingsw.models.game.PlayerData;
-import it.polimi.ingsw.models.game.SpaceData;
+import it.polimi.ingsw.models.game.Space;
 
 public abstract class GameView {
 
@@ -14,8 +13,8 @@ public abstract class GameView {
     }
 
     public abstract void notifyGameStatus(GameStatus status);
-    public abstract void notifySpaceChange(SpaceData spaceData);
-    public abstract void notifyPlayerTurn(PlayerData player);
-    public abstract void notifyPlayerDefeat(PlayerData player);
+    public abstract void notifySpaceChange(Space space);
+    public abstract void notifyPlayerTurn(String player);
+    public abstract void notifyPlayerDefeat(String player);
 
 }

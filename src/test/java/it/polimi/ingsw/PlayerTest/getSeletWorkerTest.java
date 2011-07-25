@@ -22,9 +22,9 @@ public class getSeletWorkerTest {
 
         game = new Game(names);
         player = new Player(game,"player 1");
-        player.getAllWorkers().get(0).setStartPosition(game.getWorld().getSpaces(0,0));
-        player.getAllWorkers().get(1).setStartPosition(game.getWorld().getSpaces(1,1));
-        WorkerData prova = game.getWorld().getSpaces(0,0).getWorkerData();
+        player.getAllWorkers().get(0).setStartPosition(game.getWorld().get(0,0));
+        player.getAllWorkers().get(1).setStartPosition(game.getWorld().get(1,1));
+        WorkerData prova = game.getWorld().get(0,0).getWorkerData();
     }
 
     @Test
@@ -37,9 +37,9 @@ public class getSeletWorkerTest {
         assertTrue(player.hasSelectedAWorker()==true);
         player.selectWorker(0);
         player.deselectWorker();
-        WorkerData worker1 = game.getWorld().getSpaces(0,0).getWorkerData();
+        WorkerData worker1 = game.getWorld().get(0,0).getWorkerData();
         player.getWorker(worker1).equals(player.getAllWorkers().get(0));
-        WorkerData worker2 = game.getWorld().getSpaces(1,1).getWorkerData();
+        WorkerData worker2 = game.getWorld().get(1,1).getWorkerData();
         player.getWorker(worker2).equals(player.getAllWorkers().get(1));
     }
 }

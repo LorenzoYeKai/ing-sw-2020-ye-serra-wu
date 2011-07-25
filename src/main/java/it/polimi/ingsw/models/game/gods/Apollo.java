@@ -2,8 +2,10 @@ package it.polimi.ingsw.models.game.gods;
 
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.models.game.rules.DefaultRule;
-import it.polimi.ingsw.models.game.rules.GodPower;
+
+import java.util.Objects;
 
 /**
  * Not implemented yet
@@ -13,24 +15,31 @@ public class Apollo extends God {
     //Default action order
 
     @Override
-    public void forcePower(Worker worker, Space targetSpace){
-        if(targetSpace.getWorkerData().getPlayer().equals(worker.getPlayer())){
-            throw new UnsupportedOperationException("Should be fatal error");
+    public void forcePower(Worker worker, Space target){
+        if(worker.getIdentity().getPlayer().equals(target.getWorkerData().getPlayer())){
+            throw new InternalError("Cannot apply force power to self");
         }
-        Worker opponentWorker = targetSpace.getWorker();
-        worker.swap(opponentWorker, targetSpace);
+        worker.swap(target.getWorkerData());
     }
 
     @Override
-    public void activateGodPower(Worker worker) {
-        worker.getRules().addMovementRules("apolloPower", GodPower::apolloPower);
-        worker.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
+    public void activateGodPower(ActualRule rules) {
+        // TODO: Check again
+        rules.addMovementRules("apolloPower", (worker, target) -> {
+            if(!target.isOccupiedByWorker()) {
+                return true;
+            }
+            // if current and target are different player
+            // then we can move by forcing the swap position
+            return !Objects.equals(worker.getIdentity().getPlayer(), target.getWorkerData().getPlayer());
+        });
+        rules.getMovementRules().remove("defaultIsFreeFromWorker");
     }
 
     @Override
-    public void deactivateGodPower(Worker worker) {
-        worker.getRules().getMovementRules().remove("apolloPower");
-        worker.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
+    public void deactivateGodPower(ActualRule rules) {
+        rules.getMovementRules().remove("apolloPower");
+        rules.addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
 
     }
 

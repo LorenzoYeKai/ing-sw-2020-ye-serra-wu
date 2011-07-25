@@ -2,8 +2,6 @@ package it.polimi.ingsw.GameTest;
 
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.models.game.gods.GodType;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.World;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

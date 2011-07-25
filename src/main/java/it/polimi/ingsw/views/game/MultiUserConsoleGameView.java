@@ -21,19 +21,19 @@ import java.util.*;
 public class MultiUserConsoleGameView extends GameView {
     private final PrintStream output;
     private final Scanner input;
-    private final SpaceData[][] spaces;
-    private final List<PlayerData> players;
+    private final Space[][] spaces;
+    private final List<String> players;
     private boolean gameStarted;
 
     public MultiUserConsoleGameView(GameController controller) {
         super(controller);
         this.output = System.out;
         this.input = new Scanner(System.in);
-        this.spaces = new SpaceData[5][5];
+        this.spaces = new Space[5][5];
         this.players = new ArrayList<>();
         for (int y = 0; y < this.spaces.length; ++y) {
             for (int x = 0; x < this.spaces.length; ++x) {
-                this.spaces[y][x] = new Space(null, y, x);
+                this.spaces[y][x] = new Space(x, y);
             }
         }
 
@@ -41,7 +41,8 @@ public class MultiUserConsoleGameView extends GameView {
     }
 
     public void join(String nickname) {
-        this.players.add(this.controller.joinGame(nickname, this));
+        this.controller.joinGame(nickname, this);
+        this.players.add(nickname);
     }
 
     public void play() {
@@ -67,13 +68,13 @@ public class MultiUserConsoleGameView extends GameView {
     }
 
     @Override
-    public void notifySpaceChange(SpaceData spaceData) {
-        this.spaces[spaceData.getY()][spaceData.getX()] = spaceData;
+    public void notifySpaceChange(Space space) {
+        this.spaces[space.getPosition().getY()][space.getPosition().getX()] = space;
     }
 
     @Override
-    public void notifyPlayerTurn(PlayerData player) {
-        this.output.println("Now it's turn of " + player.getName());
+    public void notifyPlayerTurn(String player) {
+        this.output.println("Now it's turn of " + player);
 
         // TODO: replace true with `player.getAvailableWorkers().isEmpty()`
         while (true)
@@ -87,13 +88,13 @@ public class MultiUserConsoleGameView extends GameView {
                 break;
             }
 
-            WorkerData worker;
+            WorkerData worker = null;
             WorkerActionType type;
             int x;
             int y;
             try {
 
-                worker = player.getAllWorkers().get(Integer.parseInt(next));
+                //worker = player.getAllWorkers().get(Integer.parseInt(next));
                 type = WorkerActionType.valueOf(this.input.next().toUpperCase());
                 x = this.input.nextInt();
                 y = this.input.nextInt();
@@ -115,23 +116,23 @@ public class MultiUserConsoleGameView extends GameView {
     }
 
     @Override
-    public void notifyPlayerDefeat(PlayerData player) {
-        this.output.println(player.getName() + " has lost!");
+    public void notifyPlayerDefeat(String player) {
+        this.output.println(player + " has lost!");
     }
 
-    private void printMap(PlayerData currentPlayer) {
+    private void printMap(String currentPlayer) {
         String[] levels = new String[]{" ", "1", "2", "3"};
         String dome = "^";
 
         Map<WorkerData, String> workerSymbols = new HashMap<>();
         String[] symbols = new String[]{"A", "B", "C", "D"};
         int symbolIndex = 0;
-        for (PlayerData player : this.players) {
+        /*for (PlayerData player : this.players) {
             for (WorkerData worker : player.getAllWorkers()) {
                 workerSymbols.put(worker, symbols[symbolIndex]);
                 symbolIndex += 1;
             }
-        }
+        }*/
 
         ConsoleMatrix matrix = ConsoleMatrix.newMatrix(64, 12, false);
         ConsoleMatrix[] columns = matrix.splitHorizontal(new int[]{1, 16, 1, 46});
@@ -154,9 +155,9 @@ public class MultiUserConsoleGameView extends GameView {
             info.println("Move / build with your workers");
         }
 
-        info.println("Player " + currentPlayer.getName() + ", your workers: ");
+        /*info.println("Player " + currentPlayer.getName() + ", your workers: ");
         info.println("0 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(0)));
-        info.println("1 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(1)));
+        info.println("1 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(1)));*/
         if (!this.gameStarted) {
             info.println("Command: `[worker index] place [X] [Y]`");
             info.println("Example: `0 place 0 3`");
@@ -186,10 +187,10 @@ public class MultiUserConsoleGameView extends GameView {
         }
 
         // Print map
-        for (SpaceData[] row : this.spaces) {
-            for (SpaceData space : row) {
-                int x = space.getX() * 3 + 1;
-                int y = space.getY() * 2 + 1;
+        for (Space[] row : this.spaces) {
+            for (Space space : row) {
+                int x = space.getPosition().getX() * 3 + 1;
+                int y = space.getPosition().getY() * 2 + 1;
                 world.setCharacter(x, y, levels[space.getLevel()]);
                 if (space.isOccupied()) {
                     if (space.isOccupiedByDome()) {

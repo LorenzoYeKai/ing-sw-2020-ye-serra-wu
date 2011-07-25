@@ -16097,7 +16097,7 @@
 											"top": 1188,
 											"width": 259.80322265625,
 											"height": 13,
-											"text": "+notifySpaceChange(SpaceData spaceData)",
+											"text": "+notifySpaceChange(SpaceData space)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -16467,7 +16467,7 @@
 											"top": 1454,
 											"width": 259.80322265625,
 											"height": 13,
-											"text": "+notifySpaceChange(SpaceData spaceData)",
+											"text": "+notifySpaceChange(SpaceData space)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -29008,7 +29008,7 @@
 											"_parent": {
 												"$ref": "AAAAAAFxlAUjZvFSN3g="
 											},
-											"name": "SpaceData spaceData",
+											"name": "SpaceData space",
 											"type": ""
 										}
 									]
@@ -29187,7 +29187,7 @@
 											"_parent": {
 												"$ref": "AAAAAAFxlALDft1NrwI="
 											},
-											"name": "SpaceData spaceData",
+											"name": "SpaceData space",
 											"type": ""
 										}
 									]
