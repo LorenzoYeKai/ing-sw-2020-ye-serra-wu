@@ -3,7 +3,7 @@ package it.polimi.ingsw;
 import java.util.Scanner;
 
 /**
- * Hello world!
+ * Ciao
  *
  */
 public class App 
