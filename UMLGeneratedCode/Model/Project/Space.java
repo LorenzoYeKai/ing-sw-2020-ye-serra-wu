@@ -13,61 +13,51 @@ public class Space {
     public Space() {
     }
 
-    /**
-     * 
-     */
     public int x;
 
-    /**
-     * 
-     */
     public int y;
 
-    /**
-     * 
-     */
-    public Boolean occupied;
+    public Boolean occupiedByWorker;
 
-    /**
-     * 
-     */
+    public Boolean occupiedByDome;
+
     public Boolean border;
 
-    /**
-     * 
-     */
     public int level;
 
 
-    /**
-     * @return
-     */
     public int getLevel() {
-        // TODO implement here
-        return 0;
+        return level;
     }
 
-    /**
-     * 
-     */
+
     public void addLevel() {
-        // TODO implement here
+        if(level==3) {
+            System.out.println("Livello massimo, errore di mossa");
+        }
+        else {
+            level=level+1;
+        }
+
     }
 
-    /**
-     * @return
-     */
     public Boolean isOccupied() {
-        // TODO implement here
-        return null;
+        return occupiedByDome || occupiedByWorker;
     }
 
-    /**
-     * @return
-     */
+
     public Boolean isBorder() {
-        // TODO implement here
+        /**
+         * Scegliere come farlo (se metterlo nel costruttore di world)
+         */
         return null;
+
+    }
+    public Boolean isOccupiedByDome() {
+        return occupiedByDome;
+    }
+    public Boolean isOccupiedByWorker() {
+        return occupiedByWorker;
     }
 
 }
