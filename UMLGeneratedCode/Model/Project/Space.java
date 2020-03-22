@@ -12,7 +12,7 @@ public class Space {
 
     public int x;
 
-    public 
+    public int y;
 
     public Boolean occupiedByWorker;
 
