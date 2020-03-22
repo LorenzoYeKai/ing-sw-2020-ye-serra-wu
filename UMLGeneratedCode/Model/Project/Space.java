@@ -7,41 +7,24 @@ import java.util.*;
  */
 public class Space {
 
-    /**
-     * Prova commit
-     */
     public Space() {
     }
 
-    /**
-     * 
-     */
     public int x;
 
-    /**
-     * 
-     */
+
     public int y;
 
-    /**
-     * 
-     */
-    public Boolean occupied;
+    public Boolean occupiedByWorker;
 
-    /**
-     * 
-     */
+    public Boolean occupiedByDome;
+
     public Boolean border;
 
-    /**
-     * 
-     */
+
     public int level;
 
 
-    /**
-     * @return
-     */
     public int getLevel() {
         // TODO implement here
         return 0;
