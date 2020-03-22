@@ -10,7 +10,7 @@ public class App
 {
     public static void main( String[] args )
     {
-        Worker god;
+        Worker god; //prova
         System.out.println("Choose the initial position:");
         Scanner scanner = new Scanner(System.in);
         int x = scanner.nextInt();
