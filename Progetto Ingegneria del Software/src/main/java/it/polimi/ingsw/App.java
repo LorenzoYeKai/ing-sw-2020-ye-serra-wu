@@ -17,6 +17,6 @@ public class App
         int y = scanner.nextInt();
         System.out.println(x + " " + y);
         god = new Apollo(x, y);
-        god.printPosition();
+        //god.printPosition();
     }
 }
