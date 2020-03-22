@@ -8,7 +8,7 @@ import java.util.*;
 public class Space {
 
     /**
-     * Default constructor
+     * Prova commit
      */
     public Space() {
     }
