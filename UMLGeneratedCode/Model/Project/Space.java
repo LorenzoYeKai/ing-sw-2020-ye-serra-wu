@@ -12,6 +12,8 @@ public class Space {
 
     public int x;
 
+    public 
+
     public Boolean occupiedByWorker;
 
     public Boolean occupiedByDome;
