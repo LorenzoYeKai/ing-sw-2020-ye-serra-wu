@@ -13,9 +13,9 @@ public class Space {
 
     public int level;
 
-    public Space(int coordiantay,int coordinatax) {
-        this.x=coordinatax;
-        this.y=coordiantay;
+    public Space(int y,int x) {
+        this.x = x;
+        this.y = y;
         this.occupiedByWorker=false;
         this.occupiedByDome=false;
         this.level=0;
