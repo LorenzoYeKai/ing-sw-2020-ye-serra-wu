@@ -17,23 +17,24 @@ public class Space {
         return level;
     }
 
-    public void adaLevel(){
+    public void addLevel(){
         level=level+1;
     }
 
-    public Boolean isOccupiedByWorker() {
+    public boolean isOccupiedByWorker() {
         return occupiedByWorker;
     }
-    public Boolean isBorder(){
+
+    public boolean isBorder(){
         /* scegliere come implementarlo funzione aggiuntiva */
     }
 
-    public Boolean isOccupiedByDome(){
+    public boolean isOccupiedByDome(){
         return occupiedByDome;
     }
 
-    public Boolean isOccupied(){
-        return (occupiedByDome || occupiedByWorker)
+    public boolean isOccupied(){
+        return (occupiedByDome || occupiedByWorker);
     }
 
 
