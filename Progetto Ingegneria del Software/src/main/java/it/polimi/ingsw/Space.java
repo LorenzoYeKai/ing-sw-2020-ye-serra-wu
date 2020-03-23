@@ -13,6 +13,14 @@ public class Space {
 
     public int level;
 
+    public Space(int coordiantay,int coordinatax) {
+        this.x=coordinatax;
+        this.y=coordiantay;
+        this.occupiedByWorker=false;
+        this.occupiedByDome=false;
+        this.level=0;
+    }
+
     public int getLevel(){
         return level;
     }
