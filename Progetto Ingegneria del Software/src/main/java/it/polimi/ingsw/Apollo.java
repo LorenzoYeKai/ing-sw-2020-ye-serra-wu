@@ -6,8 +6,7 @@ public class Apollo extends Worker {
         super(x, y);
     }
 
-    public void printPosition(){
-        System.out.println("X: " + this.getX());
-        System.out.println("Y: " + this.getY());
+    public void startTurn(){
+
     }
 }

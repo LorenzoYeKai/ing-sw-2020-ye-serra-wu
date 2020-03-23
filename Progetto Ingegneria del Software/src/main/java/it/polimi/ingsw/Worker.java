@@ -14,15 +14,12 @@ abstract class Worker {
         this.y = y;
     }
 
+    abstract public void startTurn();
+
     public void move(int x, int y){
-        if(World.canMoveThere(this.x, this.y, x, y)){
-            victory(x, y);
-            this.x = x;
-            this.y = y;
-        }
-        else{
-            System.out.println("You cannot move there!");
-        }
+        victory(x, y);
+        this.x = x;
+        this.y = y;
     }
 
     public void build(int x, int y){
@@ -62,5 +59,5 @@ abstract class Worker {
         this.x = n;
     }
 
-    abstract void printPosition();
+    //abstract void printPosition();
 }
