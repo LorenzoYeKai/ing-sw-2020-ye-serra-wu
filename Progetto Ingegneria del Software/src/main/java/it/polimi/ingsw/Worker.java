@@ -28,7 +28,7 @@ abstract class Worker {
     public void build(int x, int y){
         if(World.canBuildThere(this.x, this.y, x, y)){ //Need a method that checks if i can build in a space
             if(World.getSpaces(x, y).getLevel() == 3){ //Need a method that returns the space on the world given the coordinates
-                World.getSpacec(x, y).setDome();
+                World.getSpaces(x, y).setDome();
             }
             else{ //level > 3 cannot exist due to previous control
                 World.getSpacec(x, y).addLevel();

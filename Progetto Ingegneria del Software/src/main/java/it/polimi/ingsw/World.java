@@ -42,8 +42,13 @@ public class World {
 
         public static Boolean canMoveThere(int xattuale,int yattuale,int xmovimento,int ymovimento){
             int k = levelDifference(xattuale, yattuale, xmovimento, ymovimento);
-            return ( isNext(xattuale,yattuale, xmovimento, ymovimento) && isInTab(ymovimento,xmovimento) && k>-2 && getSpaces(xmovimento,ymovimento).isOccupied() );
+            return ( isNext(xattuale,yattuale, xmovimento, ymovimento) && isInTab(ymovimento,xmovimento) && k>-2 && !getSpaces(xmovimento,ymovimento).isOccupied() );
         }
+        public static Boolean canMoveThere(int xattuale,int yattuale,int xmovimento,int ymovimento)
+
+        public static boolean canBuildThere(int xattuale, int yattuale, int xmovimento, int ymovimento) {
+            return (isInTab(xmovimento,ymovimento) && isNext(xattuale,yattuale,xmovimento,ymovimento) && !getSpaces(xmovimento,ymovimento).isOccupied())
+    }
 }
 
 
