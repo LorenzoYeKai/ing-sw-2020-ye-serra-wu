@@ -13,6 +13,12 @@ public class Space {
 
     public int level;
 
+    public Space() {
+        this.occupiedByWorker=false;
+        this.occupiedByDome=false;
+        this.level=0;
+    }
+
     public int getLevel(){
         return level;
     }
