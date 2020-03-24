@@ -46,5 +46,7 @@ public class Space {
     }
 
 
+    public void setDome() { this.occupiedByDome=true; }
 
-}
+    public void setOccupiedByWorker()   { this.occupiedByWorker=true;}
+    }

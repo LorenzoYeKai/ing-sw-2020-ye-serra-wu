@@ -41,7 +41,17 @@ public class World {
 
         public static boolean canBuildThere(int currentX, int currentY, int x, int y) {
             return (isInWorld(x,y) && isNext(currentX,currentY,x,y) && !spaces[x][y].isOccupied());
-    }
+        }
+
+        public static boolean canMove(int currentX,int currentY){
+            for (int i=currentY-1; i<currentY+2; i=i+1){
+                for (int j=currentX-1; j<currentX+2; j=j+1){
+                    if(canMoveThere(currentX,currentY,i,j) && j!=currentX && i!=currentY)
+                        return true;
+                }
+            }
+            return false;
+        }
 }
 
 
