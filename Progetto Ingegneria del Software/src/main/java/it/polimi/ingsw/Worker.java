@@ -1,6 +1,8 @@
 package it.polimi.ingsw;
 
 
+import java.util.Scanner;
+
 /**
  * Implementation of the basic turn without God powers
  */
@@ -9,55 +11,77 @@ abstract class Worker {
     private int x;
     private int y;
 
-    public Worker(int x, int y){
+    public Worker(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    abstract public void startTurn();
-
-    public void move(int x, int y){
-        victory(x, y);
-        this.x = x;
-        this.y = y;
+    public void startTurn(){
+        move();
+        build();
     }
 
-    public void build(int x, int y){
-        if(World.canBuildThere(this.x, this.y, x, y)){
-            if(World.getSpaces(x, y).getLevel() == 3){
-                World.getSpaces(x, y).setDome();//Needs a method for setting the dome
-            }
-            else{ //level > 3 cannot exist due to previous control
-                World.getSpaces(x, y).addLevel();
-            }
-        }
-    }
-
-    public void victory(int x, int y){
-        if(this.x != x || this.y != y){
-            if(World.getSpaces(x, y).getLevel() == 3 && World.getSpaces(this.x, this.y).getLevel() != 3){ //Need a method that returns the space on the world given the coordinates
+    public void move() { //Movable spaces display not implemented yet
+        while (true) { //Move loop (input control)
+            System.out.println("Where should your worker move?");
+            Scanner coordinates = new Scanner(System.in);
+            int x = coordinates.nextInt();
+            int y = coordinates.nextInt();
+            if (World.canMoveThere(this.x, this.y, x, y)) { //Check coordinates validity
+                System.out.println("Your worker moved form " + "[" + this.x + "][" + this.y + "] to " + "[" + x + "][" + y + "].");
+                victory(x, y); //Check win condition
                 this.x = x;
                 this.y = y;
-                Game.endGame();
+                break;
             }
+            System.out.println("You cannot move there!");
         }
     }
 
-    public int getY() {
-        return y;
-    }
+        public void build (){ //Buildable spaces display not implemented yet
+            while (true) { //Move loop (input control)
+                System.out.println("Where should your worker build?");
+                Scanner coordinates = new Scanner(System.in);
+                int x = coordinates.nextInt();
+                int y = coordinates.nextInt();
+                if (World.canBuildThere(this.x, this.y, x, y)) { //Check coordinates validity
+                    if (World.getSpaces(x, y).getLevel() == 3) {
+                        World.getSpaces(x, y).setDome(); //Needs a method for setting the dome
+                    } else { //level > 3 cannot exist due to previous control
+                        World.getSpaces(x, y).addLevel();
+                    }
+                    break;
+                }
+                System.out.println("You cannot build there!");
+            }
+        }
 
-    public int getX() {
-        return x;
-    }
+        public void victory ( int x, int y){
+            if (this.x != x || this.y != y) { //Check win condition
+                if (World.getSpaces(x, y).getLevel() == 3 && World.getSpaces(this.x, this.y).getLevel() != 3) {
+                    this.x = x;
+                    this.y = y;
+                    Game.endGame(); //If true the game ends
+                }
+            }
+        }
 
-    public void setY(int n) {
-        this.y = n;
-    }
+        public int getY () {
+            return y;
+        }
 
-    public void setX(int n) {
-        this.x = n;
-    }
+        public int getX () {
+            return x;
+        }
 
-    //abstract void printPosition();
+        public void setY ( int n){
+            this.y = n;
+        }
+
+        public void setX ( int n){
+            this.x = n;
+        }
+
+        //abstract void printPosition();
 }
+

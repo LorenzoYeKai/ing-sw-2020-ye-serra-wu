@@ -26,7 +26,12 @@ public class Space {
     }
 
     public void addLevel(){
-        level=level+1;
+        if(this.level < 3) { //Prevent level > 3
+            level++;
+        }
+        else{
+            System.out.println("You cannot build any further!");
+        }
     }
 
     public boolean isOccupiedByWorker() {

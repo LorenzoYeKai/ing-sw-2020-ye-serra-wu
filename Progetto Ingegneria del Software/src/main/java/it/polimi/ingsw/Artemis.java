@@ -8,34 +8,41 @@ public class Artemis extends Worker{
         super(x, y);
     }
 
+    @Override
     public void startTurn(){
-        boolean movedTwice = false;
-        while(true){ //Move loop
+        int originalX = this.getX();
+        int originalY = this.getY();
+        move(); //First movement
+        while(true){ //input control
+            System.out.println("Do you want to move your worker again? y/n");
+            Scanner scanner = new Scanner(System.in);
+            String input = scanner.nextLine();
+            if(input.toLowerCase().equals("y")){
+                secondMovement(originalX, originalY); //The worker MAY move 2 times in a turn
+                break;
+            }
+            else if(input.toLowerCase().equals("n")) break;
+            else{
+                System.out.println("Invalid input!");
+            }
+        }
+        build();
+    }
+
+    private void secondMovement(int originalX, int originalY){ //Temporary second movement implementation
+        while (true) { //Move loop (input control)
             System.out.println("Where should your worker move?");
             Scanner coordinates = new Scanner(System.in);
             int x = coordinates.nextInt();
             int y = coordinates.nextInt();
-            if(World.canMoveThere(this.getX(), this.getY(), x, y)) {
+            if (World.canMoveThere(this.getX(), this.getY(), x, y) && x != originalX && y  != originalY) { //Check coordinates validity (cannot move back to the original position)
                 System.out.println("Your worker moved form " + "[" + this.getX() + "][" + this.getY() + "] to " + "[" + x + "][" + y + "].");
-                move(x, y);
-                if(!movedTwice) { //Input control not implemented yet
-                    System.out.println("Do you want to move your worker again? y/n");
-                    Scanner scanner = new Scanner(System.in);
-                    String choice = scanner.nextLine();
-                    if (choice.toLowerCase().equals("n")) {
-                        break;
-                    }
-                    movedTwice = true;
-                }
-                else{
-                    break;
-                }
+                victory(x, y); //Check win condition
+                setX(x);
+                setY(y);
+                break;
             }
-            else{
-                System.out.println("You cannot move there!");
-            }
+            System.out.println("You cannot move there!");
         }
-
-
     }
 }
