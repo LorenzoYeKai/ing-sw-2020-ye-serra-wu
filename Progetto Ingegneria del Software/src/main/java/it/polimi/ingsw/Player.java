@@ -8,9 +8,11 @@ public class Player {
 
     private Player nextPlayer;
 
-    private boolean defeat;
+    private boolean defeat = false;
 
-    static Worker[] workers = new Worker[2];
+    private final Worker[] workers = new Worker[2];
+
+    private WorkerFactory factory = new WorkerFactory();
 
     public Player() {
         setName();
@@ -25,45 +27,42 @@ public class Player {
 
     private void setName() {
         System.out.println("Choose a name");
-        Scanner Tastiera = new Scanner(System.in);
-        this.name = Tastiera.nextLine();
+        Scanner scanner = new Scanner(System.in);
+        this.name = scanner.nextLine();
     }
 
     private void chooseCard() {
         System.out.println("Choose a card");
-        Scanner Tastiera = new Scanner(System.in);
-        God temponary = Tastiera.nextLine();
-        while (!Game.isAvaiableGod(temponary)) {   // mi serve un metodo per vedere se il potere scelto è fra quelli possbili
+        Scanner scanner = new Scanner(System.in);
+        String god = scanner.nextLine();
+        while (!Game.isAvaiableGod(god.toUpperCase())) {   // mi serve un metodo per vedere se il potere scelto è fra quelli possbili
             System.out.println("error");
             System.out.println("Choose a god");
-            God temponary = Tastiera.nextLine();
+            god = scanner.nextLine();
         }
-        this.god = temponary;
+        this.workers[0] = factory.getWorker(god, this);
+        this.workers[1] = factory.getWorker(god, this);
     }
 
     public void setWorkers() {
 
         for (int i = 0; i < 2; i = i + 1) {
             System.out.println("Choose  Worker position");
-            Scanner Tastiera = new Scanner(System.in);
-            int tempx = Tastiera.nextInt();
-            int tempy = Tastiera.nextInt();
-            while (World.getSpaces(tempx, tempy).isOccupied() || !World.isInWorld(tempx, tempy)) {
+            Scanner scanner = new Scanner(System.in);
+            int x = scanner.nextInt();
+            int y = scanner.nextInt();
+            while (World.getSpaces(x, y).isOccupied() || !World.isInWorld(x, y)) {
                 System.out.println("error,Choose Worker position");
-                tempx = Tastiera.nextInt();
-                tempy = Tastiera.nextInt();
-                World.getSpaces(tempx, tempy).setOccupiedByWorker();
+                x = scanner.nextInt();
+                y = scanner.nextInt();
+                World.getSpaces(x, y).setOccupiedByWorker();
             }
-            workers[i] = new Worker(tempx, tempy);
+            workers[i].setPosition(x, y);
         }
     }
 
     public Worker selectWorker(int k) {
         return workers[k];
-    }
-
-    public God getGod() {
-        return this.god;
     }
 
     public Boolean isDefeat() {
