@@ -12,8 +12,6 @@ public class Player {
 
     private final Worker[] workers = new Worker[2];
 
-    private WorkerFactory factory = new WorkerFactory();
-
     public Player() {
         setName();
         chooseCard();
@@ -40,6 +38,7 @@ public class Player {
             System.out.println("Choose a god");
             god = scanner.nextLine();
         }
+        WorkerFactory factory = new WorkerFactory();
         this.workers[0] = factory.getWorker(god, this);
         this.workers[1] = factory.getWorker(god, this);
     }
