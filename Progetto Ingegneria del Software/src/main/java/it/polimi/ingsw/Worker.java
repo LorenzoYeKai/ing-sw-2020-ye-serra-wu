@@ -41,18 +41,21 @@ abstract class Worker {
         public void build (){ //Buildable spaces display not implemented yet
             System.out.println("Where should your worker build?");
             Scanner coordinates = new Scanner(System.in);
+            int x = coordinates.nextInt();
+            int y = coordinates.nextInt();
             while (true) { //Move loop (input control)
-                int x = coordinates.nextInt();
-                int y = coordinates.nextInt();
-                if (World.canBuildThere(this.x, this.y, x, y)) { //Check coordinates validity
+                if (World.canBuildThere(this.getX(), this.getY(), x, y)) { //Check coordinates validity
                     if (World.getSpaces(x, y).getLevel() == 3) {
-                        World.getSpaces(x, y).setDome(); //Needs a method for setting the dome
+                        World.getSpaces(x, y).setDome();
                     } else { //level > 3 cannot exist due to previous control
                         World.getSpaces(x, y).addLevel();
                     }
                     break;
                 }
                 System.out.println("You cannot build there!");
+                System.out.println("Where should your worker build?");
+                x = coordinates.nextInt();
+                y = coordinates.nextInt();
             }
         }
 
