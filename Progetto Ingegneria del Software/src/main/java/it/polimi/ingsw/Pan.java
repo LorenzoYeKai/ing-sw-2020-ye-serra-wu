@@ -10,7 +10,7 @@ public class Pan extends Worker {
     public void victory(int x, int y){
         if(World.levelDifference(this.getX(), this.getY(), x ,y) >= 2){
             this.setPosition(x, y);
-            Game.endGame();
+            this.player.game.endGame();
         }
         else super.victory(x, y);
     }
