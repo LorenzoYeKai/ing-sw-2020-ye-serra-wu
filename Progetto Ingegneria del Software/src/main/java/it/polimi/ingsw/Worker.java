@@ -47,8 +47,10 @@ abstract class Worker {
                 if (World.canBuildThere(this.getX(), this.getY(), x, y)) { //Check coordinates validity
                     if (World.getSpaces(x, y).getLevel() == 3) {
                         World.getSpaces(x, y).setDome();
+                        System.out.println("Your worker built a dome in " + "[" + x + "][" + y + "].");
                     } else { //level > 3 cannot exist due to previous control
                         World.getSpaces(x, y).addLevel();
+                        System.out.println("Your worker built a level " + World.getSpaces(x, y).getLevel() + " block in " + "[" + x + "][" + y + "].");
                     }
                     break;
                 }
