@@ -10,6 +10,7 @@ public class Game {
     private final WorkerFactory workerFactory;
     private final ArrayList<Player> listOfPlayers;
     private HashSet<GodType> availableGods;
+    private final World world;
 
     private int currentTurn;
 
@@ -26,6 +27,7 @@ public class Game {
         }
         this.availableGods = null;
         this.currentTurn = -1;
+        this.world = new World();
     }
 
     /**
@@ -70,8 +72,8 @@ public class Game {
         }
         this.availableGods.remove(type);
         return new Worker[]{
-                workerFactory.getWorker(type, player),
-                workerFactory.getWorker(type, player)
+                workerFactory.getWorker(type, player, world),
+                workerFactory.getWorker(type, player, world)
         };
     }
 
@@ -139,5 +141,9 @@ public class Game {
         // ci potrebbe essere delle verifiche da fare prima di andare nel prossimo turno...
 
         this.currentTurn = ((this.currentTurn + 1) % this.listOfPlayers.size());
+    }
+
+    public World getWorld(){
+        return this.world;
     }
 }

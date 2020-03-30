@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Atlas extends Worker {
 
-    public Atlas(Player player){
-        super(player);
+    public Atlas(Player player, World world){
+        super(player, world);
     }
 
     @Override
@@ -15,9 +15,9 @@ public class Atlas extends Worker {
         while (true) { //Move loop (input control)
             int x = coordinates.nextInt();
             int y = coordinates.nextInt();
-            if (World.canBuildThere(this.getX(), this.getY(), x, y)) { //Check coordinates validity
-                if(World.getSpaces(x, y).getLevel() == 3){
-                    World.getSpaces(x, y).setDome();
+            if (this.getWorld().canBuildThere(this.getX(), this.getY(), x, y)) { //Check coordinates validity
+                if(this.getWorld().getSpaces(x, y).getLevel() == 3){
+                    this.getWorld().getSpaces(x, y).setDome();
                 }
                 else {
                     System.out.println("Do you want to build a dome? y/n");
@@ -25,10 +25,10 @@ public class Atlas extends Worker {
                     while (true) { //input control
                         String input = scanner.nextLine();
                         if (input.toLowerCase().equals("y")) {
-                            World.getSpaces(x, y).setDome();
+                            this.getWorld().getSpaces(x, y).setDome();
                             break;
                         } else if (input.toLowerCase().equals("n")) {
-                            World.getSpaces(x, y).addLevel();
+                            this.getWorld().getSpaces(x, y).addLevel();
                             break;
                         }
                         else {

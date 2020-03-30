@@ -62,11 +62,11 @@ public class Player {
             Scanner scanner = new Scanner(System.in);
             int x = scanner.nextInt();
             int y = scanner.nextInt();
-            while (World.getSpaces(x, y).isOccupied() || !World.isInWorld(x, y)) {
+            while (this.game.getWorld().getSpaces(x, y).isOccupied() || !this.game.getWorld().isInWorld(x, y)) {
                 System.out.println("error,Choose Worker position");
                 x = scanner.nextInt();
                 y = scanner.nextInt();
-                World.getSpaces(x, y).setOccupiedByWorker();
+                this.game.getWorld().getSpaces(x, y).setOccupiedByWorker();
             }
             workers[i].setPosition(x, y);
         }
@@ -77,7 +77,7 @@ public class Player {
     }
 
     public Boolean isDefeat() {
-        return (!World.canMove(selectWorker(0).getX(), selectWorker(1).getY()));
+        return (!this.game.getWorld().canMove(selectWorker(0).getX(), selectWorker(1).getY()));
     }
 }
 

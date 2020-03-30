@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Artemis extends Worker{
 
-    public Artemis(Player player){
-        super(player);
+    public Artemis(Player player, World world){
+        super(player, world);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Artemis extends Worker{
         while (true) { //Move loop (input control)
             int x = coordinates.nextInt();
             int y = coordinates.nextInt();
-            if (World.canMoveThere(this.getX(), this.getY(), x, y) && x != originalX && y  != originalY) { //Check coordinates validity (cannot move back to the original position)
+            if (this.getWorld().canMoveThere(this.getX(), this.getY(), x, y) && x != originalX && y  != originalY) { //Check coordinates validity (cannot move back to the original position)
                 System.out.println("Your worker moved form " + "[" + this.getX() + "][" + this.getY() + "] to " + "[" + x + "][" + y + "].");
                 victory(x, y); //Check win condition
                 setX(x);
