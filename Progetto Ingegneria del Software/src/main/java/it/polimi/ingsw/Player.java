@@ -12,12 +12,14 @@ public class Player {
 
     private final Worker[] workers = new Worker[2];
 
-    public Player() {
+    public final Game game;
+
+    public Player(Game game) {
+        this.game = game;
         setName();
         chooseCard();
         setWorkers();
     }
-
 
     public String getName() {
         return this.name;
@@ -32,15 +34,25 @@ public class Player {
     private void chooseCard() {
         System.out.println("Choose a card");
         Scanner scanner = new Scanner(System.in);
-        String god = scanner.nextLine();
-        while (!Game.isAvaiableGod(god.toUpperCase())) {   // mi serve un metodo per vedere se il potere scelto è fra quelli possbili
-            System.out.println("error");
-            System.out.println("Choose a god");
-            god = scanner.nextLine();
+        Worker[] workers = null;
+        while(true) {
+            try {
+                GodType god = GodType.parse(scanner.nextLine());
+                if(this.game.isGodAvailable(god)) {
+                    System.out.println("God unavailable or already selected by other players");
+                }
+                workers = this.game.chooseGodAndGetWorkers(god, this);
+                break;
+            }
+            catch(Exception e) {
+                System.out.println("Error");
+                System.out.println("Choose card again");
+                continue;
+            }
         }
-        WorkerFactory factory = new WorkerFactory();
-        this.workers[0] = factory.getWorker(god, this);
-        this.workers[1] = factory.getWorker(god, this);
+
+        this.workers[0] = workers[0];
+        this.workers[1] = workers[1];
     }
 
     public void setWorkers() {

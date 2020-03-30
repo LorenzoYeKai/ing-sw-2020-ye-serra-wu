@@ -10,7 +10,7 @@ import java.util.Scanner;
 abstract class Worker {
     private int x;
     private int y;
-    private final Player player;
+    protected final Player player;
 
     public Worker(Player player) {
         this.player = player;
@@ -63,7 +63,7 @@ abstract class Worker {
             if (World.getSpaces(x, y).getLevel() == 3 && World.getSpaces(this.x, this.y).getLevel() != 3) {
                 this.x = x;
                 this.y = y;
-                Game.endGame(); //If true the game ends
+                this.player.game.endGame(); //If true the game ends
             }
         }
 
