@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>it.polimi.ingsw</OriginalElement>
+  <nodes>
+    <node x="672.75" y="1348.0">it.polimi.ingsw.Minotaur</node>
+    <node x="10.5" y="1711.0">it.polimi.ingsw.Game</node>
+    <node x="983.8729401725728" y="1348.0">it.polimi.ingsw.Prometheus</node>
+    <node x="1042.25" y="686.0">it.polimi.ingsw.Worker</node>
+    <node x="301.75" y="1325.0">it.polimi.ingsw.Artemis</node>
+    <node x="121.88888888888891" y="0.0">it.polimi.ingsw.Space</node>
+    <node x="100.88888888888891" y="409.0">it.polimi.ingsw.World</node>
+    <node x="709.25" y="1598.0">it.polimi.ingsw.WorkerFactory</node>
+    <node x="878.8156726851582" y="2276.0">it.polimi.ingsw.Player</node>
+    <node x="873.8729401725728" y="1348.0">it.polimi.ingsw.Athena</node>
+    <node x="1444.8729401725727" y="1336.0">it.polimi.ingsw.Atlas</node>
+    <node x="40.888888888888914" y="1227.0">it.polimi.ingsw.GodType</node>
+    <node x="534.75" y="1348.0">it.polimi.ingsw.Hephaestus</node>
+    <node x="2021.51579731543" y="0.0">it.polimi.ingsw.App</node>
+    <node x="1574.8729401725727" y="1348.0">it.polimi.ingsw.Demeter</node>
+    <node x="1770.51579731543" y="0.0">it.polimi.ingsw.AppTest</node>
+    <node x="1271.8729401725727" y="1336.0">it.polimi.ingsw.Pan</node>
+    <node x="1121.8729401725727" y="1336.0">it.polimi.ingsw.Apollo</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.GodType">
+      <point x="-108.18181818181813" y="-26.5" />
+      <point x="720.0681818181818" y="1578.0" />
+      <point x="186.1388888888889" y="1578.0" />
+      <point x="62.25" y="135.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Apollo" target="it.polimi.ingsw.Player">
+      <point x="32.5" y="26.5" />
+      <point x="1219.3729401725727" y="2176.0" />
+      <point x="985.9585298280153" y="2176.0" />
+      <point x="17.14285714285711" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Demeter" target="it.polimi.ingsw.Player">
+      <point x="24.25" y="14.5" />
+      <point x="1647.6229401725727" y="2206.0" />
+      <point x="1011.6728155423011" y="2206.0" />
+      <point x="42.85714285714289" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Hephaestus">
+      <point x="-64.90909090909088" y="-26.5" />
+      <point x="763.340909090909" y="1558.0" />
+      <point x="623.25" y="1558.0" />
+      <point x="29.5" y="14.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Artemis">
+      <point x="-86.5454545454545" y="-26.5" />
+      <point x="741.7045454545455" y="1568.0" />
+      <point x="461.5" y="1568.0" />
+      <point x="53.25" y="37.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Prometheus" target="it.polimi.ingsw.Worker">
+      <point x="29.5" y="-14.5" />
+      <point x="1072.3729401725727" y="1207.0" />
+      <point x="1126.3846153846152" y="1207.0" />
+      <point x="-3.3653846153846416" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.World" target="it.polimi.ingsw.Space">
+      <point x="85.0" y="-113.5" />
+      <point x="313.3888888888889" y="384.0" />
+      <point x="299.3888888888889" y="384.0" />
+      <point x="71.0" y="179.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Worker" target="it.polimi.ingsw.World">
+      <point x="43.75" y="-190.5" />
+      <point x="1173.5" y="656.0" />
+      <point x="330.3888888888889" y="656.0" />
+      <point x="102.0" y="113.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Game" target="it.polimi.ingsw.Worker">
+      <point x="37.111111111111086" y="-212.5" />
+      <point x="214.6111111111111" y="1691.0" />
+      <point x="244.34551029036322" y="1691.0" />
+      <point x="244.34551029036322" y="1087.0" />
+      <point x="1045.6153846153845" y="1087.0" />
+      <point x="-84.13461538461536" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Player" target="it.polimi.ingsw.Game">
+      <point x="-77.14285714285722" y="-146.5" />
+      <point x="891.672815542301" y="2246.0" />
+      <point x="43.90000000000009" y="2246.0" />
+      <point x="-133.5999999999999" y="212.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Athena">
+      <point x="0.0" y="-26.5" />
+      <point x="828.25" y="1528.0" />
+      <point x="896.3729401725728" y="1528.0" />
+      <point x="-22.5" y="14.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Game" target="it.polimi.ingsw.WorkerFactory">
+      <point x="148.44444444444434" y="-212.5" />
+      <point x="325.94444444444434" y="1691.0" />
+      <point x="828.25" y="1691.0" />
+      <point x="0.0" y="26.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Game" target="it.polimi.ingsw.Player">
+      <point x="66.79999999999995" y="212.5" />
+      <point x="244.29999999999995" y="2216.0" />
+      <point x="917.3871012565867" y="2216.0" />
+      <point x="-51.42857142857156" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Atlas" target="it.polimi.ingsw.Player">
+      <point x="27.5" y="26.5" />
+      <point x="1527.3729401725727" y="2196.0" />
+      <point x="1003.1013869708725" y="2196.0" />
+      <point x="34.28571428571422" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Minotaur" target="it.polimi.ingsw.Worker">
+      <point x="26.0" y="-14.5" />
+      <point x="750.75" y="1157.0" />
+      <point x="1092.7307692307693" y="1157.0" />
+      <point x="-37.01923076923072" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Game" target="it.polimi.ingsw.GodType">
+      <point x="-74.22222222222217" y="-212.5" />
+      <point x="103.27777777777783" y="1691.0" />
+      <point x="128.51640557155247" y="1691.0" />
+      <point x="128.51640557155247" y="1578.0" />
+      <point x="144.6388888888889" y="1578.0" />
+      <point x="20.75" y="135.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Worker" target="it.polimi.ingsw.Player">
+      <point x="63.94230769230762" y="190.5" />
+      <point x="1193.6923076923076" y="1117.0" />
+      <point x="1690.9443687440016" y="1117.0" />
+      <point x="1690.9443687440016" y="2226.0" />
+      <point x="1028.8156726851582" y="2226.0" />
+      <point x="60.0" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Demeter">
+      <point x="108.18181818181813" y="-26.5" />
+      <point x="936.431818181818" y="1578.0" />
+      <point x="1599.1229401725727" y="1578.0" />
+      <point x="-24.25" y="14.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Artemis" target="it.polimi.ingsw.Worker">
+      <point x="53.25" y="-37.5" />
+      <point x="461.5" y="1117.0" />
+      <point x="1065.8076923076922" y="1117.0" />
+      <point x="-63.942307692307736" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Hephaestus" target="it.polimi.ingsw.Player">
+      <point x="-29.5" y="14.5" />
+      <point x="564.25" y="2186.0" />
+      <point x="943.1013869708725" y="2186.0" />
+      <point x="-25.71428571428578" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Pan" target="it.polimi.ingsw.Worker">
+      <point x="38.25" y="-26.5" />
+      <point x="1386.6229401725727" y="1177.0" />
+      <point x="1153.3076923076922" y="1177.0" />
+      <point x="23.557692307692264" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Prometheus" target="it.polimi.ingsw.Player">
+      <point x="29.5" y="14.5" />
+      <point x="1072.3729401725727" y="2166.0" />
+      <point x="977.3871012565869" y="2166.0" />
+      <point x="8.571428571428669" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Prometheus">
+      <point x="21.636363636363626" y="-26.5" />
+      <point x="849.8863636363635" y="1538.0" />
+      <point x="1013.3729401725728" y="1538.0" />
+      <point x="-29.5" y="14.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Apollo" target="it.polimi.ingsw.Worker">
+      <point x="32.5" y="-26.5" />
+      <point x="1219.3729401725727" y="1197.0" />
+      <point x="1139.8461538461538" y="1197.0" />
+      <point x="10.096153846153811" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Minotaur" target="it.polimi.ingsw.Player">
+      <point x="-26.0" y="14.5" />
+      <point x="698.75" y="2176.0" />
+      <point x="951.6728155423011" y="2176.0" />
+      <point x="-17.14285714285711" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Demeter" target="it.polimi.ingsw.Worker">
+      <point x="-24.25" y="-14.5" />
+      <point x="1599.1229401725727" y="1147.0" />
+      <point x="1173.5" y="1147.0" />
+      <point x="43.75" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Atlas">
+      <point x="86.5454545454545" y="-26.5" />
+      <point x="914.7954545454545" y="1568.0" />
+      <point x="1472.3729401725727" y="1568.0" />
+      <point x="-27.5" y="26.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Game" target="it.polimi.ingsw.World">
+      <point x="-148.44444444444434" y="-212.5" />
+      <point x="29.055555555555657" y="1691.0" />
+      <point x="30.388888888888914" y="1691.0" />
+      <point x="30.388888888888914" y="666.0" />
+      <point x="126.38888888888891" y="666.0" />
+      <point x="-102.0" y="113.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Player" target="it.polimi.ingsw.GodType">
+      <point x="-85.71428571428578" y="-146.5" />
+      <point x="883.1013869708725" y="2256.0" />
+      <point x="0.0" y="2256.0" />
+      <point x="0.0" y="1578.0" />
+      <point x="61.638888888888914" y="1578.0" />
+      <point x="-62.25" y="135.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Pan" target="it.polimi.ingsw.Player">
+      <point x="38.25" y="26.5" />
+      <point x="1386.6229401725727" y="2186.0" />
+      <point x="994.529958399444" y="2186.0" />
+      <point x="25.71428571428578" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Hephaestus" target="it.polimi.ingsw.Worker">
+      <point x="29.5" y="-14.5" />
+      <point x="623.25" y="1137.0" />
+      <point x="1079.2692307692307" y="1137.0" />
+      <point x="-50.48076923076928" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Player">
+      <point x="79.33333333333337" y="26.5" />
+      <point x="907.5833333333333" y="1691.0" />
+      <point x="898.9579972723359" y="1691.0" />
+      <point x="898.9579972723359" y="2166.0" />
+      <point x="960.2442441137296" y="2166.0" />
+      <point x="-8.571428571428669" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Pan">
+      <point x="64.90909090909088" y="-26.5" />
+      <point x="893.1590909090908" y="1558.0" />
+      <point x="1310.1229401725727" y="1558.0" />
+      <point x="-38.25" y="26.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Atlas" target="it.polimi.ingsw.Worker">
+      <point x="27.5" y="-26.5" />
+      <point x="1527.3729401725727" y="1157.0" />
+      <point x="1166.7692307692307" y="1157.0" />
+      <point x="37.01923076923072" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Artemis" target="it.polimi.ingsw.Player">
+      <point x="-53.25" y="37.5" />
+      <point x="355.0" y="2196.0" />
+      <point x="934.529958399444" y="2196.0" />
+      <point x="-34.28571428571422" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Apollo">
+      <point x="43.27272727272725" y="-26.5" />
+      <point x="871.5227272727273" y="1548.0" />
+      <point x="1154.3729401725727" y="1548.0" />
+      <point x="-32.5" y="26.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Minotaur">
+      <point x="-43.27272727272725" y="-26.5" />
+      <point x="784.9772727272727" y="1548.0" />
+      <point x="750.75" y="1548.0" />
+      <point x="26.0" y="14.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.WorkerFactory" target="it.polimi.ingsw.Worker">
+      <point x="-21.636363636363626" y="-26.5" />
+      <point x="806.6136363636363" y="1518.0" />
+      <point x="828.3745506944035" y="1518.0" />
+      <point x="828.3745506944035" y="1167.0" />
+      <point x="1099.4615384615383" y="1167.0" />
+      <point x="-30.288461538461547" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Player" target="it.polimi.ingsw.Worker">
+      <point x="85.71428571428578" y="-146.5" />
+      <point x="1054.529958399444" y="2256.0" />
+      <point x="1716.6586544582874" y="2256.0" />
+      <point x="1716.6586544582874" y="1087.0" />
+      <point x="1213.8846153846152" y="1087.0" />
+      <point x="84.13461538461536" y="190.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Athena" target="it.polimi.ingsw.Player">
+      <point x="22.5" y="14.5" />
+      <point x="941.3729401725728" y="1528.0" />
+      <point x="957.75" y="1528.0" />
+      <point x="957.75" y="2156.0" />
+      <point x="968.8156726851582" y="2156.0" />
+      <point x="0.0" y="-146.5" />
+    </edge>
+    <edge source="it.polimi.ingsw.Athena" target="it.polimi.ingsw.Worker">
+      <point x="22.5" y="-14.5" />
+      <point x="941.3729401725728" y="1187.0" />
+      <point x="1112.923076923077" y="1187.0" />
+      <point x="-16.826923076923094" y="190.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.8878881987577638" x="907.7155756207677" y="1631.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

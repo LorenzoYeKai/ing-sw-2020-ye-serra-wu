@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Artemis extends Worker{
 
-    public Artemis(Player player, World world){
-        super(player, world);
+    public Artemis(Player player){
+        super(player);
     }
 
     @Override

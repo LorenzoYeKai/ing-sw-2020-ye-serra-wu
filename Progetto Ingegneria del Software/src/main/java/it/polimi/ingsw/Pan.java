@@ -2,8 +2,8 @@ package it.polimi.ingsw;
 
 public class Pan extends Worker {
 
-    public Pan(Player player, World world){
-        super(player, world);
+    public Pan(Player player){
+        super(player);
     }
 
     @Override

@@ -4,8 +4,8 @@ import java.util.Scanner;
 
 public class Atlas extends Worker {
 
-    public Atlas(Player player, World world){
-        super(player, world);
+    public Atlas(Player player){
+        super(player);
     }
 
     @Override

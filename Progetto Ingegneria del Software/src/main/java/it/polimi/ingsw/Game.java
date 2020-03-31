@@ -72,8 +72,8 @@ public class Game {
         }
         this.availableGods.remove(type);
         return new Worker[]{
-                workerFactory.getWorker(type, player, world),
-                workerFactory.getWorker(type, player, world)
+                workerFactory.getWorker(type, player),
+                workerFactory.getWorker(type, player)
         };
     }
 

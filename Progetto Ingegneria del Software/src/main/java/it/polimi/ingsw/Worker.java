@@ -13,9 +13,9 @@ abstract class Worker {
     private final Player player;
     private final World world;
 
-    public Worker(Player player, World world) {
+    public Worker(Player player) {
         this.player = player;
-        this.world = world;
+        this.world = this.player.game.getWorld();
     }
 
     public void startTurn(){
