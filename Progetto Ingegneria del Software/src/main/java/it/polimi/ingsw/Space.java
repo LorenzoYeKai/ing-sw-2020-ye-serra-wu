@@ -9,7 +9,7 @@ public class Space {
 
     public boolean occupiedByDome;
 
-    public boolean border;
+    //public boolean border;
 
     public int level;
 
@@ -38,9 +38,8 @@ public class Space {
         return occupiedByWorker;
     }
 
-    public boolean isBorder(){
-        /* scegliere come implementarlo funzione aggiuntiva */
-    }
+    /*public boolean isBorder(){
+    }*/
 
     public boolean isOccupiedByDome(){
         return occupiedByDome;
