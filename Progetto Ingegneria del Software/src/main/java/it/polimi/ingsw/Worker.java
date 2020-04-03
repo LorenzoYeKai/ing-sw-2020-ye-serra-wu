@@ -7,11 +7,12 @@ import java.util.Scanner;
  * Implementation of the basic turn without God powers
  */
 
-abstract class Worker {
+public class Worker {
     private int x;
     private int y;
     private final Player player;
     private final World world;
+    private God god;
 
     public Worker(Player player) {
         this.player = player;
@@ -19,11 +20,12 @@ abstract class Worker {
     }
 
     public void startTurn(){
-        move();
-        build();
+
+        god.move(this);
+        god.build(this);
     }
 
-    public void move() { //Movable spaces display not implemented yet
+    /*public void move() { //Movable spaces display not implemented yet
         System.out.println("Where should your worker move?");
         Scanner coordinates = new Scanner(System.in);
         while (true) { //Move loop (input control)
@@ -38,9 +40,9 @@ abstract class Worker {
             }
             System.out.println("You cannot move there!");
         }
-    }
+    }*/
 
-        public void build (){ //Buildable spaces display not implemented yet
+        /*public void build (){ //Buildable spaces display not implemented yet
             System.out.println("Where should your worker build?");
             Scanner coordinates = new Scanner(System.in);
             int x = coordinates.nextInt();
@@ -61,15 +63,15 @@ abstract class Worker {
                 x = coordinates.nextInt();
                 y = coordinates.nextInt();
             }
-        }
+        }*/
 
-        public void victory ( int x, int y){ //This method is called only after checking that the worker can move to that position
+        /*public void victory ( int x, int y){ //This method is called only after checking that the worker can move to that position
             if (world.getSpaces(x, y).getLevel() == 3 && world.getSpaces(this.x, this.y).getLevel() != 3) {
                 this.x = x;
                 this.y = y;
                 this.player.game.endGame(); //If true the game ends
             }
-        }
+        }*/
 
         public int getY () {
             return y;

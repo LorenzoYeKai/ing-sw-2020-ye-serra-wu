@@ -2,11 +2,7 @@ package it.polimi.ingsw;
 
 import java.util.Scanner;
 
-public class Atlas extends Worker {
-
-    public Atlas(Player player){
-        super(player);
-    }
+public class Atlas extends God {
 
     @Override
     public void build(){

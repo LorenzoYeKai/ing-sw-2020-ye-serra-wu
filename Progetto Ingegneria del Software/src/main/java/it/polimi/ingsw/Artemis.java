@@ -2,11 +2,7 @@ package it.polimi.ingsw;
 
 import java.util.Scanner;
 
-public class Artemis extends Worker{
-
-    public Artemis(Player player){
-        super(player);
-    }
+public class Artemis extends God{
 
     @Override
     public void startTurn(){

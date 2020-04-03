@@ -1,8 +1,10 @@
 package it.polimi.ingsw;
 
-public class Athena extends Worker {
+public class Athena extends God {
 
-    public Athena(Player player){
-        super(player);
+    private boolean passivePower;
+
+    public boolean getPassivePower(){
+        return passivePower;
     }
 }

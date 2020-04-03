@@ -1,10 +1,7 @@
 package it.polimi.ingsw;
 
-public class Pan extends Worker {
+public class Pan extends God {
 
-    public Pan(Player player){
-        super(player);
-    }
 
     @Override
     public void victory(int x, int y){

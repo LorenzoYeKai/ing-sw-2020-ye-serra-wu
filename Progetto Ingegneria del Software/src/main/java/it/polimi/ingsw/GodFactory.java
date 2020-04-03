@@ -1,36 +1,36 @@
 package it.polimi.ingsw;
 
-public class WorkerFactory {
+public class GodFactory {
 
-    public Worker getWorker(GodType god, Player player){
-        Worker w = null;
+    public God getWorker(GodType god){
+        God w = null;
         switch (god){
             case APOLLO:
-                w = new Apollo(player);
+                w = new Apollo();
                 break;
             case ARTEMIS:
-                w = new Artemis(player);
+                w = new Artemis();
                 break;
             case ATHENA:
-                w = new Athena(player);
+                w = new Athena();
                 break;
             case ATLAS:
-                w = new Atlas(player);
+                w = new Atlas();
                 break;
             case DEMETER:
-                w = new Demeter(player);
+                w = new Demeter();
                 break;
             case HEPHAESTUS:
-                w = new Hephaestus(player);
+                w = new Hephaestus();
                 break;
             case MINOTAUR:
-                w = new Minotaur(player);
+                w = new Minotaur();
                 break;
             case PAN:
-                w = new Pan(player);
+                w = new Pan();
                 break;
             case PROMETHEUS:
-                w = new Prometheus(player);
+                w = new Prometheus();
                 break;
         }
         return w;

@@ -1,8 +1,5 @@
 package it.polimi.ingsw;
 
-public class Minotaur extends Worker {
+public class Minotaur extends God {
 
-    public Minotaur(Player player){
-        super(player);
-    }
 }

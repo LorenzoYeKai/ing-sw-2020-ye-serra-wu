@@ -1,8 +1,5 @@
 package it.polimi.ingsw;
 
-public class Prometheus extends Worker {
+public class Prometheus extends God {
 
-    public Prometheus(Player player){
-        super(player);
-    }
 }

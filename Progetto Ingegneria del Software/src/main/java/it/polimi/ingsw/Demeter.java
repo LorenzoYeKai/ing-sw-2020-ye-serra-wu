@@ -2,9 +2,6 @@ package it.polimi.ingsw;
 
 import java.util.Scanner;
 
-public class Demeter extends Worker {
+public class Demeter extends God {
 
-    public Demeter(Player player){
-        super(player);
-    }
 }

@@ -7,7 +7,7 @@ import java.util.HashSet;
 
 public class Game {
 
-    private final WorkerFactory workerFactory;
+    private final GodFactory workerFactory;
     private final ArrayList<Player> listOfPlayers;
     private HashSet<GodType> availableGods;
     private final World world;
@@ -20,7 +20,7 @@ public class Game {
      * @param numberOfPlayers il numero di giocatori in questa partita
      */
     public Game(int numberOfPlayers) {
-        this.workerFactory = new WorkerFactory();
+        this.workerFactory = new GodFactory();
         this.listOfPlayers = new ArrayList<Player>();
         for (int i = 0; i < numberOfPlayers; ++i) {
             this.listOfPlayers.add(new Player(this));
