@@ -3,6 +3,10 @@ package it.polimi.ingsw;
 public class Pan extends God {
 
 
+    public Pan(ActualRule rules) {
+        super(rules);
+    }
+
     @Override
     public void victory(int x, int y){
         if(this.getWorld().levelDifference(this.getX(), this.getY(), x ,y) >= 2){

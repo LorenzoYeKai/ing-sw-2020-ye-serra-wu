@@ -4,6 +4,10 @@ import java.util.Scanner;
 
 public class Atlas extends God {
 
+    public Atlas(ActualRule rules) {
+        super(rules);
+    }
+
     @Override
     public void build(){
         System.out.println("Where should your worker build?");

@@ -7,10 +7,11 @@ import java.util.HashSet;
 
 public class Game {
 
-    private final GodFactory workerFactory;
+    private final GodFactory factory;
     private final ArrayList<Player> listOfPlayers;
     private HashSet<GodType> availableGods;
     private final World world;
+    private ActualRule rules;
 
     private int currentTurn;
 
@@ -20,14 +21,15 @@ public class Game {
      * @param numberOfPlayers il numero di giocatori in questa partita
      */
     public Game(int numberOfPlayers) {
-        this.workerFactory = new GodFactory();
+        this.factory = new GodFactory();
         this.listOfPlayers = new ArrayList<Player>();
         for (int i = 0; i < numberOfPlayers; ++i) {
-            this.listOfPlayers.add(new Player(this));
+            this.listOfPlayers.add(new Player(this, i));
         }
         this.availableGods = null;
         this.currentTurn = -1;
         this.world = new World();
+        rules = new ActualRule(this.getNumberOfPlayers(), this.world);
     }
 
     /**
@@ -66,15 +68,12 @@ public class Game {
      * @param player il giocatore
      * @return i lavoratori di questa divinita'
      */
-    public Worker[] chooseGodAndGetWorkers(GodType type, Player player) {
+    public God chooseGod(GodType type, Player player) {
         if (!this.isGodAvailable(type)) {
             throw new UnsupportedOperationException("God" + type + " is not available");
         }
         this.availableGods.remove(type);
-        return new Worker[]{
-                workerFactory.getWorker(type, player),
-                workerFactory.getWorker(type, player)
-        };
+        return factory.getGod(type, rules);
     }
 
     /**
@@ -145,5 +144,9 @@ public class Game {
 
     public World getWorld(){
         return this.world;
+    }
+
+    public ActualRule getRules(){
+        return this.rules;
     }
 }

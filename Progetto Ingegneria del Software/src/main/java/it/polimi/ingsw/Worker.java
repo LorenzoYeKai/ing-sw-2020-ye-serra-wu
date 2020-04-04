@@ -12,7 +12,6 @@ public class Worker {
     private int y;
     private final Player player;
     private final World world;
-    private God god;
 
     public Worker(Player player) {
         this.player = player;
@@ -20,9 +19,8 @@ public class Worker {
     }
 
     public void startTurn(){
-
-        god.move(this);
-        god.build(this);
+        player.getGod().move(this);
+        player.getGod().build(this);
     }
 
     /*public void move() { //Movable spaces display not implemented yet
@@ -79,14 +77,6 @@ public class Worker {
 
         public int getX () {
             return x;
-        }
-
-        public void setY ( int n){
-            this.y = n;
-        }
-
-        public void setX ( int n){
-            this.x = n;
         }
 
         public void setPosition(int x, int y){

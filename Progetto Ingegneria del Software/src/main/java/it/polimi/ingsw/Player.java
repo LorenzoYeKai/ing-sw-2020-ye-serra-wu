@@ -12,10 +12,15 @@ public class Player {
 
     private final Worker[] workers = new Worker[2];
 
+    private God god;
+
     public final Game game;
 
-    public Player(Game game) {
+    private int ruleIndex;
+
+    public Player(Game game, int ruleIndex) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
         this.game = game;
+        this.ruleIndex = ruleIndex;
         setName();
         chooseCard();
         setWorkers();
@@ -25,7 +30,7 @@ public class Player {
         return this.name;
     }
 
-    private void setName() {
+    private void setName() { //Non servirà più visto che il nome si sceglie quando si entra nella lobby dove i player non sono ancora costruiti
         System.out.println("Choose a name");
         Scanner scanner = new Scanner(System.in);
         this.name = scanner.nextLine();
@@ -34,25 +39,20 @@ public class Player {
     private void chooseCard() {
         System.out.println("Choose a card");
         Scanner scanner = new Scanner(System.in);
-        Worker[] workers = null;
         while(true) {
             try {
                 GodType god = GodType.parse(scanner.nextLine());
                 if(this.game.isGodAvailable(god)) {
-                    System.out.println("God unavailable or already selected by other players");
+                    this.god = this.game.chooseGod(god, this);
+                    break;
                 }
-                workers = this.game.chooseGodAndGetWorkers(god, this);
-                break;
+                System.out.println("God unavailable or already selected by other players");
             }
             catch(Exception e) {
                 System.out.println("Error");
                 System.out.println("Choose card again");
-                continue;
             }
         }
-
-        this.workers[0] = workers[0];
-        this.workers[1] = workers[1];
     }
 
     public void setWorkers() {
@@ -68,6 +68,7 @@ public class Player {
                 y = scanner.nextInt();
                 this.game.getWorld().getSpaces(x, y).setOccupiedByWorker();
             }
+            workers[i] = new Worker(this);
             workers[i].setPosition(x, y);
         }
     }
@@ -76,8 +77,16 @@ public class Player {
         return workers[k];
     }
 
-    public Boolean isDefeat() {
-        return (!this.game.getWorld().canMove(selectWorker(0).getX(), selectWorker(1).getY()));
+    public boolean isDefeated() {
+        return (!this.game.getRules().canMove(selectWorker(0).getX(), selectWorker(1).getY()));
+    }
+
+    public int getRuleIndex(){
+        return this.ruleIndex;
+    }
+
+    public God getGod(){
+        return this.god;
     }
 }
 

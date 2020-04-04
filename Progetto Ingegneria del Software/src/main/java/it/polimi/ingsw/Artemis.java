@@ -4,6 +4,10 @@ import java.util.Scanner;
 
 public class Artemis extends God{
 
+    public Artemis(ActualRule rules) {
+        super(rules);
+    }
+
     @Override
     public void startTurn(){
         int originalX = this.getX();

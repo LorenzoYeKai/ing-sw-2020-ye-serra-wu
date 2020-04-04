@@ -1,18 +1,27 @@
 package it.polimi.ingsw;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public abstract class God {
 
+    private ActualRule rules;
+
+
+    public God(ActualRule rules){
+        this.rules = rules;
+    }
 
     public void move(Worker worker) { //Movable spaces display not implemented yet
+        int currentX = worker.getX();
+        int currentY = worker.getY();
         System.out.println("Where should your worker move?");
         Scanner coordinates = new Scanner(System.in);
         while (true) { //Move loop (input control)
             int x = coordinates.nextInt();
             int y = coordinates.nextInt();
-            if (worker.getWorld().canMoveThere(worker.getX(), worker.getY(), x, y)) { //Check coordinates validity
-                System.out.println("Your worker moved form " + "[" + worker.getX() + "][" + worker.getY() + "] to " + "[" + x + "][" + y + "].");
+            if (rules.canMoveThere(currentX, currentY, x, y)) { //Check coordinates validity
+                System.out.println("Your worker moved form " + "[" + currentX + "][" + currentY + "] to " + "[" + x + "][" + y + "].");
                 victory(x, y, worker); //Check win condition
                 worker.setPosition(x, y);
                 break;
@@ -27,7 +36,7 @@ public abstract class God {
         int x = coordinates.nextInt();
         int y = coordinates.nextInt();
         while (true) { //Move loop (input control)
-            if (worker.getWorld().canBuildThere(worker.getX(), worker.getY(), x, y)) { //Check coordinates validity
+            if (rules.canBuildThere(worker.getX(), worker.getY(), x, y)) { //Check coordinates validity
                 if (worker.getWorld().getSpaces(x, y).getLevel() == 3) {
                     worker.getWorld().getSpaces(x, y).setDome();
                     System.out.println("Your worker built a dome in " + "[" + x + "][" + y + "].");
@@ -51,20 +60,8 @@ public abstract class God {
         }
     }
 
-    public boolean passivePower(TurnPhase phase){
-        switch(phase){
-            case START_TURN:
-
-            case START_MOVE:
-                return checkAthena();
-            case END_MOVE:
-
-            case START_BUILD:
-
-            case END_BUILD:
-
-            case END_TURN:
-        }
+    public ActualRule getRules(){
+        return this.rules;
     }
 
 }

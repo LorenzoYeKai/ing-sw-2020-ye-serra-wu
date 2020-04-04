@@ -2,35 +2,35 @@ package it.polimi.ingsw;
 
 public class GodFactory {
 
-    public God getWorker(GodType god){
+    public God getGod(GodType god, ActualRule rules){
         God w = null;
         switch (god){
             case APOLLO:
-                w = new Apollo();
+                w = new Apollo(rules);
                 break;
             case ARTEMIS:
-                w = new Artemis();
+                w = new Artemis(rules);
                 break;
             case ATHENA:
-                w = new Athena();
+                w = new Athena(rules);
                 break;
             case ATLAS:
-                w = new Atlas();
+                w = new Atlas(rules);
                 break;
             case DEMETER:
-                w = new Demeter();
+                w = new Demeter(rules);
                 break;
             case HEPHAESTUS:
-                w = new Hephaestus();
+                w = new Hephaestus(rules);
                 break;
             case MINOTAUR:
-                w = new Minotaur();
+                w = new Minotaur(rules);
                 break;
             case PAN:
-                w = new Pan();
+                w = new Pan(rules);
                 break;
             case PROMETHEUS:
-                w = new Prometheus();
+                w = new Prometheus(rules);
                 break;
         }
         return w;
