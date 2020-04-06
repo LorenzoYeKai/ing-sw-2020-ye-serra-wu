@@ -1,14 +1,13 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.model;
 
-import java.util.Scanner;
+/**
+ * Not implemented yet
+ */
 
 public class Atlas extends God {
 
-    public Atlas(ActualRule rules) {
-        super(rules);
-    }
 
-    @Override
+    /*@Override
     public void build(){
         System.out.println("Where should your worker build?");
         Scanner coordinates = new Scanner(System.in);
@@ -41,4 +40,20 @@ public class Atlas extends God {
             System.out.println("You cannot build there!");
         }
     }
+
+    public void performActions(Worker worker){
+        perform(worker::move, "move");
+        System.out.println("Do you want to build a dome? y/n");
+        Scanner scanner = new Scanner(System.in);
+        String answer = scanner.nextLine();
+        if(answer.toLowerCase().equals("y")){
+
+        }
+        perform(worker::build, "build");
+    }
+
+
+    private void buildDome(int x, int y){
+
+    }*/
 }

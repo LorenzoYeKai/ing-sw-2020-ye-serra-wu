@@ -1,14 +1,15 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.model;
 
 import java.lang.UnsupportedOperationException;
 import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class Game {
 
     private final GodFactory factory;
-    private final ArrayList<Player> listOfPlayers;
+    public final ArrayList<Player> listOfPlayers;
     private HashSet<GodType> availableGods;
     private final World world;
     private ActualRule rules;
@@ -20,16 +21,21 @@ public class Game {
      *
      * @param numberOfPlayers il numero di giocatori in questa partita
      */
-    public Game(int numberOfPlayers) {
+    public Game(int numberOfPlayers, String[] names) {
         this.factory = new GodFactory();
         this.listOfPlayers = new ArrayList<Player>();
         for (int i = 0; i < numberOfPlayers; ++i) {
-            this.listOfPlayers.add(new Player(this, i));
+            if(i == 0){
+                this.listOfPlayers.add(new Challenger(this, names[i]));
+            }
+            else{
+                this.listOfPlayers.add(new Player(this, names[i]));
+            }
         }
         this.availableGods = null;
         this.currentTurn = -1;
         this.world = new World();
-        rules = new ActualRule(this.getNumberOfPlayers(), this.world);
+        rules = new ActualRule(this.world);
     }
 
     /**
@@ -45,7 +51,7 @@ public class Game {
         if (this.listOfPlayers.size() != availableGodTypes.length) {
             throw new IllegalArgumentException("Number of gods is different from number of players");
         }
-        this.availableGods = new HashSet<GodType>(availableGods);
+        this.availableGods = new HashSet<GodType>(Arrays.asList(availableGodTypes));
         if (this.availableGods.size() != availableGodTypes.length) {
             throw new IllegalArgumentException("Challenger may have selected duplicated god types");
         }
@@ -69,11 +75,17 @@ public class Game {
      * @return i lavoratori di questa divinita'
      */
     public God chooseGod(GodType type, Player player) {
+        if(availableGods == null){
+            throw new NullPointerException("The Challenger has not chosen the Gods available for this game yet");
+        }
+        if(!listOfPlayers.contains(player)){
+            throw new IllegalArgumentException("Intruder!"); //Per sicurezza, anche se non dovrebbe capitare
+        }
         if (!this.isGodAvailable(type)) {
             throw new UnsupportedOperationException("God" + type + " is not available");
         }
         this.availableGods.remove(type);
-        return factory.getGod(type, rules);
+        return factory.getGod(type);
     }
 
     /**
@@ -148,5 +160,9 @@ public class Game {
 
     public ActualRule getRules(){
         return this.rules;
+    }
+
+    public int getNumberOfAvailableGods(){
+        return availableGods.size();
     }
 }

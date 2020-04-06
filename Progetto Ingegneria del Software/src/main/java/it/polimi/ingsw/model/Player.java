@@ -1,10 +1,10 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.model;
 
 import java.util.Scanner;
 
 public class Player {
 
-    private String name;
+    private final String name;
 
     private Player nextPlayer;
 
@@ -12,31 +12,29 @@ public class Player {
 
     private final Worker[] workers = new Worker[2];
 
-    private God god;
+    private /*final*/ God god;
 
     public final Game game;
 
-    private int ruleIndex;
-
-    public Player(Game game, int ruleIndex) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
+    public Player(Game game, String name) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
         this.game = game;
-        this.ruleIndex = ruleIndex;
-        setName();
-        chooseCard();
-        setWorkers();
+        this.name = name;
     }
 
     public String getName() {
         return this.name;
     }
 
-    private void setName() { //Non servirà più visto che il nome si sceglie quando si entra nella lobby dove i player non sono ancora costruiti
-        System.out.println("Choose a name");
-        Scanner scanner = new Scanner(System.in);
+    /*private void setName(InputStream in, PrintStream out) { //Non servirà più visto che il nome si sceglie quando si entra nella lobby dove i player non sono ancora costruiti
+        out.println("Choose a name: ");
+        Scanner scanner = new Scanner(in);
         this.name = scanner.nextLine();
-    }
+    }*/
 
-    private void chooseCard() {
+    /**
+     * Sets the God that will be used by this player
+     */
+    public void chooseCard() {
         System.out.println("Choose a card");
         Scanner scanner = new Scanner(System.in);
         while(true) {
@@ -55,9 +53,13 @@ public class Player {
         }
     }
 
+    /**
+     * Creates and places the workers of this player on the World
+     */
     public void setWorkers() {
 
         for (int i = 0; i < 2; i = i + 1) {
+            workers[i] = new Worker(this);
             System.out.println("Choose  Worker position");
             Scanner scanner = new Scanner(System.in);
             int x = scanner.nextInt();
@@ -66,9 +68,7 @@ public class Player {
                 System.out.println("error,Choose Worker position");
                 x = scanner.nextInt();
                 y = scanner.nextInt();
-                this.game.getWorld().getSpaces(x, y).setOccupiedByWorker();
             }
-            workers[i] = new Worker(this);
             workers[i].setPosition(x, y);
         }
     }
@@ -79,10 +79,6 @@ public class Player {
 
     public boolean isDefeated() {
         return (!this.game.getRules().canMove(selectWorker(0).getX(), selectWorker(1).getY()));
-    }
-
-    public int getRuleIndex(){
-        return this.ruleIndex;
     }
 
     public God getGod(){

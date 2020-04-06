@@ -1,5 +1,8 @@
-package it.polimi.ingsw;
+package it.polimi.ingsw.model;
 
+/**
+ * Contains all the Gods available in the game
+ */
 public enum GodType {
     APOLLO,
     ARTEMIS,
@@ -11,6 +14,9 @@ public enum GodType {
     PAN,
     PROMETHEUS;
 
+    /**
+     * Parse the input
+     */
     public static GodType parse(String s) {
         return GodType.valueOf(s.toUpperCase());
     }
