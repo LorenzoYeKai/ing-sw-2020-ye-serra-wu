@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game.gods;
 
 /**
  * Not implemented yet

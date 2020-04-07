@@ -1,4 +1,6 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game.rules;
+
+import it.polimi.ingsw.models.game.World;
 
 import java.util.ArrayList;
 

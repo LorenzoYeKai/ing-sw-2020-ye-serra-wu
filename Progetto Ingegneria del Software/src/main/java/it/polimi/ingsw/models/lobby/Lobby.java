@@ -1,6 +1,6 @@
 package it.polimi.ingsw.models.lobby;
 
-import it.polimi.ingsw.model.Game;
+import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.Notifier;
 
 import java.util.*;

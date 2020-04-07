@@ -1,14 +1,12 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game;
 
-import java.lang.UnsupportedOperationException;
-import java.lang.IllegalArgumentException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class Game {
+public class Model {
 
-    private final GodFactory factory;
+    /*private final GodFactory factory;
     public final ArrayList<Player> listOfPlayers;
     private HashSet<GodType> availableGods;
     private final World world;
@@ -16,12 +14,12 @@ public class Game {
 
     private int currentTurn;
 
-    /**
+    *//**
      * Creare una nuova partita di gioco
      *
      * @param numberOfPlayers il numero di giocatori in questa partita
-     */
-    public Game(int numberOfPlayers, String[] names) {
+     *//*
+    public Model(int numberOfPlayers, String[] names) {
         this.factory = new GodFactory();
         this.listOfPlayers = new ArrayList<Player>();
         for (int i = 0; i < numberOfPlayers; ++i) {
@@ -38,12 +36,12 @@ public class Game {
         rules = new ActualRule(this.world);
     }
 
-    /**
+    *//**
      * Questo metodo dovrebbe essere usato dal Challenger
      * per definire le divinita' che possono essere usati.
      *
      * @param availableGodTypes I god che potrebbero essere usati, scelti dal Challenger.
-     */
+     *//*
     public void setAvailableGods(GodType[] availableGodTypes) {
         if (this.availableGods != null) {
             throw new UnsupportedOperationException("Available gods already set");
@@ -57,23 +55,23 @@ public class Game {
         }
     }
 
-    /**
+    *//**
      * Verifica se e' possibile scegliere una divinita' in questa partita.
      *
      * @param type La divinita' che si vuole scegliere
      * @return {@literal true} se questa divinita' puo' essere scelta, altrimenti {@literal false}
-     */
+     *//*
     public boolean isGodAvailable(GodType type) {
         return this.availableGods.contains(type);
     }
 
-    /**
+    *//**
      * Scegliere una divinita' e ottenere i lavoratori di questa divinita'
      *
      * @param type   la divinita' che si vuole scegliere
      * @param player il giocatore
      * @return i lavoratori di questa divinita'
-     */
+     *//*
     public God chooseGod(GodType type, Player player) {
         if(availableGods == null){
             throw new NullPointerException("The Challenger has not chosen the Gods available for this game yet");
@@ -88,11 +86,11 @@ public class Game {
         return factory.getGod(type);
     }
 
-    /**
+    *//**
      * Questo metodo dovrebbe essere usato dal challenger per definire il primo giocatore
      *
      * @param index Indice del primo giocatore
-     */
+     *//*
     public void setFirstPlayer(int index) {
         if (this.currentTurn != -1) {
             throw new UnsupportedOperationException("First player was already set");
@@ -100,9 +98,9 @@ public class Game {
         this.currentTurn = index;
     }
 
-    /**
+    *//**
      * Iniziare la partita
-     */
+     *//*
     public void startGame() {
         if (this.currentTurn == -1) {
             throw new UnsupportedOperationException("First player not chosen yet");
@@ -118,17 +116,17 @@ public class Game {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    /**
+    *//**
      * Finire la partita
-     */
+     *//*
     public void endGame() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    /**
+    *//**
      * Ottenere il giocatore di questo turno
      * @return Il giocatore di questo turno
-     */
+     *//*
     public Player getCurrentPlayer() {
         return this.listOfPlayers.get(this.currentTurn);
     }
@@ -145,9 +143,9 @@ public class Game {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    /**
+    *//**
      * Spostarsi nel prossimo turno
-     */
+     *//*
     public void goToNextTurn() {
         // ci potrebbe essere delle verifiche da fare prima di andare nel prossimo turno...
 
@@ -164,5 +162,5 @@ public class Game {
 
     public int getNumberOfAvailableGods(){
         return availableGods.size();
-    }
+    }*/
 }

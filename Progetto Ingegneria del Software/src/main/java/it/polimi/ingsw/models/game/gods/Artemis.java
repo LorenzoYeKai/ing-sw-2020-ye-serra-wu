@@ -1,4 +1,6 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game.gods;
+
+import it.polimi.ingsw.models.game.Worker;
 
 import java.util.Scanner;
 

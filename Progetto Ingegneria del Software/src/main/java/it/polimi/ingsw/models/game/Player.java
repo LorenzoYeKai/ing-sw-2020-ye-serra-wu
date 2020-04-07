@@ -1,4 +1,7 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game;
+
+import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.util.Scanner;
 

@@ -1,6 +1,6 @@
 package it.polimi.ingsw.models.lobby;
 
-import it.polimi.ingsw.model.Player;
+import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
 /**

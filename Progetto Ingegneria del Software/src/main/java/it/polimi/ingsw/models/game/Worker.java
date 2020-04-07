@@ -1,4 +1,6 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game;
+
+import it.polimi.ingsw.models.game.rules.ActualRule;
 
 public class Worker {
     private int x;

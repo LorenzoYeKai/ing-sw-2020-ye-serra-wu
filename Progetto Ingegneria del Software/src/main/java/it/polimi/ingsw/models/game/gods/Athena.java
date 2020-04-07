@@ -1,5 +1,8 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game.gods;
 
+
+import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.models.game.rules.AthenaRule;
 
 public class Athena extends God {
 

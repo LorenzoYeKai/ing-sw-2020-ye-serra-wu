@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game.gods;
 
 /**
  * Creates God with the correct dynamic type

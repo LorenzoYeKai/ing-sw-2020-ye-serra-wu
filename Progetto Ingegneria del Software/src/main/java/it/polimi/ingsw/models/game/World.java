@@ -1,4 +1,4 @@
-package it.polimi.ingsw.model;
+package it.polimi.ingsw.models.game;
 
 public class World {
     Space[][] spaces = new Space[5][5];
