@@ -1,6 +1,5 @@
 package it.polimi.ingsw.views.lobby;
 
-import it.polimi.ingsw.model.Game;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;

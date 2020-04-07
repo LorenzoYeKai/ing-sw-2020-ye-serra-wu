@@ -2,7 +2,6 @@ package it.polimi.ingsw.models.lobby;
 
 import it.polimi.ingsw.model.Game;
 import it.polimi.ingsw.Notifier;
-import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.util.*;
 import java.util.function.Consumer;

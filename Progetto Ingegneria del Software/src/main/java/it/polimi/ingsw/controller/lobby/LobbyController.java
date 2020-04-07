@@ -1,6 +1,5 @@
 package it.polimi.ingsw.controller.lobby;
 
-import it.polimi.ingsw.model.Game;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.lobby.*;
@@ -155,7 +154,7 @@ public class LobbyController {
         // make a temporary copy because we are editing the original list when iterating
         List<UserData> users = new ArrayList<>(room.getUsers());
         for (UserData user : users) {
-            if(user == host) {
+            if (user == host) {
                 continue; // Host must leave after everyone else has left
             }
 
