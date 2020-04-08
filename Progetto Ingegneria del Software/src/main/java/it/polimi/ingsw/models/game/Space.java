@@ -1,6 +1,6 @@
 package it.polimi.ingsw.models.game;
 
-public class Space {
+public class Space implements SpaceData {
     private int x;
 
     private int y;
@@ -21,6 +21,7 @@ public class Space {
         this.level = 0;
     }
 
+    @Override
     public int getLevel() {
         return level;
     }
@@ -41,9 +42,12 @@ public class Space {
         return this.worker != null;
     }
 
-    /*public boolean isBorder(){
-    }*/
+    @Override
+    public WorkerData getWorker() {
+        return this.worker;
+    }
 
+    @Override
     public boolean isOccupiedByDome() {
         return occupiedByDome;
     }

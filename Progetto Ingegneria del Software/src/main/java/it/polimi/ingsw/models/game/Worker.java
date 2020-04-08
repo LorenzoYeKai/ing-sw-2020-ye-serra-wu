@@ -2,7 +2,7 @@ package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
-public class Worker {
+public class Worker implements WorkerData {
     private int x;
     private int y;
     private final Player player;

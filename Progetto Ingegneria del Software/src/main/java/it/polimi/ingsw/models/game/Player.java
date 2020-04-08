@@ -5,7 +5,7 @@ import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.util.Scanner;
 
-public class Player {
+public class Player implements PlayerData {
 
     private final String name;
 
