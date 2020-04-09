@@ -1,6 +1,7 @@
 package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.util.Scanner;
@@ -22,6 +23,8 @@ public class Player implements PlayerData {
     public Player(Game game, String name) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
         this.game = game;
         this.name = name;
+        this.workers[0] = null;
+        this.workers[1] = null;
     }
 
     public String getName() {
@@ -37,47 +40,26 @@ public class Player implements PlayerData {
     /**
      * Sets the God that will be used by this player
      */
-    public void chooseCard() {
-        System.out.println("Choose a card");
-        Scanner scanner = new Scanner(System.in);
-        while(true) {
-            try {
-                GodType god = GodType.parse(scanner.nextLine());
-                if(this.game.isGodAvailable(god)) {
-                    this.god = this.game.chooseGod(god, this);
-                    break;
-                }
-                System.out.println("God unavailable or already selected by other players");
-            }
-            catch(Exception e) {
-                System.out.println("Error");
-                System.out.println("Choose card again");
-            }
+    public void setGod(GodType type) {
+        try {
+            GodFactory factory = new GodFactory();
+            this.god = factory.getGod(type);
+        }
+        catch(Exception e) { //It should never happen, if it happens the game crushes
+            System.out.println("Fatal Error");
         }
     }
 
     /**
      * Creates and places the workers of this player on the World
      */
-    public void setWorkers() {
-
-        for (int i = 0; i < 2; i = i + 1) {
-            workers[i] = new Worker(this);
-            System.out.println("Choose  Worker position");
-            Scanner scanner = new Scanner(System.in);
-            int x = scanner.nextInt();
-            int y = scanner.nextInt();
-            while (this.game.getWorld().getSpaces(x, y).isOccupied() || !this.game.getWorld().isInWorld(x, y)) {
-                System.out.println("error,Choose Worker position");
-                x = scanner.nextInt();
-                y = scanner.nextInt();
-            }
-            workers[i].setPosition(x, y);
-        }
+    public void setWorkers(int index, int x, int y) {
+        this.workers[index] = new Worker(this);
+        this.workers[index].setPosition(x, y);
     }
 
-    public Worker selectWorker(int k) {
-        return workers[k];
+    public Worker selectWorker(int index) {
+        return workers[index];
     }
 
     public boolean isDefeated() {
