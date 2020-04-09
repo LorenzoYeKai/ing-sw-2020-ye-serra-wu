@@ -20,15 +20,11 @@ public abstract class LobbyView {
 
     public abstract void displayUserList(Set<String> users);
 
-    public abstract void displayLastMessage(String author, String message);
+    public abstract void notifyMessage(String author, String message);
 
-    public abstract void notifyHostedRoom(RoomData roomData);
-
-    public abstract void notifyJoinedRoom(RoomData roomData);
+    public abstract void notifyRoomChanged(RoomData roomData);
 
     public abstract void displayRoomPlayerList(List<UserData> playerList);
-
-    public abstract void notifyLeftRoom(RoomData roomData);
 
     public abstract void notifyGameStarted(GameController gameController);
 }

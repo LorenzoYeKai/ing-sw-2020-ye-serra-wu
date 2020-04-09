@@ -9,7 +9,6 @@ package it.polimi.ingsw.controller;
  * thrown, the state of application should still remain valid.
  */
 public class NotExecutedException extends Exception {
-    public NotExecutedException() {}
     public NotExecutedException(String why) {
         super(why);
     }

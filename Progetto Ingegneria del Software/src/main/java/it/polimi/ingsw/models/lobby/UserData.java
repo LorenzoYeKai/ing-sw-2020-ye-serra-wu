@@ -5,6 +5,4 @@ package it.polimi.ingsw.models.lobby;
  */
 public interface UserData {
     public String getUsername();
-
-    public RoomData getCurrentRoom();
 }
