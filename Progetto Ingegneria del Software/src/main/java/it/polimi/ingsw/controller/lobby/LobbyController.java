@@ -138,7 +138,7 @@ public class LobbyController {
 
     private void throwIfNotInRoom(UserData userData, RoomData room) throws NotExecutedException {
         User user = this.lobby.getUser(userData.getUsername());
-        if (user.getCurrentRoom() == room) {
+        if (user.getCurrentRoom() != room) {
             throw new NotExecutedException("Not inside the room");
         }
     }
