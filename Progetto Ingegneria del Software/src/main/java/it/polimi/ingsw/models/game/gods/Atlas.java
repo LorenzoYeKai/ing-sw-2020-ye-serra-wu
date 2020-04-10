@@ -1,6 +1,8 @@
 package it.polimi.ingsw.models.game.gods;
 
 
+import it.polimi.ingsw.models.game.Worker;
+
 /**
  * Not implemented yet
  */
@@ -8,53 +10,13 @@ package it.polimi.ingsw.models.game.gods;
 public class Atlas extends God {
 
 
-    /*@Override
-    public void build(){
-        System.out.println("Where should your worker build?");
-        Scanner coordinates = new Scanner(System.in);
-        while (true) { //Move loop (input control)
-            int x = coordinates.nextInt();
-            int y = coordinates.nextInt();
-            if (this.getWorld().canBuildThere(this.getX(), this.getY(), x, y)) { //Check coordinates validity
-                if(this.getWorld().getSpaces(x, y).getLevel() == 3){
-                    this.getWorld().getSpaces(x, y).setDome();
-                }
-                else {
-                    System.out.println("Do you want to build a dome? y/n");
-                    Scanner scanner = new Scanner(System.in);
-                    while (true) { //input control
-                        String input = scanner.nextLine();
-                        if (input.toLowerCase().equals("y")) {
-                            this.getWorld().getSpaces(x, y).setDome();
-                            break;
-                        } else if (input.toLowerCase().equals("n")) {
-                            this.getWorld().getSpaces(x, y).addLevel();
-                            break;
-                        }
-                        else {
-                            System.out.println("Invalid input!");
-                        }
-                    }
-                    break;
-                }
-            }
-            System.out.println("You cannot build there!");
-        }
+    @Override
+    public void activateGodPower(Worker worker) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public void performActions(Worker worker){
-        perform(worker::move, "move");
-        System.out.println("Do you want to build a dome? y/n");
-        Scanner scanner = new Scanner(System.in);
-        String answer = scanner.nextLine();
-        if(answer.toLowerCase().equals("y")){
-
-        }
-        perform(worker::build, "build");
+    @Override
+    public void deactivateGodPower(Worker worker) {
+        throw new UnsupportedOperationException("Not implemented yet");
     }
-
-
-    private void buildDome(int x, int y){
-
-    }*/
 }

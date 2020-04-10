@@ -4,6 +4,7 @@ import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Player implements PlayerData {
@@ -53,21 +54,28 @@ public class Player implements PlayerData {
     /**
      * Creates and places the workers of this player on the World
      */
-    public void setWorkers(int index, int x, int y) {
+    public void setWorkers(int index, Space space) {
         this.workers[index] = new Worker(this);
-        this.workers[index].setPosition(x, y);
+        this.workers[index].setPosition(space);
     }
 
     public Worker selectWorker(int index) {
         return workers[index];
     }
 
-    public boolean isDefeated() {
-        return (!this.game.getRules().canMove(selectWorker(0).getX(), selectWorker(1).getY()));
-    }
 
     public God getGod(){
         return this.god;
+    }
+
+    public ArrayList<Worker> getAvailableWorkers(){
+        ArrayList<Worker> availableWorkers = new ArrayList<Worker>();
+        for(Worker w : this.workers){
+            if(this.game.getRules().getAvailableSpaces(w.getWorld().getSpaces(w.getX(), w.getY())).size() != 0){
+                availableWorkers.add(w);
+            }
+        }
+        return availableWorkers;
     }
 }
 

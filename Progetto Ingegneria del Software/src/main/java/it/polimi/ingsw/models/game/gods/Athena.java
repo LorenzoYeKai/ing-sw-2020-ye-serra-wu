@@ -2,24 +2,19 @@ package it.polimi.ingsw.models.game.gods;
 
 
 import it.polimi.ingsw.models.game.Worker;
-import it.polimi.ingsw.models.game.rules.AthenaRule;
+import it.polimi.ingsw.models.game.rules.GodPower;
+
 
 public class Athena extends God {
 
     /**
      * At the beginning of the turn deactivates the power
      * If the worker moves up activates the power
+     * Needs to be changes after view implementation
      */
     @Override
-    public void performActions(Worker worker){
-        deactivatePassivePower(worker);
-        int originalX = worker.getX();
-        int originalY = worker.getY();
-        perform(worker::move, "move");
-        if(worker.getWorld().levelDifference(originalX, originalY, worker.getX(), worker.getY()) == -1){
-            activatePassivePower(worker);
-        }
-        perform(worker::build, "build");
+    public void workerActionOrder(Worker worker){
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     /*private void activatePassivePower(Worker worker){
@@ -29,16 +24,17 @@ public class Athena extends God {
     /**
      * Adds Athena's power to the active rules
      */
-    private void activatePassivePower(Worker worker){
-        worker.getRules().getRuleSets().add(new AthenaRule(worker.getWorld()));
+    @Override
+    public void activateGodPower(Worker worker) {
+        worker.getRules().addMovementRules("athenaPower", GodPower::athenaPower);
     }
-
     /**
      * Removes Athena's power from the active rules
      */
-    private void deactivatePassivePower(Worker worker){
-        worker.getRules().getRuleSets().stream()
-        .filter(rule -> rule instanceof AthenaRule)
-        .forEach(rule -> worker.getRules().getRuleSets().remove(rule));
+    @Override
+    public void deactivateGodPower(Worker worker){
+        worker.getRules().getMovementRules().remove("athenaPower");
     }
+
+
 }

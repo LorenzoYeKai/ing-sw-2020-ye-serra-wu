@@ -52,6 +52,16 @@ public class Space implements SpaceData {
         return occupiedByDome;
     }
 
+    @Override
+    public int getX(){
+        return this.x;
+    }
+
+    @Override
+    public int getY(){
+        return this.y;
+    }
+
     public boolean isOccupied() {
         return (occupiedByDome || this.worker != null);
     }
@@ -69,6 +79,35 @@ public class Space implements SpaceData {
 
     public void removeWorker(){
         this.worker = null;
+    }
+
+    /**
+     * Checks if the given coordinates are of a space within the world
+     */
+    public boolean isInWorld()
+    {
+        return this.y > -1 && this.y < 5 && this.x > -1 && this.x < 5;
+    }
+
+    /**
+     * Calculates the level difference between 2 spaced
+     * Returns negative if moving up
+     * Returns positive if moving down
+     * Returns 0 if moving in same level
+     */
+    public  int levelDifference(Space space){
+        return this.level - space.getLevel();
+    }
+
+    /**
+     * Checks if a space is a neighbor of another space
+     */
+    public boolean isNeighbor(Space space)
+    {
+        return (this.x == space.x - 1 && this.y == space.y) || (this.x == space.x + 1 && this.y == space.y) ||
+                (this.x == space.x && this.y == space.y - 1) || (this.x == space.x && this.y == space.y + 1) ||
+                (this.x == space.x + 1 && this.y == space.y + 1) || (this.x == space.x - 1 && this.y == space.y + 1) ||
+                (this.x == space.x + 1 && this.y == space.y - 1) || (this.x == space.x - 1 && this.y == space.y - 1);
     }
 }
 

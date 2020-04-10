@@ -5,4 +5,6 @@ public interface SpaceData {
     WorkerData getWorker();
     boolean isOccupiedByDome();
     boolean isOccupied();
+    int getX();
+    int getY();
 }
