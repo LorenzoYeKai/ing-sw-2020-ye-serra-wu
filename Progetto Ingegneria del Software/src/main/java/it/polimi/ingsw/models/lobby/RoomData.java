@@ -9,6 +9,4 @@ public interface RoomData {
     public String getRoomName();
 
     public UserData getHost();
-
-    public int getNumberOfUsers();
 }

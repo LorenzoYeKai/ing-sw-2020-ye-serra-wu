@@ -5,10 +5,8 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.models.lobby.RoomData;
 import it.polimi.ingsw.models.lobby.UserData;
-import it.polimi.ingsw.views.game.MultiUserConsoleGameView;
 
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -52,7 +50,7 @@ public class MultiUserConsoleLobbyView {
         while (true) {
             for (SharedConsoleLobbyView view : views) {
                 this.getUserInput(view);
-                if(this.gameController != null) {
+                if (this.gameController != null) {
                     return this.gameController;
                 }
             }
@@ -63,15 +61,15 @@ public class MultiUserConsoleLobbyView {
         while (true) {
             UserData user = view.getUser();
             this.output.println("Now it's turn of " + user.getUsername());
-            if (user.getCurrentRoom() == null) {
+            if (view.getCurrentRoom() == null) {
                 // if not inside room
                 this.output.println("Write `host [Name]` to host room");
                 this.output.println("Write `join [Room ID]` to join room");
             } else {
                 // if inside room
                 this.output.println("Write `leave room` to leave room");
-                if (user == user.getCurrentRoom().getHost()) {
-                    this.output.println("You are host of room " + user.getCurrentRoom().getRoomName());
+                if (user == view.getCurrentRoom().getHost()) {
+                    this.output.println("You are host of room " + view.getCurrentRoom().getRoomName());
                     this.output.println("Write `up [Name]` to move someone up");
                     this.output.println("Write `down [Name]` to move someone down");
                     this.output.println("Write `kick [Name]` to kick someone");
@@ -102,23 +100,27 @@ public class MultiUserConsoleLobbyView {
                         this.controller.joinRoom(user, view.findRoom(parameter));
                         break;
                     case "leave":
-                        this.controller.leaveRoom(user);
+                        this.controller.leaveRoom(user, view.getCurrentRoom());
                         break;
                     case "up":
                         this.controller.changePlayerPosition(user,
+                                view.getCurrentRoom(),
                                 view.findPlayersInTheRoom(parameter),
                                 -1);
                         break;
                     case "down":
                         this.controller.changePlayerPosition(user,
+                                view.getCurrentRoom(),
                                 view.findPlayersInTheRoom(parameter),
                                 +1);
                         break;
                     case "kick":
-                        this.controller.kickUser(user, view.findPlayersInTheRoom(parameter));
+                        this.controller.kickUser(user,
+                                view.getCurrentRoom(),
+                                view.findPlayersInTheRoom(parameter));
                         break;
                     case "start":
-                        this.controller.startGame(user);
+                        this.controller.startGame(user, view.getCurrentRoom());
                         break;
                 }
             } catch (NotExecutedException exception) {
@@ -143,6 +145,7 @@ class SharedConsoleLobbyView extends LobbyView {
     private final PrintStream output;
     private final UserData user;
     private final Map<Integer, RoomData> rooms;
+    private RoomData currentRoom;
     private final Map<String, UserData> playersInTheRoom;
     private GameController gameController;
 
@@ -154,15 +157,16 @@ class SharedConsoleLobbyView extends LobbyView {
         this.output = output;
         this.user = controller.joinLobby(username, this);
         this.rooms = new HashMap<>();
+        this.currentRoom = null;
         this.playersInTheRoom = new HashMap<>();
-    }
-
-    public String getUsername() {
-        return this.username;
     }
 
     public UserData getUser() {
         return this.user;
+    }
+
+    public RoomData getCurrentRoom() {
+        return this.currentRoom;
     }
 
     public GameController getGameController() {
@@ -184,10 +188,10 @@ class SharedConsoleLobbyView extends LobbyView {
     }
 
     public UserData findPlayersInTheRoom(String name) throws NotExecutedException {
-        if (this.user.getCurrentRoom() == null) {
+        if (this.currentRoom == null) {
             throw new NotExecutedException("We are even not inside a room");
         }
-        if (!this.playersInTheRoom.containsKey(name)){
+        if (!this.playersInTheRoom.containsKey(name)) {
             throw new NotExecutedException("This player is not inside the room");
         }
         return this.playersInTheRoom.get(name);
@@ -208,7 +212,7 @@ class SharedConsoleLobbyView extends LobbyView {
         this.rooms.clear();
         for (RoomData room : rooms) {
             this.output.println("Room name: " + room.getRoomName() + "; Room id: " + room.getRoomId());
-            this.output.println("Host name: " + room.getHost().getUsername() + "; Number of people: " + room.getNumberOfUsers());
+            this.output.println("Host name: " + room.getHost().getUsername());
             this.rooms.put(room.getRoomId(), room);
         }
         this.endOutput();
@@ -225,23 +229,29 @@ class SharedConsoleLobbyView extends LobbyView {
     }
 
     @Override
-    public void displayLastMessage(String author, String message) {
+    public void notifyMessage(String author, String message) {
         this.beginOutput();
         this.output.println("[" + author + "]: " + message);
         this.endOutput();
     }
 
     @Override
-    public void notifyHostedRoom(RoomData roomData) {
+    public void notifyRoomChanged(RoomData roomData) {
         this.beginOutput();
-        this.output.println("You have hosted the room: " + roomData.getRoomName());
-        this.endOutput();
-    }
 
-    @Override
-    public void notifyJoinedRoom(RoomData roomData) {
-        this.beginOutput();
-        this.output.println("You have joined the room: " + roomData.getRoomName());
+        if(this.currentRoom != roomData && this.currentRoom != null) {
+            this.output.println("You have left the room: " + this.currentRoom.getRoomName());
+        }
+        this.currentRoom = roomData;
+        this.playersInTheRoom.clear();
+
+        if(this.currentRoom != null) {
+            this.output.println("You have joined the room: " + this.currentRoom.getRoomName());
+            if (this.user == this.currentRoom.getHost()) {
+                this.output.println("And you are the host of this room.");
+            }
+        }
+
         this.endOutput();
     }
 
@@ -254,14 +264,6 @@ class SharedConsoleLobbyView extends LobbyView {
             this.output.println(player.getUsername());
             this.playersInTheRoom.put(player.getUsername(), player);
         }
-        this.endOutput();
-    }
-
-    @Override
-    public void notifyLeftRoom(RoomData roomData) {
-        this.beginOutput();
-        this.playersInTheRoom.clear();
-        this.output.println("You have left the room: " + roomData.getRoomName());
         this.endOutput();
     }
 

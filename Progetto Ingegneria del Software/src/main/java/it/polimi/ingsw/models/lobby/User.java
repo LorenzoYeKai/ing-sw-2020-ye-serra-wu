@@ -23,13 +23,13 @@ public class User implements UserData {
         return this.username;
     }
 
-    @Override
     public RoomData getCurrentRoom() {
         return this.currentRoom;
     }
 
     public void setCurrentRoom(RoomData room) {
         this.currentRoom = room;
+        this.getView().notifyRoomChanged(this.currentRoom);
     }
 
     public LobbyView getView() {

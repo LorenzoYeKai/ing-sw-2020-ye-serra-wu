@@ -1,5 +1,6 @@
 package it.polimi.ingsw.models.lobby;
 
+import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.Notifier;
 
@@ -23,33 +24,26 @@ public class Lobby {
         this.stagingRooms = new HashMap<>();
     }
 
-    public void addListeners(Object key,
-                             Consumer<Set<String>> onUsersChanged,
-                             Consumer<Collection<RoomData>> onRoomsChanged) {
-        this.usersChangedNotifier.addListener(key, onUsersChanged);
-        this.roomsChangedNotifier.addListener(key, onRoomsChanged);
-    }
-
-    public void removeListeners(Object key) {
-        this.usersChangedNotifier.removeListener(key);
-        this.roomsChangedNotifier.removeListener(key);
-    }
-
-    public boolean usernameExists(String username) {
-        return this.users.containsKey(username);
-    }
-
     public User getUser(String username) {
         return this.users.get(username);
     }
 
     public void addUser(User user) {
+        if (this.getUser(user.getUsername()) != null) {
+            throw new InternalError("Username already exists");
+        }
+
         this.users.put(user.getUsername(), user);
+        this.addListeners(user,
+                users -> user.getView().displayUserList(users),
+                rooms -> user.getView().displayAvailableRooms(rooms));
         this.usersChangedNotifier.notify(Collections.unmodifiableSet(this.users.keySet()));
     }
 
     public void removeUser(User user) {
+        user.getView().notifyMessage("SYSTEM", "You are leaving the lobby");
         this.users.remove(user.getUsername());
+        this.removeListeners(user);
         this.usersChangedNotifier.notify(Collections.unmodifiableSet(this.users.keySet()));
     }
 
@@ -65,5 +59,17 @@ public class Lobby {
     public void removeRoom(Room room) {
         this.stagingRooms.remove(room.getRoomId());
         this.roomsChangedNotifier.notify(Collections.unmodifiableCollection(this.stagingRooms.values()));
+    }
+
+    private void addListeners(Object key,
+                             Consumer<Set<String>> onUsersChanged,
+                             Consumer<Collection<RoomData>> onRoomsChanged) {
+        this.usersChangedNotifier.addListener(key, onUsersChanged);
+        this.roomsChangedNotifier.addListener(key, onRoomsChanged);
+    }
+
+    private void removeListeners(Object key) {
+        this.usersChangedNotifier.removeListener(key);
+        this.roomsChangedNotifier.removeListener(key);
     }
 }
