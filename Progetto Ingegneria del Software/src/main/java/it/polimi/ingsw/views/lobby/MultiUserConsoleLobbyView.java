@@ -5,8 +5,10 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.models.lobby.RoomData;
 import it.polimi.ingsw.models.lobby.UserData;
+import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.*;
 
 /**
@@ -61,6 +63,10 @@ public class MultiUserConsoleLobbyView {
         while (true) {
             UserData user = view.getUser();
             this.output.println("Now it's turn of " + user.getUsername());
+            this.output.println("Summary: ");
+            view.displaySummary();
+            this.output.println();
+
             if (view.getCurrentRoom() == null) {
                 // if not inside room
                 this.output.println("Write `host [Name]` to host room");
@@ -76,7 +82,8 @@ public class MultiUserConsoleLobbyView {
                     this.output.println("Write `start game` to start the game");
                 }
             }
-            this.output.println("Write empty line (pressing ENTER) to end your turn.");
+            this.output.println("Press ENTER to end your turn.");
+
             String line = this.input.nextLine();
             if (line.isEmpty()) {
                 return;
@@ -84,8 +91,7 @@ public class MultiUserConsoleLobbyView {
 
             String[] splitted = line.split("\\s+", 2);
             if (splitted.length != 2) {
-                this.output.println("Wrong input, press ENTER to try again!");
-                this.input.nextLine();
+                this.output.println("Wrong input, try again");
                 continue;
             }
             String command = splitted[0].toLowerCase();
@@ -122,6 +128,9 @@ public class MultiUserConsoleLobbyView {
                     case "start":
                         this.controller.startGame(user, view.getCurrentRoom());
                         break;
+                    default:
+                        this.output.println("Unknown action, skipped");
+                        break;
                 }
             } catch (NotExecutedException exception) {
                 this.output.println("Operation rejected: " + exception.getMessage());
@@ -132,33 +141,35 @@ public class MultiUserConsoleLobbyView {
                 this.gameController = view.getGameController();
                 return;
             }
-
-            this.output.println("Press ENTER to continue your turn");
-            this.input.nextLine();
         }
     }
 
 }
 
 class SharedConsoleLobbyView extends LobbyView {
-    private final String username;
     private final PrintStream output;
-    private final UserData user;
+    private final List<UserData> users;
     private final Map<Integer, RoomData> rooms;
+    private final UserData user;
+    private RoomData lastRoom;
     private RoomData currentRoom;
     private final Map<String, UserData> playersInTheRoom;
+    private final List<String> messages;
     private GameController gameController;
 
     public SharedConsoleLobbyView(LobbyController controller,
                                   String username,
                                   PrintStream output) throws NotExecutedException {
         super(controller);
-        this.username = username;
         this.output = output;
-        this.user = controller.joinLobby(username, this);
+        this.users = new ArrayList<>();
         this.rooms = new HashMap<>();
+        this.user = controller.joinLobby(username, this);
+        this.lastRoom = null;
         this.currentRoom = null;
         this.playersInTheRoom = new HashMap<>();
+        this.messages = new ArrayList<>();
+        this.gameController = null;
     }
 
     public UserData getUser() {
@@ -197,81 +208,79 @@ class SharedConsoleLobbyView extends LobbyView {
         return this.playersInTheRoom.get(name);
     }
 
-    private void beginOutput() {
-        this.output.println("BEGIN output for user " + this.username);
-    }
+    public void displaySummary() {
+        ConsoleMatrix matrix = ConsoleMatrix.newMatrix(72, 16, false);
+        ConsoleMatrix[] columns = matrix.splitHorizontal(new int[]{22,22,28});
+        PrintWriter column0 = columns[0].getPrintWriter();
+        PrintWriter column1 = columns[1].getPrintWriter();
+        PrintWriter column2 = columns[2].getPrintWriter();
 
-    private void endOutput() {
-        this.output.println("END output for user " + this.username + "\n");
+        column0.println("People online: " + this.users.size());
+        this.users.forEach(user -> column0.println(user.getUsername()));
+
+        column1.println("Rooms available: " + this.rooms.size());
+        this.rooms.forEach((id, room) -> {
+            column1.println("Room name: " + room.getRoomName());
+            column1.println("Room id: " + room.getRoomId());
+            column1.println("Host: " + room.getHost().getUsername());
+        });
+
+        if(this.lastRoom != null) {
+            column2.println("You left room " + this.lastRoom.getRoomName());
+            this.lastRoom = this.getCurrentRoom();
+        }
+        if(this.currentRoom != null) {
+            if(this.user == this.currentRoom.getHost()) {
+                column2.println("You hosted room " + this.currentRoom.getRoomName());
+            }
+            else {
+                column2.println("You joined room" + this.currentRoom.getRoomName());
+            }
+            column2.println("Room players: " + this.playersInTheRoom.size());
+            this.playersInTheRoom.forEach((username, user) -> column2.println(username));
+        }
+
+        this.output.println(matrix.toString());
+
+        if(!this.messages.isEmpty()) {
+            this.output.println("You received " + this.messages.size() + " messages: ");
+            this.messages.forEach(this.output::println);
+            this.output.println();
+        }
     }
 
     @Override
     public void displayAvailableRooms(Collection<RoomData> rooms) {
-        this.beginOutput();
-        this.output.println("Available rooms (" + rooms.size() + "): ");
         this.rooms.clear();
-        for (RoomData room : rooms) {
-            this.output.println("Room name: " + room.getRoomName() + "; Room id: " + room.getRoomId());
-            this.output.println("Host name: " + room.getHost().getUsername());
-            this.rooms.put(room.getRoomId(), room);
-        }
-        this.endOutput();
+        rooms.forEach(room -> this.rooms.put(room.getRoomId(), room));
     }
 
     @Override
-    public void displayUserList(Set<String> users) {
-        this.beginOutput();
-        this.output.println("Online user list (" + users.size() + "): ");
-        for (String user : users) {
-            this.output.println(user);
-        }
-        this.endOutput();
+    public void displayUserList(Collection<UserData> users) {
+        this.users.clear();
+        this.users.addAll(users);
     }
 
     @Override
     public void notifyMessage(String author, String message) {
-        this.beginOutput();
-        this.output.println("[" + author + "]: " + message);
-        this.endOutput();
+        this.messages.add("[" + author + "]: " + message);
     }
 
     @Override
     public void notifyRoomChanged(RoomData roomData) {
-        this.beginOutput();
-
-        if(this.currentRoom != roomData && this.currentRoom != null) {
-            this.output.println("You have left the room: " + this.currentRoom.getRoomName());
-        }
+        this.lastRoom = this.currentRoom;
         this.currentRoom = roomData;
         this.playersInTheRoom.clear();
-
-        if(this.currentRoom != null) {
-            this.output.println("You have joined the room: " + this.currentRoom.getRoomName());
-            if (this.user == this.currentRoom.getHost()) {
-                this.output.println("And you are the host of this room.");
-            }
-        }
-
-        this.endOutput();
     }
 
     @Override
-    public void displayRoomPlayerList(List<UserData> playerList) {
-        this.beginOutput();
-        this.output.println("Room player list (" + playerList.size() + "): ");
+    public void displayRoomPlayerList(Collection<UserData> playerList) {
         this.playersInTheRoom.clear();
-        for (UserData player : playerList) {
-            this.output.println(player.getUsername());
-            this.playersInTheRoom.put(player.getUsername(), player);
-        }
-        this.endOutput();
+        playerList.forEach(user -> this.playersInTheRoom.put(user.getUsername(), user));
     }
 
     @Override
     public void notifyGameStarted(GameController gameController) {
-        this.beginOutput();
-        this.output.println("Game has started!");
         this.gameController = gameController;
-        this.endOutput();
     }
 }

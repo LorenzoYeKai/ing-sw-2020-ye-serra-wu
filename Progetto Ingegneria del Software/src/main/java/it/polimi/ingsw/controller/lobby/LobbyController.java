@@ -65,7 +65,7 @@ public class LobbyController {
      * Make some user to leave the room, with an optional message.
      * If host has left room, everybody leaves too.
      *
-     * @param user The user who will leave the room
+     * @param user     The user who will leave the room
      * @param roomData The room from which the user wants to leave.
      * @throws NotExecutedException If the user is not in the room
      */
@@ -100,6 +100,9 @@ public class LobbyController {
         this.throwIfNotInRoom(host, roomData);
         this.throwIfNotHost(host);
         this.throwIfNotInRoom(target, roomData);
+        if (host == target) {
+            throw new NotExecutedException("Cannot kick yourself, leave instead");
+        }
 
         Room room = this.lobby.getRoom(roomData.getRoomId());
         room.kick(target);

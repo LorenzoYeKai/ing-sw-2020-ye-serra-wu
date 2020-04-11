@@ -143,7 +143,7 @@ public class Room implements RoomData {
 
         // Calculate destination position
         int destinationIndex = userIndex + offset;
-        destinationIndex = Math.max(0, Math.min(destinationIndex, this.allUsers.size()));
+        destinationIndex = Math.max(0, Math.min(destinationIndex, this.allUsers.size() - 1));
         if (userIndex == destinationIndex) {
             // same position, no move required
             return;

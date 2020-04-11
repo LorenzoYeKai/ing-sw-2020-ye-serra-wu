@@ -1,10 +1,12 @@
 package it.polimi.ingsw;
 
+import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.views.game.MultiUserConsoleGameView;
 import it.polimi.ingsw.views.lobby.MultiUserConsoleLobbyView;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 /**
@@ -13,8 +15,7 @@ import java.util.Scanner;
  */
 public class App 
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ) throws IOException {
         try {
             System.out.println("Creating lobby controller and lobby view...");
             LobbyController lobbyController = new LobbyController();
@@ -25,7 +26,7 @@ public class App
             System.out.println("Game should be created now (actually not implemented yet)");
             System.in.read();
         }
-        catch (Exception exception) {
+        catch (NotExecutedException exception) {
             System.out.println("Error: " + exception);
         }
     }

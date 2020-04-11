@@ -6,8 +6,6 @@ import it.polimi.ingsw.models.lobby.RoomData;
 import it.polimi.ingsw.models.lobby.UserData;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
 public abstract class LobbyView {
     protected final LobbyController controller;
@@ -18,13 +16,13 @@ public abstract class LobbyView {
 
     public abstract void displayAvailableRooms(Collection<RoomData> rooms);
 
-    public abstract void displayUserList(Set<String> users);
+    public abstract void displayUserList(Collection<UserData> users);
 
     public abstract void notifyMessage(String author, String message);
 
     public abstract void notifyRoomChanged(RoomData roomData);
 
-    public abstract void displayRoomPlayerList(List<UserData> playerList);
+    public abstract void displayRoomPlayerList(Collection<UserData> playerList);
 
     public abstract void notifyGameStarted(GameController gameController);
 }

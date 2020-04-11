@@ -12,7 +12,7 @@ import java.util.function.Consumer;
  * and can create new {@link Game}s.
  */
 public class Lobby {
-    private final Notifier<Set<String>> usersChangedNotifier;
+    private final Notifier<Collection<UserData>> usersChangedNotifier;
     private final Notifier<Collection<RoomData>> roomsChangedNotifier;
     private final Map<String, User> users;
     private final Map<Integer, Room> stagingRooms;
@@ -37,14 +37,14 @@ public class Lobby {
         this.addListeners(user,
                 users -> user.getView().displayUserList(users),
                 rooms -> user.getView().displayAvailableRooms(rooms));
-        this.usersChangedNotifier.notify(Collections.unmodifiableSet(this.users.keySet()));
+        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.values()));
     }
 
     public void removeUser(User user) {
         user.getView().notifyMessage("SYSTEM", "You are leaving the lobby");
         this.users.remove(user.getUsername());
         this.removeListeners(user);
-        this.usersChangedNotifier.notify(Collections.unmodifiableSet(this.users.keySet()));
+        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.values()));
     }
 
     public Room getRoom(int roomId) {
@@ -62,7 +62,7 @@ public class Lobby {
     }
 
     private void addListeners(Object key,
-                             Consumer<Set<String>> onUsersChanged,
+                             Consumer<Collection<UserData>> onUsersChanged,
                              Consumer<Collection<RoomData>> onRoomsChanged) {
         this.usersChangedNotifier.addListener(key, onUsersChanged);
         this.roomsChangedNotifier.addListener(key, onRoomsChanged);
