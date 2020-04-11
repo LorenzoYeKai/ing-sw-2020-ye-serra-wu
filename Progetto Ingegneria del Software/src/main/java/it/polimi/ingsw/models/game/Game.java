@@ -1,174 +1,230 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.Notifier;
+import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
-import it.polimi.ingsw.models.game.rules.Rule;
+import it.polimi.ingsw.views.game.GameView;
 
-import java.lang.UnsupportedOperationException;
-import java.lang.IllegalArgumentException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Game {
+    private final Notifier<GameStatus> gameStatusNotifier;
+    private final Notifier<SpaceData> spaceChangedNotifier;
+    private final Notifier<PlayerData> turnChangedNotifier;
+    private final Notifier<PlayerData> playerLostNotifier;
+
 
     private final GodFactory factory;
-    public final ArrayList<Player> listOfPlayers;
-    private HashSet<GodType> availableGods;
+    private Set<GodType> availableGods;
     private final World world;
     private ActualRule rules;
+    private final List<Player> listOfPlayers;
+    private final Map<String, GameView> gameViews;
 
+    private GameStatus currentStatus;
     private int currentTurn;
 
     /**
-     * Creare una nuova partita di gioco
+     * Creates a new game
      *
-     * @param numberOfPlayers il numero di giocatori in questa partita
+     * @param nicknames the nicknames of the players
      */
-    public Game(int numberOfPlayers, String[] names) {
+    public Game(List<String> nicknames) {
+        this.gameStatusNotifier = new Notifier<>();
+        this.spaceChangedNotifier = new Notifier<>();
+        this.turnChangedNotifier = new Notifier<>();
+        this.playerLostNotifier = new Notifier<>();
+
         this.factory = new GodFactory();
-        this.listOfPlayers = new ArrayList<Player>();
-        for (int i = 0; i < numberOfPlayers; ++i) {
-            if(i == 0){
-                this.listOfPlayers.add(new Challenger(this, names[i]));
-            }
-            else{
-                this.listOfPlayers.add(new Player(this, names[i]));
-            }
-        }
         this.availableGods = null;
+        this.world = new World(this.spaceChangedNotifier);
+        this.rules = new ActualRule(this.world);
+
+        this.listOfPlayers = IntStream.range(0, nicknames.size())
+                .mapToObj(i -> i == 0
+                        ? new Challenger(this, nicknames.get(i))
+                        : new Player(this, nicknames.get(i)))
+                .collect(Collectors.toUnmodifiableList());
+        this.gameViews = new HashMap<>();
+
         this.currentTurn = -1;
-        this.world = new World();
-        rules = new ActualRule(this.world);
+        this.currentStatus = GameStatus.PLAYER_JOINING;
+    }
+
+    public void attachView(String name, GameView view) {
+        if(this.gameViews.containsKey(name)) {
+            throw new InternalError("Player already exist");
+        }
+
+        this.gameStatusNotifier.addListener(view, view::notifyGameStatus);
+        this.spaceChangedNotifier.addListener(view, view::notifySpaceChange);
+        this.turnChangedNotifier.addListener(view, view::notifyPlayerTurn);
+        this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
+    }
+
+    public void detachView(String name, GameView view) {
+        if(!this.gameViews.containsKey(name)) {
+            throw new InternalError("Invalid player name");
+        }
+
+        this.gameStatusNotifier.removeListener(view);
+        this.spaceChangedNotifier.removeListener(view);
+        this.turnChangedNotifier.removeListener(view);
+        this.playerLostNotifier.removeListener(view);
+
+        this.gameViews.remove(name);
+
+        // If there isn't any view related to a player
+        // It means this player has been disconnected
+        Player player = this.findPlayerByName(name);
+        if(player != null) {
+            // TODO: implement disconnect
+            throw new InternalError("Not implemented yet");
+        }
     }
 
     /**
-     * Questo metodo dovrebbe essere usato dal Challenger
-     * per definire le divinita' che possono essere usati.
+     * Challenger should call this method to set available gods.
      *
-     * @param availableGodTypes I god che potrebbero essere usati, scelti dal Challenger.
+     * @param availableGodTypes The gods which can be used.
      */
     public void setAvailableGods(GodType[] availableGodTypes) {
         if (this.availableGods != null) {
-            throw new UnsupportedOperationException("Available gods already set");
+            throw new InternalError("Available gods already set");
         }
         if (this.listOfPlayers.size() != availableGodTypes.length) {
-            throw new IllegalArgumentException("Number of gods is different from number of players");
+            throw new InternalError("Number of gods is different from number of players");
         }
-        this.availableGods = new HashSet<GodType>(Arrays.asList(availableGodTypes));
+        this.availableGods = new HashSet<>(Arrays.asList(availableGodTypes));
         if (this.availableGods.size() != availableGodTypes.length) {
-            throw new IllegalArgumentException("Challenger may have selected duplicated god types");
+            throw new InternalError("Challenger may have selected duplicated god types");
         }
     }
 
-    /**
-     * Verifica se e' possibile scegliere una divinita' in questa partita.
-     *
-     * @param type La divinita' che si vuole scegliere
-     * @return {@literal true} se questa divinita' puo' essere scelta, altrimenti {@literal false}
-     */
     public boolean isGodAvailable(GodType type) {
         return this.availableGods.contains(type);
     }
 
-    /**
-     * Scegliere una divinita' e ottenere i lavoratori di questa divinita'
-     *
-     * @param type   la divinita' che si vuole scegliere
-     * @param player il giocatore
-     * @return i lavoratori di questa divinita'
-     */
     public God chooseGod(GodType type, Player player) {
-        if(availableGods == null){
-            throw new NullPointerException("The Challenger has not chosen the Gods available for this game yet");
+        if (availableGods == null) {
+            throw new InternalError("The Challenger has not chosen the Gods available for this game yet");
         }
-        if(!listOfPlayers.contains(player)){
-            throw new IllegalArgumentException("Intruder!"); //Per sicurezza, anche se non dovrebbe capitare
+        if (!listOfPlayers.contains(player)) {
+            throw new InternalError("Intruder!"); //Per sicurezza, anche se non dovrebbe capitare
         }
         if (!this.isGodAvailable(type)) {
-            throw new UnsupportedOperationException("God" + type + " is not available");
+            throw new InternalError("God" + type + " is not available");
         }
         this.availableGods.remove(type);
         return factory.getGod(type);
     }
 
     /**
-     * Questo metodo dovrebbe essere usato dal challenger per definire il primo giocatore
-     *
-     * @param index Indice del primo giocatore
+     * Setup the game. Set worker positions, let challenger choose gods etc.
      */
-    public void setFirstPlayer(int index) {
-        if (this.currentTurn != -1) {
-            throw new UnsupportedOperationException("First player was already set");
+    public void setupGame() {
+        this.setCurrentStatus(GameStatus.SETUP);
+
+        // TODO: Set start player / gods etc.
+        this.availableGods = Collections.emptySet();
+
+        for (int i = 0; i < this.listOfPlayers.size(); ++i) {
+            // let player place worker
+            this.goToNextTurn();
+            this.waitUntilTurnFinished();
         }
-        this.currentTurn = index;
     }
 
     /**
-     * Iniziare la partita
+     * Play the game.
      */
-    public void startGame() {
-        if (this.currentTurn == -1) {
-            throw new UnsupportedOperationException("First player not chosen yet");
-        }
+    public void playGame() {
+        this.setCurrentStatus(GameStatus.PLAYING);
+
         if (this.availableGods == null) {
-            throw new UnsupportedOperationException("Available gods not set yet");
+            throw new InternalError("Available gods not set yet");
         }
         if (this.availableGods.size() != 0) {
-            throw new UnsupportedOperationException("Some players may have not chosen god yet");
+            throw new InternalError("Some players may have not chosen god yet");
         }
 
-        // Probabilmente implementare fare qualcos'altro nel futuro
-        throw new UnsupportedOperationException("Not implemented yet");
+        // TODO: IMPLEMENT GAME VIEW DISCONNECT
+        while (this.getNumberOfActivePlayers() > 1) {
+            this.goToNextTurn();
+            this.waitUntilTurnFinished();
+        }
+
+        this.setCurrentStatus(GameStatus.ENDED);
     }
 
-    /**
-     * Finire la partita
-     */
-    public void endGame() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public void announceVictory(Player winner) {
+        for (Player player : this.listOfPlayers) {
+            if (player != winner) {
+                this.announceDefeat(player);
+            }
+        }
     }
 
-    /**
-     * Ottenere il giocatore di questo turno
-     * @return Il giocatore di questo turno
-     */
+    public void announceDefeat(Player player) {
+        player.setDefeated();
+        this.playerLostNotifier.notify(player);
+    }
+
+    private void waitUntilTurnFinished() {
+        // Currently it's empty
+        // Because we don't implement threading yet.
+    }
+
     public Player getCurrentPlayer() {
         return this.listOfPlayers.get(this.currentTurn);
     }
 
-    public void setCurrentPlayer() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public Player findPlayerByName(String name) {
+        for(Player player : this.listOfPlayers) {
+            if(player.getName().equals(name)) {
+                return player;
+            }
+        }
+        return null;
     }
 
-    public int getNumberOfPlayers() {
-        return this.listOfPlayers.size();
-    }
-
-    public void getCurrentTurn() {
-        throw new UnsupportedOperationException("Not implemented yet");
+    public int getNumberOfActivePlayers() {
+        return (int) this.listOfPlayers.stream()
+                .filter(player -> !player.isDefeated())
+                .count();
     }
 
     /**
-     * Spostarsi nel prossimo turno
+     * Go to the next turn, and notify every attached view that turn has changed
      */
     public void goToNextTurn() {
-        // ci potrebbe essere delle verifiche da fare prima di andare nel prossimo turno...
-
         this.currentTurn = ((this.currentTurn + 1) % this.listOfPlayers.size());
+        this.turnChangedNotifier.notify(this.getCurrentPlayer());
     }
 
-    public World getWorld(){
+    public World getWorld() {
         return this.world;
     }
 
-    public ActualRule getRules(){
+    public ActualRule getRules() {
         return this.rules;
     }
 
-    public int getNumberOfAvailableGods(){
+    public int getNumberOfAvailableGods() {
         return availableGods.size();
+    }
+
+    public GameStatus getCurrentStatus() {
+        return this.currentStatus;
+    }
+
+    public void setCurrentStatus(GameStatus status) {
+        this.currentStatus = status;
+        this.gameStatusNotifier.notify(this.currentStatus);
     }
 }

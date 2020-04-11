@@ -1,6 +1,7 @@
 package it.polimi.ingsw.models.lobby;
 
 import it.polimi.ingsw.models.game.Player;
+import it.polimi.ingsw.models.game.PlayerData;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
 /**
@@ -34,6 +35,10 @@ public class User implements UserData {
 
     public LobbyView getView() {
         return this.view;
+    }
+
+    public void givePlayer(PlayerData player) {
+
     }
 
 }

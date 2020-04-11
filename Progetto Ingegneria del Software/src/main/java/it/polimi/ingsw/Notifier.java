@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class Notifier<T> {
+public class Notifier<T> implements Notifiable<T> {
     private final Map<Object, Consumer<T>> callbacks;
     private boolean iterating;
 

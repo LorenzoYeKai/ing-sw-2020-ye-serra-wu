@@ -1,6 +1,11 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.Notifiable;
+import it.polimi.ingsw.models.InternalError;
+
 public class Space implements SpaceData {
+    private final Notifiable<SpaceData> onSpaceChanged;
+
     private int x;
 
     private int y;
@@ -13,7 +18,8 @@ public class Space implements SpaceData {
 
     private int level;
 
-    public Space(int y, int x) {
+    public Space(Notifiable<SpaceData> onSpaceChanged, int y, int x) {
+        this.onSpaceChanged = onSpaceChanged;
         this.x = x;
         this.y = y;
         this.worker = null;
@@ -34,8 +40,9 @@ public class Space implements SpaceData {
         if (this.level < 3) { //Prevent level > 3
             level++;
         } else {
-            System.out.println("You cannot build any further!");
+            throw new InternalError("You cannot build any further!");
         }
+        onSpaceChanged.notify(this);
     }
 
     public boolean isOccupiedByWorker() {
@@ -53,12 +60,12 @@ public class Space implements SpaceData {
     }
 
     @Override
-    public int getX(){
+    public int getX() {
         return this.x;
     }
 
     @Override
-    public int getY(){
+    public int getY() {
         return this.y;
     }
 
@@ -71,21 +78,23 @@ public class Space implements SpaceData {
      */
     public void setDome() {
         this.occupiedByDome = true;
+        onSpaceChanged.notify(this);
     }
 
-    public void setWorker(Worker worker){
+    public void setWorker(Worker worker) {
         this.worker = worker;
+        onSpaceChanged.notify(this);
     }
 
-    public void removeWorker(){
+    public void removeWorker() {
         this.worker = null;
+        onSpaceChanged.notify(this);
     }
 
     /**
      * Checks if the given coordinates are of a space within the world
      */
-    public boolean isInWorld()
-    {
+    public boolean isInWorld() {
         return this.y > -1 && this.y < 5 && this.x > -1 && this.x < 5;
     }
 
@@ -95,15 +104,14 @@ public class Space implements SpaceData {
      * Returns positive if moving down
      * Returns 0 if moving in same level
      */
-    public  int levelDifference(Space space){
+    public int levelDifference(Space space) {
         return this.level - space.getLevel();
     }
 
     /**
      * Checks if a space is a neighbor of another space
      */
-    public boolean isNeighbor(Space space)
-    {
+    public boolean isNeighbor(Space space) {
         return (this.x == space.x - 1 && this.y == space.y) || (this.x == space.x + 1 && this.y == space.y) ||
                 (this.x == space.x && this.y == space.y - 1) || (this.x == space.x && this.y == space.y + 1) ||
                 (this.x == space.x + 1 && this.y == space.y + 1) || (this.x == space.x - 1 && this.y == space.y + 1) ||

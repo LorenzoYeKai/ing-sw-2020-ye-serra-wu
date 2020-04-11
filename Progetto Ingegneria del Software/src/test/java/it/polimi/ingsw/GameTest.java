@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -18,7 +20,7 @@ public class GameTest {
     @BeforeEach
     void twoPlayerGameCreation(){
         String[] names = {"peppino", "giuseppi"};
-        game = new Game(2, names);
+        game = new Game(List.of(names));
     }
 
     @Test

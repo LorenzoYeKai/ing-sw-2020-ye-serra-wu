@@ -5,6 +5,8 @@ import it.polimi.ingsw.models.game.rules.ActualRule;
 import java.util.ArrayList;
 
 public class Worker implements WorkerData {
+    // probably we can avoid storing coordinates,
+    // but rather we store the "current space"?
     private int x;
     private int y;
     private final Player player;
@@ -12,9 +14,11 @@ public class Worker implements WorkerData {
     private ActualRule rules;
 
     public Worker(Player player) {
+        this.x = -1;
+        this.y = -1;
         this.player = player;
-        this.world = this.player.game.getWorld();
-        rules = this.player.game.getRules();
+        this.world = this.player.getGame().getWorld();
+        this.rules = this.player.getGame().getRules();
     }
 
     public void startTurn(){
@@ -25,8 +29,11 @@ public class Worker implements WorkerData {
      * Uses ActualRule.canMoveThere to check if this worker can move in a particular space according to all the active rules
      */
     public void move(Space targetSpace) {
-        victory(targetSpace); //Check win condition
-        this.world.getSpaces(this.x, this.y).removeWorker();
+        if(this.x != -1 && this.y != -1) {
+            // probably it's better to check for victory **after** worker has moved?
+            victory(targetSpace); //Check win condition
+            this.world.getSpaces(this.x, this.y).removeWorker();
+        }
         setPosition(targetSpace);
     }
 
@@ -48,7 +55,7 @@ public class Worker implements WorkerData {
         if (rules.winCondition(world.getSpaces(this.x, this.y), targetSpace)) {
             this.world.getSpaces(this.x, this.y).removeWorker();
             setPosition(targetSpace);
-            this.player.game.endGame(); //If true the game ends
+            this.player.getGame().announceVictory(this.player); //If true the game ends
         }
     }
 
@@ -60,12 +67,13 @@ public class Worker implements WorkerData {
         return x;
     }
 
-    public void setPosition(Space targetSpace){
+    private void setPosition(Space targetSpace){
         this.x = targetSpace.getX();
         this.y = targetSpace.getY();
         targetSpace.setWorker(this);
     }
 
+    @Override
     public Player getPlayer(){
         return this.player;
     }
