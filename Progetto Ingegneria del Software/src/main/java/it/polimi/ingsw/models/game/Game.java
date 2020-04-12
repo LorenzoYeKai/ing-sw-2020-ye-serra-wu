@@ -229,4 +229,11 @@ public class Game {
         this.currentStatus = status;
         this.gameStatusNotifier.notify(this.currentStatus);
     }
+
+    /**
+     * Solo per i test, da togliere!!!!
+     */
+    public void setCurrentTurn(int i){
+        this.currentTurn = i;
+    }
 }

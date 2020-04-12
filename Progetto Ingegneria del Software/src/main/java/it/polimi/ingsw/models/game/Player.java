@@ -21,7 +21,7 @@ public class Player implements PlayerData {
     private God god;
     private boolean defeated;
 
-    public Player(Game game, String name) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
+    public Player(Game game, String name) {
         this.game = game;
         this.name = name;
         this.workers = List.of(new Worker(this), new Worker(this));
