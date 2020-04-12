@@ -46,9 +46,7 @@ public class Player implements PlayerData {
     @Override
     public List<Worker> getAvailableWorkers() {
         return this.workers.stream()
-                .filter(worker -> this.getGame().getRules()
-                        .getAvailableSpaces(worker.getCurrentSpace())
-                        .size() > 0)
+                .filter(worker -> worker.computeAvailableSpaces().size() > 0)
                 .collect(Collectors.toUnmodifiableList());
     }
 

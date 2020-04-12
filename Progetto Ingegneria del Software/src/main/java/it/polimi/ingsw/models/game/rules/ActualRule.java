@@ -86,18 +86,6 @@ public class ActualRule {
                 .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
     }
 
-    public ArrayList<Space> getAvailableSpaces(Space originalSpace) {
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (canMoveThere(originalSpace, this.world.getSpaces(i, j))) {
-                    availableSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return availableSpaces;
-    }
-
     public ArrayList<Space> getBuildableSpaces(Space originalSpace) {
         ArrayList<Space> buildableSpaces = new ArrayList<Space>();
         for (int i = 0; i < 5; i++) {

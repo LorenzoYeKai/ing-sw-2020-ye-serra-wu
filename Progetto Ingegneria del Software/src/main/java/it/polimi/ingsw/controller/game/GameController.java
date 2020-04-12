@@ -69,11 +69,11 @@ public class GameController {
             throw new NotExecutedException("Cannot move to occupied space");
         }
 
-        worker.move(targetSpace);
+        worker.setStartPosition(targetSpace);
     }
 
     private void move(Worker worker, Space targetSpace) throws NotExecutedException {
-        if (!this.rules.canMoveThere(worker.getCurrentSpace(), targetSpace)) {
+        if (!worker.computeAvailableSpaces().contains(targetSpace)){
             throw new NotExecutedException("Cannot move there");
         }
         worker.move(targetSpace);

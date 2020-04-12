@@ -9,7 +9,6 @@ public class Worker implements WorkerData {
     private final Player player;
     private final World world;
     private ActualRule rules;
-    private ArrayList<Space> availableSpaces;
 
     public Worker(Player player) {
         this.player = player;
@@ -26,7 +25,6 @@ public class Worker implements WorkerData {
      * Uses ActualRule.canMoveThere to check if this worker can move in a particular space according to all the active rules
      */
     public void move(Space targetSpace) {
-        victory(targetSpace); //Check win condition
         this.currentSpace.removeWorker();
         if (this.currentSpace != null) {
             // probably it's better to check for victory **after** worker has moved?
@@ -73,6 +71,13 @@ public class Worker implements WorkerData {
         targetSpace.setWorker(this);
     }
 
+    public void setStartPosition(Space targetSpace){
+        if(this.currentSpace == null /*&& !this.player.isDefeated()*/){
+            this.currentSpace = targetSpace;
+            targetSpace.setWorker(this);
+        }
+    }
+
     @Override
     public Player getPlayer() {
         return this.player;
@@ -86,11 +91,8 @@ public class Worker implements WorkerData {
         return this.rules;
     }
 
-    /**
-     * This will be called at the beginning of each turn
-      */
-    public void computeAvailableSpaces(){
-        this.availableSpaces.clear();
+    public ArrayList<Space> computeAvailableSpaces(){
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
         for(int i = 0; i < 5; i++){
             for(int j = 0; j < 5; j++){
                 if(rules.canMoveThere(this.currentSpace, this.world.getSpaces(i, j))){
@@ -98,11 +100,9 @@ public class Worker implements WorkerData {
                 }
             }
         }
+        return availableSpaces;
     }
 
-    public ArrayList<Space> getAvailableSpaces(){
-        return this.availableSpaces;
-    }
 
     public Space getCurrentSpace() {
         return this.currentSpace;

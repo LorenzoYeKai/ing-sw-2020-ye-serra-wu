@@ -27,11 +27,11 @@ public class DefaultRule {
     }
 
     public static boolean defaultIsOccupiedByWorker(Space originalSpace, Space targetSpace){
-        return originalSpace.isInWorld() && targetSpace.isOccupiedByWorker();
+        return originalSpace.isInWorld() && !targetSpace.isOccupiedByWorker();
     }
 
     public static boolean defaultIsOccupiedByDome(Space originalSpace, Space targetSpace){
-        return originalSpace.isInWorld() && targetSpace.isOccupiedByDome();
+        return originalSpace.isInWorld() && !targetSpace.isOccupiedByDome();
     }
 
     public static boolean defaultIsInWorld(Space originalSpace, Space targetSpace){
@@ -43,7 +43,7 @@ public class DefaultRule {
      */
 
     public static boolean defaultIsOccupied(Space originalSpace, Space targetSpace){
-        return originalSpace.isInWorld() && targetSpace.isOccupied();
+        return originalSpace.isInWorld() && !targetSpace.isOccupied();
     }
 
 

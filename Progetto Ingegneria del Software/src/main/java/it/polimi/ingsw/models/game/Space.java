@@ -112,10 +112,12 @@ public class Space implements SpaceData {
      * Checks if a space is a neighbor of another space
      */
     public boolean isNeighbor(Space space) {
-        return (this.x == space.x - 1 && this.y == space.y) || (this.x == space.x + 1 && this.y == space.y) ||
-                (this.x == space.x && this.y == space.y - 1) || (this.x == space.x && this.y == space.y + 1) ||
-                (this.x == space.x + 1 && this.y == space.y + 1) || (this.x == space.x - 1 && this.y == space.y + 1) ||
-                (this.x == space.x + 1 && this.y == space.y - 1) || (this.x == space.x - 1 && this.y == space.y - 1);
+        return (space.x == this.x && (space.y == this.y - 1 || space.y == this.y + 1)) ||
+                (space.y == this.y && (space.x == this.x - 1 || space.x == this.x + 1)) ||
+                (space.x == this.x + 1 && (space.y == this.y - 1 || space.y == this.y + 1))||
+                (space.x == this.x - 1 && (space.y == this.y - 1 || space.y == this.y + 1));
+
+
     }
 }
 
