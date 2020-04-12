@@ -158,8 +158,13 @@ public class MultiUserConsoleGameView extends GameView {
         info.println("Player " + currentPlayer.getName() + ", your workers: ");
         info.println("0 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(0)));
         info.println("1 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(1)));
-        info.println("Command: `[worker index] [move/build] [X] [Y]`");
-        info.println("Example: `0 move 0 3`");
+        if (!this.gameStarted) {
+            info.println("Command: `[worker index] place [X] [Y]`");
+            info.println("Example: `0 place 0 3`");
+        } else {
+            info.println("Command: `[worker index] [move/build/build_dome] [X] [Y]`");
+            info.println("Example: `0 move 0 3`");
+        }
         info.println("Type `end` to end your input");
 
         // Print row separators
@@ -197,7 +202,7 @@ public class MultiUserConsoleGameView extends GameView {
             }
         }
 
-        this.output.println(matrix.toString());
+        this.output.print(matrix.toString());
     }
 }
 

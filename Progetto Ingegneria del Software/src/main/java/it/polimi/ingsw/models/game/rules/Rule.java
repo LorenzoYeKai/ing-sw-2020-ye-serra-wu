@@ -51,7 +51,7 @@ public class Rule {
      * Checks if the move performed by a worker leads to victory
      */
     public static boolean defaultWinCondition(Space originalSpace, Space targetSpace){
-        return originalSpace.getLevel() == 3 && targetSpace.getLevel() != 3;
+        return originalSpace.getLevel() < 3 && targetSpace.getLevel() == 3;
     }
 
     public World getWorld(){

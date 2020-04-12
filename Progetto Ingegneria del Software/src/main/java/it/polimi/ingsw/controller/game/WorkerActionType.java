@@ -1,6 +1,8 @@
 package it.polimi.ingsw.controller.game;
 
 public enum  WorkerActionType {
+    PLACE, // during setup phase
+    MOVE,
     BUILD,
-    MOVE
+    BUILD_DOME
 }
