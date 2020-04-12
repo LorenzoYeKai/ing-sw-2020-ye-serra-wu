@@ -2,14 +2,10 @@ package it.polimi.ingsw.controller.game;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
-import it.polimi.ingsw.models.lobby.UserData;
 import it.polimi.ingsw.views.game.GameView;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class GameController {
     private final Game game;
@@ -32,6 +28,7 @@ public class GameController {
         this.game.playGame();
     }
 
+    // TODO: call worker.startTurn() somewhere
     public void workerAction(WorkerData workerData,
                              WorkerActionType action,
                              int x, int y) throws NotExecutedException {
@@ -42,25 +39,20 @@ public class GameController {
             throw new NotExecutedException("Not your turn");
         }
 
+        Worker worker = this.game.getCurrentPlayer().getWorker(workerData);
         Space targetSpace = this.game.getWorld().getSpaces(x, y);
 
-        if(action == WorkerActionType.PLACE) {
-            this.place(workerData, targetSpace);
-            return;
+        if (action == WorkerActionType.PLACE && this.gameStarted) {
+            throw new NotExecutedException("Game already started");
         }
-
-        if(!this.gameStarted) {
+        if (action != WorkerActionType.PLACE && !this.gameStarted) {
             throw new NotExecutedException("Game not started yet");
         }
 
-        List<Worker> workers = this.game.getCurrentPlayer().getAllWorkers();
-        int index = workers.indexOf(workerData);
-        if (index == -1) {
-            throw new NotExecutedException("Invalid worker");
-        }
-        Worker worker = workers.get(index);
-
         switch (action) {
+            case PLACE:
+                this.place(worker, targetSpace);
+                break;
             case MOVE:
                 this.move(worker, targetSpace);
                 break;
@@ -72,36 +64,23 @@ public class GameController {
         }
     }
 
-    private void place(WorkerData workerData, Space targetSpace) throws NotExecutedException {
-        if(this.gameStarted) {
-            throw new NotExecutedException("Game already started");
-        }
-
+    private void place(Worker worker, Space targetSpace) throws NotExecutedException {
         if (targetSpace.isOccupied()) {
             throw new NotExecutedException("Cannot move to occupied space");
         }
-
-        List<Worker> workers = this.game.getCurrentPlayer().getAllWorkers();
-        int index = workers.indexOf(workerData);
-        if (index == -1) {
-            throw new NotExecutedException("Invalid worker");
-        }
-        Worker worker = workers.get(index);
 
         worker.move(targetSpace);
     }
 
     private void move(Worker worker, Space targetSpace) throws NotExecutedException {
-        Space workerSpace = this.game.getWorld().getSpaces(worker.getX(), worker.getY());
-        if(!this.rules.canMoveThere(workerSpace, targetSpace)) {
+        if (!this.rules.canMoveThere(worker.getCurrentSpace(), targetSpace)) {
             throw new NotExecutedException("Cannot move there");
         }
         worker.move(targetSpace);
     }
 
     private void build(Worker worker, Space targetSpace) throws NotExecutedException {
-        Space workerSpace = this.game.getWorld().getSpaces(worker.getX(), worker.getY());
-        if(!this.rules.canBuildThere(workerSpace, targetSpace)) {
+        if (!this.rules.canBuildThere(worker.getCurrentSpace(), targetSpace)) {
             throw new NotExecutedException("Cannot build there");
         }
 
@@ -109,8 +88,7 @@ public class GameController {
     }
 
     private void buildDome(Worker worker, Space targetSpace) throws NotExecutedException {
-        Space workerSpace = this.game.getWorld().getSpaces(worker.getX(), worker.getY());
-        if(!this.rules.canBuildDomeThere(workerSpace, targetSpace)) {
+        if (!this.rules.canBuildDomeThere(worker.getCurrentSpace(), targetSpace)) {
             throw new NotExecutedException("Cannot build dome there");
         }
 

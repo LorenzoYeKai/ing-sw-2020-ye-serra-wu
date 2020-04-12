@@ -1,26 +1,30 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
+import it.polimi.ingsw.models.game.rules.ActualRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Player implements PlayerData {
 
     private final String name;
     private final Game game;
-    private final Worker[] workers;
+    private final List<Worker> workers;
     private God god;
     private boolean defeated;
 
     public Player(Game game, String name) { //Nella creazione dei player saranno assegnati i rule index in modo crescente
         this.game = game;
         this.name = name;
-        this.workers = new Worker[] { new Worker(this), new Worker(this) };
+        this.workers = List.of(new Worker(this), new Worker(this));
         this.defeated = false;
     }
 
@@ -36,18 +40,16 @@ public class Player implements PlayerData {
 
     @Override
     public List<Worker> getAllWorkers() {
-        return List.of(this.workers);
+        return this.workers;
     }
 
     @Override
     public List<Worker> getAvailableWorkers() {
-        List<Worker> availableWorkers = new ArrayList<>();
-        for (Worker w : this.workers) {
-            if (this.game.getRules().getAvailableSpaces(w.getWorld().getSpaces(w.getX(), w.getY())).size() != 0) {
-                availableWorkers.add(w);
-            }
-        }
-        return Collections.unmodifiableList(availableWorkers);
+        return this.workers.stream()
+                .filter(worker -> this.getGame().getRules()
+                        .getAvailableSpaces(worker.getCurrentSpace())
+                        .size() > 0)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public Game getGame() {
@@ -70,15 +72,17 @@ public class Player implements PlayerData {
         }
     }
 
-    public Worker getWorker(int index) {
-        return workers[index];
+    public Worker getWorker(WorkerData data) {
+        int index = this.workers.indexOf(data);
+        if (index == -1) {
+            throw new InternalError("Invalid worker");
+        }
+        return this.workers.get(index);
     }
 
     public void setDefeated() {
         this.defeated = true;
     }
-
-
 
 
 }
