@@ -5,16 +5,17 @@ import it.polimi.ingsw.models.game.rules.ActualRule;
 import java.util.ArrayList;
 
 public class Worker implements WorkerData {
-    private int x;
-    private int y;
+    private Space currentSpace;
     private final Player player;
     private final World world;
     private ActualRule rules;
+    private ArrayList<Space> availableSpaces;
 
     public Worker(Player player) {
         this.player = player;
         this.world = this.player.game.getWorld();
         rules = this.player.game.getRules();
+        this.availableSpaces = new ArrayList<Space>();
     }
 
     public void startTurn(){
@@ -26,7 +27,7 @@ public class Worker implements WorkerData {
      */
     public void move(Space targetSpace) {
         victory(targetSpace); //Check win condition
-        this.world.getSpaces(this.x, this.y).removeWorker();
+        this.currentSpace.removeWorker();
         setPosition(targetSpace);
     }
 
@@ -45,24 +46,27 @@ public class Worker implements WorkerData {
      * Uses ActualRule.winCondition to check if the player wins by moving this worker into a particular space according to all the active rules
      */
     public void victory (Space targetSpace){ //This method is called only after checking that the worker can move to that position
-        if (rules.winCondition(world.getSpaces(this.x, this.y), targetSpace)) {
-            this.world.getSpaces(this.x, this.y).removeWorker();
+        if (rules.winCondition(this.currentSpace, targetSpace)) {
+            this.currentSpace.removeWorker();
             setPosition(targetSpace);
             this.player.game.endGame(); //If true the game ends
         }
     }
 
-    public int getY () {
-        return y;
+    public int getX () {
+        return currentSpace.getX();
     }
 
-    public int getX () {
-        return x;
+    public int getY () {
+        return currentSpace.getY();
+    }
+
+    public Space getCurrentSpace(){
+        return this.currentSpace;
     }
 
     public void setPosition(Space targetSpace){
-        this.x = targetSpace.getX();
-        this.y = targetSpace.getY();
+        this.currentSpace = targetSpace;
         targetSpace.setWorker(this);
     }
 
@@ -78,6 +82,23 @@ public class Worker implements WorkerData {
         return this.rules;
     }
 
-        //abstract void printPosition();
+
+    /**
+     * This will be called at the beginning of each turn
+      */
+    public void computeAvailableSpaces(){
+        this.availableSpaces.clear();
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                if(rules.canMoveThere(this.currentSpace, this.world.getSpaces(i, j))){
+                    availableSpaces.add(this.world.getSpaces(i, j));
+                }
+            }
+        }
+    }
+
+    public ArrayList<Space> getAvailableSpaces(){
+        return this.availableSpaces;
+    }
 }
 

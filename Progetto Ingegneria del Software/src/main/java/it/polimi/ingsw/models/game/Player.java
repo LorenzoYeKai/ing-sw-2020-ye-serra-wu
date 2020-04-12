@@ -68,10 +68,15 @@ public class Player implements PlayerData {
         return this.god;
     }
 
+    /**
+     * First method to be called at the beginning of the turn (Unless there is a god power that has to be activated before)
+     * Computes workers' available spaces and returns the availableWorkers
+     */
     public ArrayList<Worker> getAvailableWorkers(){
         ArrayList<Worker> availableWorkers = new ArrayList<Worker>();
         for(Worker w : this.workers){
-            if(this.game.getRules().getAvailableSpaces(w.getWorld().getSpaces(w.getX(), w.getY())).size() != 0){
+            w.computeAvailableSpaces();
+            if(w.getAvailableSpaces().size() != 0){
                 availableWorkers.add(w);
             }
         }

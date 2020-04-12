@@ -7,7 +7,7 @@ import it.polimi.ingsw.models.game.World;
  * Rules for Athena's passive power
  * Will be renamed as godPower
  */
-public class GodPower extends Rule {
+public class GodPower extends DefaultRule {
 
     public GodPower(World world) {
         super(world);

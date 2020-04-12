@@ -18,7 +18,6 @@ public class ActualRule {
     private Map<String, BiPredicate<Space, Space>> buildRules;
     private Map<String, BiPredicate<Space, Space>> winConditions;
     private int domeLevel;
-    private Rule defaultRules;
     private GodPower godPower;
     private World world;
 
@@ -31,7 +30,6 @@ public class ActualRule {
         this.winConditions = new HashMap<>();
         this.domeLevel = 3;
         this.world = world;
-        this.defaultRules = new Rule(world);
         this.godPower = new GodPower(world);
         resetDefaultRules();
     }
@@ -62,17 +60,7 @@ public class ActualRule {
         return true;
     }
 
-    public ArrayList<Space> getAvailableSpaces(Space originalSpace){
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        for(int i = 0; i < 5; i++){
-            for(int j = 0; j < 5; j++){
-                if(canMoveThere(originalSpace, this.world.getSpaces(i, j))){
-                    availableSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return availableSpaces;
-    }
+
 
     public ArrayList<Space> getBuildableSpaces(Space originalSpace){
         ArrayList<Space> buildableSpaces = new ArrayList<Space>();
@@ -103,15 +91,15 @@ public class ActualRule {
         this.movementRules.clear();
         this.buildRules.clear();
         this.winConditions.clear();
-        this.movementRules.put("defaultIsNeighbor", Rule::defaultIsNeighbor);
-        this.movementRules.put("defaultLevelDifference", Rule::defaultLevelDifference);
-        this.movementRules.put("defaultIsOccupiedByWorker", Rule::defaultIsOccupiedByWorker);
-        this.movementRules.put("defaultIsOccupiedByDome", Rule::defaultIsOccupiedByDome);
-        this.movementRules.put("defaultIsInWorld", Rule::defaultIsInWorld);
-        this.buildRules.put("defaultIsNeighbor", Rule::defaultIsNeighbor);
-        this.buildRules.put("defaultIsInWorld", Rule::defaultIsInWorld);
-        this.buildRules.put("defaultIsOccupied", Rule::defaultIsOccupied);
-        this.winConditions.put("defaultWinCondition", Rule::defaultWinCondition);
+        this.movementRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
+        this.movementRules.put("defaultLevelDifference", DefaultRule::defaultLevelDifference);
+        this.movementRules.put("defaultIsOccupiedByWorker", DefaultRule::defaultIsOccupiedByWorker);
+        this.movementRules.put("defaultIsOccupiedByDome", DefaultRule::defaultIsOccupiedByDome);
+        this.movementRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
+        this.buildRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
+        this.buildRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
+        this.buildRules.put("defaultIsOccupied", DefaultRule::defaultIsOccupied);
+        this.winConditions.put("defaultWinCondition", DefaultRule::defaultWinCondition);
     }
 
     public Map<String, BiPredicate<Space, Space>> getMovementRules(){

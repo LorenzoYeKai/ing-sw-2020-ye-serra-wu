@@ -4,7 +4,6 @@ import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
-import it.polimi.ingsw.models.game.rules.Rule;
 
 import java.lang.UnsupportedOperationException;
 import java.lang.IllegalArgumentException;
