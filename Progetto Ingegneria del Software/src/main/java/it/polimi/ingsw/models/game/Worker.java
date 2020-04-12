@@ -13,14 +13,14 @@ public class Worker implements WorkerData {
 
     public Worker(Player player) {
         this.player = player;
-        this.world = this.player.game.getWorld();
-        rules = this.player.game.getRules();
-        this.availableSpaces = new ArrayList<Space>();
+        this.world = this.player.getGame().getWorld();
+        this.rules = this.player.getGame().getRules();
+        this.currentSpace = null;
     }
 
-    public void startTurn(){
+    /*public void startTurn() {
         player.getGod().workerActionOrder(this);
-    }
+    }*/
 
     /**
      * Uses ActualRule.canMoveThere to check if this worker can move in a particular space according to all the active rules
@@ -28,6 +28,10 @@ public class Worker implements WorkerData {
     public void move(Space targetSpace) {
         victory(targetSpace); //Check win condition
         this.currentSpace.removeWorker();
+        if (this.currentSpace != null) {
+            // probably it's better to check for victory **after** worker has moved?
+            victory(targetSpace); //Check win condition
+        }
         setPosition(targetSpace);
     }
 
@@ -38,21 +42,13 @@ public class Worker implements WorkerData {
         targetSpace.addLevel();
     }
 
-    public void buildDome(Space targetSpace){
+    public void buildDome(Space targetSpace) {
         targetSpace.setDome();
     }
 
     /**
      * Uses ActualRule.winCondition to check if the player wins by moving this worker into a particular space according to all the active rules
      */
-    public void victory (Space targetSpace){ //This method is called only after checking that the worker can move to that position
-        if (rules.winCondition(this.currentSpace, targetSpace)) {
-            this.currentSpace.removeWorker();
-            setPosition(targetSpace);
-            this.player.game.endGame(); //If true the game ends
-        }
-    }
-
     public int getX () {
         return currentSpace.getX();
     }
@@ -61,27 +57,34 @@ public class Worker implements WorkerData {
         return currentSpace.getY();
     }
 
-    public Space getCurrentSpace(){
-        return this.currentSpace;
+    public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
+        // TODO: move victory-checking code to somewhere else
+        if (this.rules.winCondition(this.currentSpace, targetSpace)) {
+            this.setPosition(targetSpace);
+            this.player.getGame().announceVictory(this.player); //If true the game ends
+        }
     }
 
-    public void setPosition(Space targetSpace){
+    private void setPosition(Space targetSpace) {
+        if (this.currentSpace != null) {
+            this.currentSpace.removeWorker();
+        }
         this.currentSpace = targetSpace;
         targetSpace.setWorker(this);
     }
 
-    public Player getPlayer(){
+    @Override
+    public Player getPlayer() {
         return this.player;
     }
 
-    public World getWorld(){
+    public World getWorld() {
         return this.world;
     }
 
-    public ActualRule getRules(){
+    public ActualRule getRules() {
         return this.rules;
     }
-
 
     /**
      * This will be called at the beginning of each turn
@@ -99,6 +102,10 @@ public class Worker implements WorkerData {
 
     public ArrayList<Space> getAvailableSpaces(){
         return this.availableSpaces;
+    }
+
+    public Space getCurrentSpace() {
+        return this.currentSpace;
     }
 }
 

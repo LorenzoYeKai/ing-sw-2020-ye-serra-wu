@@ -7,6 +7,7 @@ import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LobbyController {
     private final Lobby lobby;
@@ -115,8 +116,10 @@ public class LobbyController {
         this.throwIfNotHost(host);
 
         Room room = this.lobby.getRoom(roomData.getRoomId());
-        GameController gameController = new GameController();
-        // make a temporary copy because we are editing the original list when iterating
+        List<String> nicknames = room.getUsers().stream()
+                .map(UserData::getUsername)
+                .collect(Collectors.toUnmodifiableList());
+        GameController gameController = new GameController(nicknames);
         room.startGame(gameController);
     }
 

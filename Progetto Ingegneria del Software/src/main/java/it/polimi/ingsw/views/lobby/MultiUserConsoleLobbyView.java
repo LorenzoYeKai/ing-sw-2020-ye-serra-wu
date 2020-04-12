@@ -5,11 +5,14 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.models.lobby.RoomData;
 import it.polimi.ingsw.models.lobby.UserData;
+import it.polimi.ingsw.views.game.GameView;
+import it.polimi.ingsw.views.game.MultiUserConsoleGameView;
 import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This is a console-based View of lobby,
@@ -48,15 +51,29 @@ public class MultiUserConsoleLobbyView {
         }
     }
 
-    public GameController getUserInputUntiGameStarts() {
-        while (true) {
+    public List<String> getUserNames() {
+        return this.views.stream()
+                .map(view -> view.getUser().getUsername())
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    public MultiUserConsoleGameView getUserInputUntilGameStarts() throws NotExecutedException {
+        while (this.gameController == null) {
             for (SharedConsoleLobbyView view : views) {
                 this.getUserInput(view);
                 if (this.gameController != null) {
-                    return this.gameController;
+                    break;
                 }
             }
         }
+
+        MultiUserConsoleGameView gameView = new MultiUserConsoleGameView(this.gameController);
+        for (SharedConsoleLobbyView view : views) {
+            if(view.getGameController() == this.gameController) {
+                gameView.join(view.getUser().getUsername());
+            }
+        }
+        return gameView;
     }
 
     private void getUserInput(SharedConsoleLobbyView view) {
