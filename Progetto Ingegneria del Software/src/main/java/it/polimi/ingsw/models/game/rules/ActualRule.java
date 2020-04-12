@@ -46,12 +46,8 @@ public class ActualRule {
      * @return if is allowed to move in the target space.
      */
     public boolean canMoveThere(Space originalSpace, Space targetSpace) {
-        for (BiPredicate<Space, Space> r : this.movementRules.values()) {
-            if (!r.test(originalSpace, targetSpace)) {
-                return false;
-            }
-        }
-        return true;
+        return this.movementRules.values().stream()
+                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
     }
 
     /**
@@ -64,12 +60,8 @@ public class ActualRule {
      * @return if is allowed to build a dome in the target space.
      */
     public boolean canBuildThere(Space originalSpace, Space targetSpace) {
-        for (BiPredicate<Space, Space> r : this.buildRules.values()) {
-            if (!r.test(originalSpace, targetSpace)) {
-                return false;
-            }
-        }
-        return true;
+        return this.buildRules.values().stream()
+                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
     }
 
     /**
@@ -124,6 +116,7 @@ public class ActualRule {
         this.buildRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
         this.buildRules.put("defaultIsOccupied", DefaultRule::defaultIsOccupied);
         this.winConditions.put("defaultWinCondition", DefaultRule::defaultWinCondition);
+        this.buildDomeRules.put("defaultCanBuildDomeLevel", DefaultRule::defaultCanBuildDomeLevel);
     }
 
     public Map<String, BiPredicate<Space, Space>> getMovementRules() {

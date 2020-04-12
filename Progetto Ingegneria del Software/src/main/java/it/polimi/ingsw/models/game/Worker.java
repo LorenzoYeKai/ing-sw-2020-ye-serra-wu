@@ -25,11 +25,7 @@ public class Worker implements WorkerData {
      * Uses ActualRule.canMoveThere to check if this worker can move in a particular space according to all the active rules
      */
     public void move(Space targetSpace) {
-        this.currentSpace.removeWorker();
-        if (this.currentSpace != null) {
-            // probably it's better to check for victory **after** worker has moved?
-            victory(targetSpace); //Check win condition
-        }
+        victory(targetSpace); //Check win condition
         setPosition(targetSpace);
     }
 
@@ -56,7 +52,6 @@ public class Worker implements WorkerData {
     }
 
     public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
-        // TODO: move victory-checking code to somewhere else
         if (this.rules.winCondition(this.currentSpace, targetSpace)) {
             this.setPosition(targetSpace);
             this.player.getGame().announceVictory(this.player); //If true the game ends

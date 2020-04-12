@@ -21,6 +21,7 @@ public class ActualRuleTest {
         });
         ActualRule rules = new ActualRule(world);
         assertTrue(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(1, 2)));
+        assertFalse(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(1, 4)));
     }
 
 }
