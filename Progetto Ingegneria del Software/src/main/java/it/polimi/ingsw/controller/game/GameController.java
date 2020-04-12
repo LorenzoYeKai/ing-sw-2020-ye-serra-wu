@@ -80,7 +80,7 @@ public class GameController {
     }
 
     private void build(Worker worker, Space targetSpace) throws NotExecutedException {
-        if (!this.rules.canBuildThere(worker.getCurrentSpace(), targetSpace)) {
+        if (!worker.computeBuildableSpaces().contains(targetSpace)) {
             throw new NotExecutedException("Cannot build there");
         }
 

@@ -103,6 +103,18 @@ public class Worker implements WorkerData {
         return availableSpaces;
     }
 
+    public ArrayList<Space> computeBuildableSpaces(){
+        ArrayList<Space> buildableSpaces = new ArrayList<Space>();
+        for(int i = 0; i < 5; i++){
+            for(int j = 0; j < 5; j++){
+                if(rules.canBuildThere(this.currentSpace, this.world.getSpaces(i, j))){
+                    buildableSpaces.add(this.world.getSpaces(i, j));
+                }
+            }
+        }
+        return buildableSpaces;
+    }
+
 
     public Space getCurrentSpace() {
         return this.currentSpace;
