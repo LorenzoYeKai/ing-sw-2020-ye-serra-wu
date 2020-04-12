@@ -102,6 +102,9 @@ public abstract class ConsoleMatrix {
      * And it could be possible that we use emoji to represent stuffs in Santorini :)
      * So we use a 32-bit {@link Integer} code point instead.
      *
+     * EDIT: turns out emoji doesn't work well in console...
+     * So... there are some wasted efforts here :(
+     *
      * @param x The x position of character.
      * @param y The y position of character.
      */

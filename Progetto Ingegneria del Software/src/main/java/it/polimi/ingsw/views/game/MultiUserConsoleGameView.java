@@ -24,7 +24,6 @@ public class MultiUserConsoleGameView extends GameView {
     private final Scanner input;
     private final SpaceData[][] spaces;
     private final List<PlayerData> players;
-    private boolean useEmoji;
     private boolean gameStarted;
 
     public MultiUserConsoleGameView(GameController controller) {
@@ -33,15 +32,12 @@ public class MultiUserConsoleGameView extends GameView {
         this.input = new Scanner(System.in);
         this.spaces = new SpaceData[5][5];
         this.players = new ArrayList<>();
-        for(int y = 0; y < this.spaces.length; ++y) {
-            for(int x = 0; x < this.spaces.length; ++x) {
+        for (int y = 0; y < this.spaces.length; ++y) {
+            for (int x = 0; x < this.spaces.length; ++x) {
                 this.spaces[y][x] = new Space(null, y, x);
             }
         }
 
-        this.output.println("Text mode (ABCD) or emoji mode (  \uD83C\uDFD7 \uD83C\uDFE2 \uD83D\uDD4C  )?");
-        this.output.println("Type `emoji` to select emoji mode, or anything else to use text mode");
-        this.useEmoji = this.input.nextLine().trim().equals("emoji");
         this.gameStarted = false;
     }
 
@@ -80,17 +76,36 @@ public class MultiUserConsoleGameView extends GameView {
     public void notifyPlayerTurn(PlayerData player) {
         this.output.println("Now it's turn of " + player.getName());
 
-        while(true) {
+        // TODO: replace true with `player.getAvailableWorkers().isEmpty()`
+        while (true)
+        {
             this.printMap(player);
-            String line = this.input.nextLine();
-            if(line.isEmpty()) {
-                return;
+
+            // TODO: Remove this part,
+            //  and instead decrease "getAvailableWorkers" through rule
+            String next = this.input.next();
+            if(next.toUpperCase().equals("END")) {
+                break;
             }
-            String[] args = line.split("\\s+", 3);
-            WorkerData worker = player.getAllWorkers().get(Integer.parseInt(args[0]));
-            WorkerActionType type = WorkerActionType.valueOf(args[1].toUpperCase());
-            int x = "ABCDE".indexOf(args[2].toUpperCase().charAt(0));
-            int y = "12345".indexOf(args[2].charAt(1));
+
+            WorkerData worker;
+            WorkerActionType type;
+            int x;
+            int y;
+            try {
+
+                worker = player.getAllWorkers().get(Integer.parseInt(next));
+                type = WorkerActionType.valueOf(this.input.next().toUpperCase());
+                x = this.input.nextInt();
+                y = this.input.nextInt();
+                if(x >= 5 || y >= 5) {
+                    throw new NotExecutedException("Invalid coordinates");
+                }
+            }
+            catch (Exception exception) {
+                this.output.println("Exception: " + exception);
+                continue;
+            }
 
             try {
                 controller.workerAction(worker, type, x, y);
@@ -106,18 +121,14 @@ public class MultiUserConsoleGameView extends GameView {
     }
 
     private void printMap(PlayerData currentPlayer) {
-        String[] levels = this.useEmoji
-                ? new String[]{" ", "\uD83C\uDFD7", "\uD83C\uDFE0", "\uD83C\uDFF0"}
-                : new String[]{"0", "1", "2", "3"};
-        String dome = this.useEmoji ? "\uD83D\uDD4D" : "^";
+        String[] levels = new String[]{" ", "1", "2", "3"};
+        String dome = "^";
 
         Map<WorkerData, String> workerSymbols = new HashMap<>();
-        String[] symbols = this.useEmoji
-                ? new String[]{"\u2665", "\u2666", "\u2660", "\u2663"}
-                : new String[]{"A", "B", "C", "D"};
+        String[] symbols = new String[]{"A", "B", "C", "D"};
         int symbolIndex = 0;
-        for(PlayerData player : this.players) {
-            for(WorkerData worker : player.getAllWorkers()) {
+        for (PlayerData player : this.players) {
+            for (WorkerData worker : player.getAllWorkers()) {
                 workerSymbols.put(worker, symbols[symbolIndex]);
                 symbolIndex += 1;
             }
@@ -135,34 +146,38 @@ public class MultiUserConsoleGameView extends GameView {
         PrintWriter yCoordinates = columns[0].getPrintWriter();
         columns[0].setAutoLineBreak(true);
 
-        xCoordinates.print("|A |B |C |D |E |");
-        yCoordinates.print(" -1-2-3-4-5-");
+        xCoordinates.print("|0 |1 |2 |3 |4 |");
+        yCoordinates.print(" ─0─1─2─3─4─");
 
-        if(!this.gameStarted) {
+        if (!this.gameStarted) {
             info.println("Now is setup phase, move your workers");
-        }
-        else {
+        } else {
             info.println("Move / build with your workers");
         }
 
         info.println("Player " + currentPlayer.getName() + ", your workers: ");
         info.println("0 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(0)));
         info.println("1 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(1)));
-        info.println("Command: `[worker index] [move/build] [XY]`");
-        info.println("Example: `0 move D3`");
-        info.println("Type empty line (ENTER) to end your input");
+        info.println("Command: `[worker index] [move/build] [X] [Y]`");
+        info.println("Example: `0 move 0 3`");
+        info.println("Type `end` to end your input");
 
         // Print row separators
         for (int j = 0; j < 11; j += 2) {
             for (int i = 0; i < 16; ++i) {
-                world.setCharacter(i, j, '-');
+                world.setCharacter(i, j, '─');
             }
         }
 
         // Print column separators
         for (int i = 0; i < 16; i += 3) {
             for (int j = 0; j < 11; ++j) {
-                world.setCharacter(i, j, '|');
+                if (j % 2 == 0) {
+                    world.setCharacter(i, j, '┼');
+                } else {
+                    world.setCharacter(i, j, '│');
+                }
+
             }
         }
 
@@ -174,10 +189,9 @@ public class MultiUserConsoleGameView extends GameView {
                 world.setCharacter(x, y, levels[space.getLevel()]);
                 if (space.isOccupied()) {
                     if (space.isOccupiedByDome()) {
-                        world.setCharacter(x+1, y, dome);
-                    }
-                    else {
-                        world.setCharacter(x+1, y, workerSymbols.get(space.getWorker()));
+                        world.setCharacter(x + 1, y, dome);
+                    } else {
+                        world.setCharacter(x + 1, y, workerSymbols.get(space.getWorker()));
                     }
                 }
             }
