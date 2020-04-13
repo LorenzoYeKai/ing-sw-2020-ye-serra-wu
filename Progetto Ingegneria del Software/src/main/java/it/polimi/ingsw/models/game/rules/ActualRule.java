@@ -3,7 +3,6 @@ package it.polimi.ingsw.models.game.rules;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiPredicate;
@@ -78,44 +77,33 @@ public class ActualRule {
                 .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
     }
 
-    public ArrayList<Space> getBuildableSpaces(Space originalSpace) {
-        ArrayList<Space> buildableSpaces = new ArrayList<Space>();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if (canBuildThere(originalSpace, this.world.getSpaces(i, j))) {
-                    buildableSpaces.add(this.world.getSpaces(i, j));
-                }
-            }
-        }
-        return buildableSpaces;
-    }
-
     /**
      * Merges all the winCondition methods of all the active rules
      * Used in Worker.victory
      */
     public boolean winCondition(Space originalSpace, Space targetSpace) {
-        for (BiPredicate<Space, Space> r : this.winConditions.values()) {
-            if (!r.test(originalSpace, targetSpace)) {
-                return false;
-            }
-        }
-        return true;
+        return this.winConditions.values().stream()
+                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
     }
 
     private void resetDefaultRules() {
         this.movementRules.clear();
         this.buildRules.clear();
+        this.buildDomeRules.clear();
         this.winConditions.clear();
         this.movementRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
         this.movementRules.put("defaultLevelDifference", DefaultRule::defaultLevelDifference);
-        this.movementRules.put("defaultIsOccupiedByWorker", DefaultRule::defaultIsOccupiedByWorker);
-        this.movementRules.put("defaultIsOccupiedByDome", DefaultRule::defaultIsOccupiedByDome);
+        this.movementRules.put("defaultIsOccupiedByWorker", DefaultRule::defaultIsFreeFromWorker);
+        this.movementRules.put("defaultIsOccupiedByDome", DefaultRule::defaultIsFreeFromDome);
         this.movementRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
         this.buildRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
         this.buildRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
-        this.buildRules.put("defaultIsOccupied", DefaultRule::defaultIsOccupied);
+        this.buildRules.put("defaultIsOccupied", DefaultRule::defaultIsFree);
+        this.buildRules.put("defaultBuildLevelLimit", DefaultRule::defaultBuildLevelLimit);
         this.winConditions.put("defaultWinCondition", DefaultRule::defaultWinCondition);
+        this.buildDomeRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
+        this.buildDomeRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
+        this.buildDomeRules.put("defaultIsOccupied", DefaultRule::defaultIsFree);
         this.buildDomeRules.put("defaultCanBuildDomeLevel", DefaultRule::defaultCanBuildDomeLevel);
     }
 

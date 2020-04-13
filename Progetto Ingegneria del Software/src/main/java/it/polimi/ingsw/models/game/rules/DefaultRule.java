@@ -26,11 +26,11 @@ public class DefaultRule {
         return originalSpace.levelDifference(targetSpace) > -2;
     }
 
-    public static boolean defaultIsOccupiedByWorker(Space originalSpace, Space targetSpace){
+    public static boolean defaultIsFreeFromWorker(Space originalSpace, Space targetSpace){
         return originalSpace.isInWorld() && !targetSpace.isOccupiedByWorker();
     }
 
-    public static boolean defaultIsOccupiedByDome(Space originalSpace, Space targetSpace){
+    public static boolean defaultIsFreeFromDome(Space originalSpace, Space targetSpace){
         return originalSpace.isInWorld() && !targetSpace.isOccupiedByDome();
     }
 
@@ -42,12 +42,16 @@ public class DefaultRule {
      * Checks if a worker can build in a particular space
      */
 
-    public static boolean defaultIsOccupied(Space originalSpace, Space targetSpace){
+    public static boolean defaultIsFree(Space originalSpace, Space targetSpace){
         return originalSpace.isInWorld() && !targetSpace.isOccupied();
     }
 
     public static boolean defaultCanBuildDomeLevel(Space originalSpace, Space targetSpace){
         return originalSpace.isInWorld() && targetSpace.getLevel() == 3;
+    }
+
+    public static boolean defaultBuildLevelLimit(Space originalSpace, Space targetSpace){
+        return originalSpace.isInWorld() && targetSpace.getLevel() < 3;
     }
 
 

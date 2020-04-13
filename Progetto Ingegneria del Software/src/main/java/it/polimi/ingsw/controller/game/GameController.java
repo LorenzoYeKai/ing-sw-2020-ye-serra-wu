@@ -88,7 +88,7 @@ public class GameController {
     }
 
     private void buildDome(Worker worker, Space targetSpace) throws NotExecutedException {
-        if (!this.rules.canBuildDomeThere(worker.getCurrentSpace(), targetSpace)) {
+        if (!worker.computeDomeSpaces().contains(targetSpace)) {
             throw new NotExecutedException("Cannot build dome there");
         }
 

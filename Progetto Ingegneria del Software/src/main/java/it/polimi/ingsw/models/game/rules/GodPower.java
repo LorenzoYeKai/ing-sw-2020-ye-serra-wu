@@ -14,18 +14,19 @@ public class GodPower extends DefaultRule {
     }
 
     /**
-     * Overrides the levelDifference(currentX, currentY, x, y) > -2 condition into levelDifference(currentX, currentY, x, y) > -1
+     * Adds the originalSpace.levelDifference(targetSpace) > -1 condition to the rules
+     * Tested
      */
     public static boolean athenaPower(Space originalSpace, Space targetSpace){
         return originalSpace.levelDifference(targetSpace) > -1;
     }
 
     /**
-     * Servirebbero 3 parametri per impedire che torni nella posizione di origine
-     * PENSARE
+     * Used only for the second movement of Artemis which cannot move back to the initial position
+     * Tested
      */
     public static boolean artemisPower(Space originalSpace, Space targetSpace){
-        throw new UnsupportedOperationException("Not implemented yet");
+        return originalSpace.getWorker().getInitialSpace() != targetSpace;
     }
 
 }
