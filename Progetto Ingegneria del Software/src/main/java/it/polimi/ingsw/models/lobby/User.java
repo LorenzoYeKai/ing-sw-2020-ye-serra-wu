@@ -1,6 +1,7 @@
 package it.polimi.ingsw.models.lobby;
 
-import it.polimi.ingsw.Player;
+import it.polimi.ingsw.models.game.Player;
+import it.polimi.ingsw.models.game.PlayerData;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
 /**
@@ -23,17 +24,21 @@ public class User implements UserData {
         return this.username;
     }
 
-    @Override
     public RoomData getCurrentRoom() {
         return this.currentRoom;
     }
 
     public void setCurrentRoom(RoomData room) {
         this.currentRoom = room;
+        this.getView().notifyRoomChanged(this.currentRoom);
     }
 
     public LobbyView getView() {
         return this.view;
+    }
+
+    public void givePlayer(PlayerData player) {
+
     }
 
 }
