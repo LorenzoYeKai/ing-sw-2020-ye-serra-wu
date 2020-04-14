@@ -54,6 +54,7 @@ public class Player implements PlayerData {
         return this.game;
     }
 
+    @Override
     public God getGod() {
         return this.god;
     }

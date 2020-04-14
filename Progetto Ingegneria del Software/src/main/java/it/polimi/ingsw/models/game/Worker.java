@@ -19,12 +19,9 @@ public class Worker implements WorkerData {
         this.initialSpace = null;
     }
 
-    /*public void startTurn() {
-        player.getGod().workerActionOrder(this);
-    }*/
-
     /**
-     * Uses ActualRule.canMoveThere to check if this worker can move in a particular space according to all the active rules
+     * Used by worker to move
+     * The move conditions checked are in the controller
      */
     public void move(Space targetSpace) {
         victory(targetSpace); //Check win condition
@@ -32,27 +29,36 @@ public class Worker implements WorkerData {
     }
 
     /**
-     * Uses ActualRule.canBuildThere to check if this worker can build in a particular space according to all the active rules
+     * Used by worker to build
+     * The build conditions are checked in the controller
      */
     public void buildBlock(Space targetSpace) {
         targetSpace.addLevel();
     }
 
+
+    /**
+     * Used by worker to build a dome
+     * The build conditions are checked in the controller
+     */
     public void buildDome(Space targetSpace) {
         targetSpace.setDome();
     }
 
     /**
-     * Uses ActualRule.winCondition to check if the player wins by moving this worker into a particular space according to all the active rules
+     * Checks if a movement is satisfying a win condition
      */
-
     public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
         if (this.rules.winCondition(this.currentSpace, targetSpace)) {
             this.setPosition(targetSpace);
+            System.out.println("Victory!!!!"); //For tests
             this.player.getGame().announceVictory(this.player); //If true the game ends
         }
     }
 
+    /**
+     * Computes the available spaces for movement
+     */
     public ArrayList<Space> computeAvailableSpaces(){
         ArrayList<Space> availableSpaces = new ArrayList<Space>();
         for(int i = 0; i < 5; i++){
@@ -65,6 +71,9 @@ public class Worker implements WorkerData {
         return availableSpaces;
     }
 
+    /**
+     * Computes the spaces where the worker is allowed to build a block
+     */
     public ArrayList<Space> computeBuildableSpaces(){
         ArrayList<Space> buildableSpaces = new ArrayList<Space>();
         for(int i = 0; i < 5; i++){
@@ -77,6 +86,9 @@ public class Worker implements WorkerData {
         return buildableSpaces;
     }
 
+    /**
+     * Computes the spaces where the worker is allowed to build a dome
+     */
     public ArrayList<Space> computeDomeSpaces(){
         ArrayList<Space> domeSpaces = new ArrayList<Space>();
         for(int i = 0; i < 5; i++){
@@ -103,7 +115,8 @@ public class Worker implements WorkerData {
         return this.player;
     }
 
-    public World getWorld() {
+    @Override
+    public World getWorld(){
         return this.world;
     }
 

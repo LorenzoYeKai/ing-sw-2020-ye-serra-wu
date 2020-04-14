@@ -19,7 +19,6 @@ public class ActualRule {
     private final Map<String, BiPredicate<Space, Space>> winConditions;
     private int domeLevel;
     private GodPower godPower;
-    private World world;
 
     /**
      * The constructor creates the default rule
@@ -30,7 +29,6 @@ public class ActualRule {
         this.buildDomeRules = new HashMap<>();
         this.winConditions = new HashMap<>();
         this.domeLevel = 3;
-        this.world = world;
         this.godPower = new GodPower(world);
         resetDefaultRules();
     }
@@ -40,13 +38,13 @@ public class ActualRule {
      * at target space.
      * Used with {@link it.polimi.ingsw.models.game.Worker#move(Space)}.
      *
-     * @param originalSpace the current {@link Space} of the worker.
+     * @param currentSpace the current {@link Space} of the worker.
      * @param targetSpace the destination target {@link Space}.
      * @return if is allowed to move in the target space.
      */
-    public boolean canMoveThere(Space originalSpace, Space targetSpace) {
+    public boolean canMoveThere(Space currentSpace, Space targetSpace) {
         return this.movementRules.values().stream()
-                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
+                .allMatch(predicate -> predicate.test(currentSpace, targetSpace));
     }
 
     /**
@@ -54,13 +52,13 @@ public class ActualRule {
      * at target space.
      * Used with {@link it.polimi.ingsw.models.game.Worker#buildBlock(Space)}}.
      *
-     * @param originalSpace the current {@link Space} of the worker.
+     * @param currentSpace the current {@link Space} of the worker.
      * @param targetSpace the target {@link Space} to build a block.
      * @return if is allowed to build a dome in the target space.
      */
-    public boolean canBuildThere(Space originalSpace, Space targetSpace) {
+    public boolean canBuildThere(Space currentSpace, Space targetSpace) {
         return this.buildRules.values().stream()
-                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
+                .allMatch(predicate -> predicate.test(currentSpace, targetSpace));
     }
 
     /**
@@ -68,22 +66,22 @@ public class ActualRule {
      * at target space.
      * Used with {@link it.polimi.ingsw.models.game.Worker#buildDome(Space)}.
      *
-     * @param originalSpace the current {@link Space} of the worker.
+     * @param currentSpace the current {@link Space} of the worker.
      * @param targetSpace the target {@link Space} to build a dome.
      * @return if is allowed to build a dome in the target space.
      */
-    public boolean canBuildDomeThere(Space originalSpace, Space targetSpace) {
+    public boolean canBuildDomeThere(Space currentSpace, Space targetSpace) {
         return this.buildDomeRules.values().stream()
-                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
+                .allMatch(predicate -> predicate.test(currentSpace, targetSpace));
     }
 
     /**
      * Merges all the winCondition methods of all the active rules
      * Used in Worker.victory
      */
-    public boolean winCondition(Space originalSpace, Space targetSpace) {
+    public boolean winCondition(Space currentSpace, Space targetSpace) {
         return this.winConditions.values().stream()
-                .allMatch(predicate -> predicate.test(originalSpace, targetSpace));
+                .anyMatch(predicate -> predicate.test(currentSpace, targetSpace));
     }
 
     private void resetDefaultRules() {
