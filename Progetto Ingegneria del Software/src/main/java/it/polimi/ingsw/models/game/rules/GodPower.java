@@ -20,7 +20,7 @@ public class GodPower extends DefaultRule {
      * Tested
      */
     public static boolean athenaPower(Space currentSpace, Space targetSpace){
-        return currentSpace.levelDifference(targetSpace) > -1;
+        return currentSpace.levelDifference(targetSpace) > 0;
     }
 
     /**
@@ -33,5 +33,19 @@ public class GodPower extends DefaultRule {
 
     public static boolean panPower(Space currentSpace, Space targetSpace){
         return currentSpace.levelDifference(targetSpace) > 1;
+    }
+    public static boolean atlasPower(Space currentSpace, Space targetSpace){
+        return !targetSpace.isOccupied();
+    }
+    public static boolean demeterPower(Space currentSpace, Space targetSpace) {
+        return targetSpace != currentSpace.getWorker().getFirstBuild();
+    }
+    public static boolean hephaestusPower(Space currentSpace, Space targetSpace) {
+        return (targetSpace == currentSpace.getWorker().getFirstBuild() && targetSpace.getLevel() != 2);
+    }
+    public static boolean minotaurPower(Space currentSpace, Space targetSpace) {
+    }
+    public static boolean prometheusPower(Space currentSpace, Space targetSpace) {
+        return currentSpace.getWorker().getInitialSpace()==currentSpace;
     }
 }

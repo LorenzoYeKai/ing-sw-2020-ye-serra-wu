@@ -2,6 +2,7 @@ package it.polimi.ingsw.models.game.gods;
 
 
 import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.models.game.rules.GodPower;
 
 /**
  * Not implemented yet
@@ -12,7 +13,7 @@ public class Atlas extends God {
 
     @Override
     public void activateGodPower(Worker worker) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        worker.getRules().addBuildDomeRules("atlasPower", GodPower::atlasPower);
     }
 
     @Override
