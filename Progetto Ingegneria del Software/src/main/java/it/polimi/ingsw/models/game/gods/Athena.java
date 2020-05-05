@@ -1,6 +1,7 @@
 package it.polimi.ingsw.models.game.gods;
 
 
+import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.rules.GodPower;
 
@@ -36,5 +37,9 @@ public class Athena extends God {
         worker.getRules().getMovementRules().remove("athenaPower");
     }
 
+    @Override
+    public void forcePower(Worker worker, Space targetSpace) {
+        throw new UnsupportedOperationException("Should be a fatal error");
+    }
 
 }

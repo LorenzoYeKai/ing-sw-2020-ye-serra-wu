@@ -1,9 +1,7 @@
 package it.polimi.ingsw.models.game.gods;
 
+import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
-
-import java.util.Scanner;
-import java.util.function.BiConsumer;
 
 /**
  * Manages the default turn of a worker
@@ -20,6 +18,8 @@ public abstract class God {
     abstract public void activateGodPower(Worker worker);
 
     abstract public void deactivateGodPower(Worker worker);
+
+    abstract public void forcePower(Worker worker, Space targetSpace);
 
     /*public void deactivatePassivePower(Worker worker){
         worker.getRules().setRuleSets(worker.getPlayer().getRuleIndex(), new DefaultRule(worker.getWorld()));

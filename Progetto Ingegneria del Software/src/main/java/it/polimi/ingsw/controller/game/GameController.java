@@ -76,7 +76,16 @@ public class GameController {
         if (!worker.computeAvailableSpaces().contains(targetSpace)){
             throw new NotExecutedException("Cannot move there");
         }
-        worker.move(targetSpace);
+        if(targetSpace.isOccupiedByWorker()){
+            try {
+                worker.getPlayer().getGod().forcePower(worker, targetSpace);
+            } catch (UnsupportedOperationException e){
+                System.err.println(e.getMessage());
+            }
+        }
+        else {
+            worker.move(targetSpace);
+        }
     }
 
     private void build(Worker worker, Space targetSpace) throws NotExecutedException {

@@ -50,7 +50,11 @@ public class Space implements SpaceData {
     }
 
     @Override
-    public WorkerData getWorker() {
+    public WorkerData getWorkerData() {
+        return this.worker;
+    }
+
+    public Worker getWorker(){
         return this.worker;
     }
 

@@ -106,6 +106,11 @@ public class Worker implements WorkerData {
     }
 
     @Override
+    public Space getFirstBuild(){
+        throw new UnsupportedOperationException("Not implemented yet!");
+    }
+
+    @Override
     public Space getInitialSpace(){
         return this.initialSpace;
     }

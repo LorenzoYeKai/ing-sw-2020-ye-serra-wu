@@ -1,6 +1,7 @@
 package it.polimi.ingsw;
 
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.rules.GodPower;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AvailableSpaceTest {
+public class athenaTest {
 
     Game game;
     Player player1;
@@ -39,6 +40,17 @@ public class AvailableSpaceTest {
         asserting(expected1, expected2, actual1, actual2);
     }
 
+    @Test
+    @DisplayName("availableSpaces with athenaPower")
+    void athenaPowerTest(){
+        game.getRules().addMovementRules("athenaPower", GodPower::athenaPower);
+        ArrayList<Space> expected1 = manualAthenaAvailableSpaces1();
+        ArrayList<Space> expected2 = manualAthenaAvailableSpaces2();
+        ArrayList<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
+        ArrayList<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
+        printing(expected1, expected2, actual1, actual2);
+        asserting(expected1, expected2, actual1, actual2);
+    }
 
     void printing(ArrayList<Space> expected1, ArrayList<Space> expected2, ArrayList<Space> actual1, ArrayList<Space> actual2){
         System.out.println("Worker1:");
@@ -94,4 +106,27 @@ public class AvailableSpaceTest {
         availableSpaces.add(world.getSpaces(2, 1));
         return availableSpaces;
     }
+
+    ArrayList<Space> manualAthenaAvailableSpaces1(){
+        World world = game.getWorld();
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
+        availableSpaces.add(world.getSpaces(0, 0));
+        availableSpaces.add(world.getSpaces(0, 1));
+        availableSpaces.add(world.getSpaces(0, 2));
+        availableSpaces.add(world.getSpaces(1, 0));
+        availableSpaces.add(world.getSpaces(2, 0));
+        return availableSpaces;
+    }
+
+    ArrayList<Space> manualAthenaAvailableSpaces2(){
+        World world = game.getWorld();
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
+        availableSpaces.add(world.getSpaces(3, 3));
+        availableSpaces.add(world.getSpaces(3, 2));
+        availableSpaces.add(world.getSpaces(3, 1));
+        availableSpaces.add(world.getSpaces(1, 3));
+        availableSpaces.add(world.getSpaces(2, 3));
+        return availableSpaces;
+    }
+
 }

@@ -1,6 +1,8 @@
 package it.polimi.ingsw;
 
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.rules.DefaultRule;
+import it.polimi.ingsw.models.game.rules.GodPower;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,10 +12,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AvailableSpaceTest {
+public class apolloTest {
 
     Game game;
     Player player1;
+    Player player2;
 
     @BeforeEach
     void init(){
@@ -21,11 +24,16 @@ public class AvailableSpaceTest {
         game = new Game(names);
         game.setCurrentTurn(1);
         player1 = game.getCurrentPlayer();
+        player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().getSpaces(1, 1);
-        Space secondWorkerPosition = game.getWorld().getSpaces(2, 2);
-        player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
-        player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
+        Space player1FirstWorkerPosition = game.getWorld().getSpaces(1, 1);
+        Space player1SecondWorkerPosition = game.getWorld().getSpaces(2, 2);
+        player1.getAllWorkers().get(0).setStartPosition(player1FirstWorkerPosition);
+        player1.getAllWorkers().get(1).setStartPosition(player1SecondWorkerPosition);
+        Space player2FirstWorkerPosition = game.getWorld().getSpaces(2, 0);
+        Space player2SecondWorkerPosition = game.getWorld().getSpaces(3, 2);
+        player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
+        player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
     }
 
     @Test
@@ -37,6 +45,21 @@ public class AvailableSpaceTest {
         ArrayList<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
         printing(expected1, expected2, actual1, actual2);
         asserting(expected1, expected2, actual1, actual2);
+    }
+
+    @Test
+    @DisplayName("availableSpaces with Apollo")
+    void apolloPowerTest(){
+        game.getRules().addMovementRules("forcingPower", GodPower::forcingPower);
+        game.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
+        ArrayList<Space> expected1 = manualApolloAvailableSpaces1();
+        ArrayList<Space> expected2 = manualApolloAvailableSpaces2();
+        ArrayList<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
+        ArrayList<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
+        printing(expected1, expected2, actual1, actual2);
+        asserting(expected1, expected2, actual1, actual2);
+        game.getRules().getMovementRules().remove("forcingPower");
+        game.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
     }
 
 
@@ -79,11 +102,34 @@ public class AvailableSpaceTest {
         availableSpaces.add(world.getSpaces(0, 1));
         availableSpaces.add(world.getSpaces(0, 2));
         availableSpaces.add(world.getSpaces(1, 0));
-        availableSpaces.add(world.getSpaces(2, 0));
+
         return availableSpaces;
     }
 
     ArrayList<Space> manualAvailableSpaces2(){
+        World world = game.getWorld();
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
+        availableSpaces.add(world.getSpaces(3, 3));
+
+        availableSpaces.add(world.getSpaces(3, 1));
+        availableSpaces.add(world.getSpaces(1, 3));
+        availableSpaces.add(world.getSpaces(2, 3));
+        availableSpaces.add(world.getSpaces(2, 1));
+        return availableSpaces;
+    }
+
+    ArrayList<Space> manualApolloAvailableSpaces1(){
+        World world = game.getWorld();
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
+        availableSpaces.add(world.getSpaces(0, 0));
+        availableSpaces.add(world.getSpaces(0, 1));
+        availableSpaces.add(world.getSpaces(0, 2));
+        availableSpaces.add(world.getSpaces(1, 0));
+        availableSpaces.add(world.getSpaces(2, 0));
+        return availableSpaces;
+    }
+
+    ArrayList<Space> manualApolloAvailableSpaces2(){
         World world = game.getWorld();
         ArrayList<Space> availableSpaces = new ArrayList<Space>();
         availableSpaces.add(world.getSpaces(3, 3));

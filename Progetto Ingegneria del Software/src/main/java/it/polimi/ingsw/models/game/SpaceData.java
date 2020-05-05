@@ -2,7 +2,7 @@ package it.polimi.ingsw.models.game;
 
 public interface SpaceData {
     int getLevel();
-    WorkerData getWorker();
+    WorkerData getWorkerData();
     boolean isOccupiedByDome();
     boolean isOccupied();
     int getX();

@@ -1,9 +1,8 @@
 package it.polimi.ingsw.models.game.gods;
 
+import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.rules.GodPower;
-
-import java.util.Scanner;
 
 public class Artemis extends God{
 
@@ -25,5 +24,9 @@ public class Artemis extends God{
         worker.getRules().getMovementRules().remove("artemisPower");
     }
 
+    @Override
+    public void forcePower(Worker worker, Space targetSpace) {
+        throw new UnsupportedOperationException("Should be a fatal error");
+    }
 
 }

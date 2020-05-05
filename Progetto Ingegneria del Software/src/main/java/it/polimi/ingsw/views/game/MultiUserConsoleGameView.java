@@ -10,7 +10,6 @@ import it.polimi.ingsw.views.utils.ConsoleMatrix;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.IntStream;
 
 /**
  * A console View which should allow multiple players to
@@ -196,7 +195,7 @@ public class MultiUserConsoleGameView extends GameView {
                     if (space.isOccupiedByDome()) {
                         world.setCharacter(x + 1, y, dome);
                     } else {
-                        world.setCharacter(x + 1, y, workerSymbols.get(space.getWorker()));
+                        world.setCharacter(x + 1, y, workerSymbols.get(space.getWorkerData()));
                     }
                 }
             }

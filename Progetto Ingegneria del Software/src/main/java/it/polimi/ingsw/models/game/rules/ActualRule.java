@@ -89,19 +89,31 @@ public class ActualRule {
         this.buildRules.clear();
         this.buildDomeRules.clear();
         this.winConditions.clear();
+
+        //movement
+
         this.movementRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
         this.movementRules.put("defaultLevelDifference", DefaultRule::defaultLevelDifference);
-        this.movementRules.put("defaultIsOccupiedByWorker", DefaultRule::defaultIsFreeFromWorker);
-        this.movementRules.put("defaultIsOccupiedByDome", DefaultRule::defaultIsFreeFromDome);
+        this.movementRules.put("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
+        this.movementRules.put("defaultIsFreeByDome", DefaultRule::defaultIsFreeFromDome);
         this.movementRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
+
+        //build
+
         this.buildRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
         this.buildRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
-        this.buildRules.put("defaultIsOccupied", DefaultRule::defaultIsFree);
+        this.buildRules.put("defaultIsFree", DefaultRule::defaultIsFree);
         this.buildRules.put("defaultBuildLevelLimit", DefaultRule::defaultBuildLevelLimit);
+
+        //win condition
+
         this.winConditions.put("defaultWinCondition", DefaultRule::defaultWinCondition);
+
+        //build dome
+
         this.buildDomeRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
         this.buildDomeRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
-        this.buildDomeRules.put("defaultIsOccupied", DefaultRule::defaultIsFree);
+        this.buildDomeRules.put("defaultIsFree", DefaultRule::defaultIsFree);
         this.buildDomeRules.put("defaultCanBuildDomeLevel", DefaultRule::defaultCanBuildDomeLevel);
     }
 
@@ -135,6 +147,10 @@ public class ActualRule {
 
     public void addWinConditions(String key, BiPredicate<Space, Space> value) {
         this.winConditions.put(key, value);
+    }
+
+    public void addBuildDomeRules(String key, BiPredicate<Space, Space> value) {
+        this.buildDomeRules.put(key, value);
     }
 
     public void setDomeLevel(int level) {

@@ -1,6 +1,10 @@
 package it.polimi.ingsw;
 
-import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.Game;
+import it.polimi.ingsw.models.game.Player;
+import it.polimi.ingsw.models.game.Space;
+import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.rules.GodPower;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,9 +12,10 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AvailableSpaceTest {
+public class artemisTest {
 
     Game game;
     Player player1;
@@ -39,6 +44,26 @@ public class AvailableSpaceTest {
         asserting(expected1, expected2, actual1, actual2);
     }
 
+    @Test
+    @DisplayName("availableSpaces with artemisPower after the first move")
+    void artemisPowerTest(){
+        player1.getAllWorkers().get(0).move(game.getWorld().getSpaces(2, 0));
+        System.out.println("Initial space: ");
+        System.out.println("x: [" + player1.getAllWorkers().get(0).getInitialSpace().getX() + "] y: [" + player1.getAllWorkers().get(0).getInitialSpace().getY() + "] ");
+        assertFalse(player1.getAllWorkers().get(0).getInitialSpace().isOccupiedByWorker());
+        assertTrue(game.getWorld().getSpaces(2, 0).isOccupiedByWorker());
+        game.getRules().addMovementRules("artemisPower", GodPower::artemisPower);
+        ArrayList<Space> expected = manualArtemisAvailableSpaces();
+        ArrayList<Space> actual = player1.getAllWorkers().get(0).computeAvailableSpaces();
+        System.out.println("Worker1:");
+        actual
+                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
+        System.out.println("Worker1 expected:");
+        expected
+                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
+        expected.forEach(space -> assertTrue(actual.contains(space)));
+        actual.forEach((space -> assertTrue(expected.contains(space))));
+    }
 
     void printing(ArrayList<Space> expected1, ArrayList<Space> expected2, ArrayList<Space> actual1, ArrayList<Space> actual2){
         System.out.println("Worker1:");
@@ -92,6 +117,15 @@ public class AvailableSpaceTest {
         availableSpaces.add(world.getSpaces(1, 3));
         availableSpaces.add(world.getSpaces(2, 3));
         availableSpaces.add(world.getSpaces(2, 1));
+        return availableSpaces;
+    }
+
+    ArrayList<Space> manualArtemisAvailableSpaces(){
+        World world = game.getWorld();
+        ArrayList<Space> availableSpaces = new ArrayList<Space>();
+        availableSpaces.add(world.getSpaces(1, 0));
+        availableSpaces.add(world.getSpaces(3, 0));
+        availableSpaces.add(world.getSpaces(3, 1));
         return availableSpaces;
     }
 }
