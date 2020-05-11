@@ -78,12 +78,14 @@ public class GameController {
         }
         if(targetSpace.isOccupiedByWorker()){
             try {
+                game.savePreviousWorld();
                 worker.getPlayer().getGod().forcePower(worker, targetSpace);
             } catch (UnsupportedOperationException e){
                 System.err.println(e.getMessage());
             }
         }
         else {
+            game.savePreviousWorld();
             worker.move(targetSpace);
         }
     }
@@ -92,7 +94,7 @@ public class GameController {
         if (!worker.computeBuildableSpaces().contains(targetSpace)) {
             throw new NotExecutedException("Cannot build there");
         }
-
+        game.savePreviousWorld();
         worker.buildBlock(targetSpace);
     }
 
@@ -100,7 +102,7 @@ public class GameController {
         if (!worker.computeDomeSpaces().contains(targetSpace)) {
             throw new NotExecutedException("Cannot build dome there");
         }
-
+        game.savePreviousWorld();
         worker.buildDome(targetSpace);
     }
 }

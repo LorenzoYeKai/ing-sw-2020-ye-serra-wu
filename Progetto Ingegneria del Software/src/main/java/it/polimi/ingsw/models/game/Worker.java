@@ -10,13 +10,24 @@ public class Worker implements WorkerData {
     private final Player player;
     private final World world;
     private ActualRule rules;
+    private int index;
 
-    public Worker(Player player) {
+    public Worker(Player player, int index) {
         this.player = player;
         this.world = this.player.getGame().getWorld();
         this.rules = this.player.getGame().getRules();
         this.currentSpace = null;
         this.initialSpace = null;
+        this.index = index;
+    }
+
+    public Worker(Worker copy){
+        this.player = copy.player;
+        this.world = copy.player.getGame().getPreviousWorld();
+        this.rules = copy.rules;
+        this.currentSpace = this.world.getSpaces(copy.currentSpace.getX(), copy.currentSpace.getY());
+        this.initialSpace = null;
+        this.index = copy.index;
     }
 
     /**
@@ -152,5 +163,88 @@ public class Worker implements WorkerData {
             targetSpace.setWorker(this);
         }
     }
+
+    private void force(Space s){
+        this.currentSpace = s;
+        s.setWorker(this);
+    }
+
+    public void swap(Worker opponent, Space targetSpace){
+        this.move(targetSpace);
+        opponent.force(this.previousSpace());
+    }
+
+    public void push(Worker opponent, Space targetSpace){
+        opponent.force(this.world.pushSpace(this.currentSpace, targetSpace));
+        this.move(targetSpace);
+    }
+
+    public boolean hasMoved(){
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                Worker w = this.player.getGame().getPreviousWorld().getSpaces(i, j).getWorker();
+                if(w != null){
+                    if(this.player.equals(w.player) && this.index == w.index && (this.getX() != w.getX() || this.getY() != w.getY())){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBuiltBlock(){ //this will be called only when the worker is already unchangeable
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if(player.getGame().getPreviousWorld().getSpaces(i, j).getLevel() != player.getGame().getWorld().getSpaces(i, j).getLevel()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBuiltDome(){ //this will be called only when the worker is already unchangeable
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if(!player.getGame().getPreviousWorld().getSpaces(i, j).isOccupiedByDome() && player.getGame().getWorld().getSpaces(i, j).isOccupiedByDome()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean hasBuilt(){
+        return hasBuiltBlock() || hasBuiltDome();
+    }
+
+    public Space previousSpace(){
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                Worker w = this.player.getGame().getPreviousWorld().getSpaces(i, j).getWorker();
+                if(w != null) {
+                    if (this.player.equals(w.player) && this.index == w.index && (this.getX() != w.getX() || this.getY() != w.getY())) {
+                        //has moved
+                        return this.player.getGame().getWorld().getSpaces(i, j);
+                    }
+                }
+            }
+        }
+        //has NOT moved
+        return this.currentSpace;
+    }
+
+    public Space previousBuild(){ //this will be called only after the selected worker has built
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if(player.getGame().getPreviousWorld().getSpaces(i, j).getLevel() != player.getGame().getWorld().getSpaces(i, j).getLevel()){
+                    return this.player.getGame().getWorld().getSpaces(i, j);
+                }
+            }
+        }
+        return null;
+    }
+
 }
 

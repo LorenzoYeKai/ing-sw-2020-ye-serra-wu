@@ -1,13 +1,19 @@
 package it.polimi.ingsw.models.game.gods;
 
+import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.rules.GodPower;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Not implemented yet
  */
 public class Pan extends God {
+
+    //Default action order
 
     @Override
     public void activateGodPower(Worker worker) {

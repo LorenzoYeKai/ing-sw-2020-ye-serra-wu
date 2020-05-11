@@ -24,6 +24,7 @@ public class Game {
     private final GodFactory factory;
     private Set<GodType> availableGods;
     private final World world;
+    private World previousWorld;
     private ActualRule rules;
     private final List<Player> listOfPlayers;
     private final Map<String, GameView> gameViews;
@@ -45,6 +46,7 @@ public class Game {
         this.factory = new GodFactory();
         this.availableGods = null;
         this.world = new World(this.spaceChangedNotifier);
+        this.previousWorld = null;
         this.rules = new ActualRule(this.world);
 
         this.listOfPlayers = IntStream.range(0, nicknames.size())
@@ -228,6 +230,22 @@ public class Game {
     public void setCurrentStatus(GameStatus status) {
         this.currentStatus = status;
         this.gameStatusNotifier.notify(this.currentStatus);
+    }
+
+    public void savePreviousWorld(){
+        this.previousWorld = new World(this.world);
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                Worker w = this.world.getSpaces(i, j).getWorker();
+                if(w != null){
+                    this.previousWorld.getSpaces(i, j).setWorker(new Worker(w));
+                }
+            }
+        }
+    }
+
+    public World getPreviousWorld(){
+        return this.previousWorld;
     }
 
     /**

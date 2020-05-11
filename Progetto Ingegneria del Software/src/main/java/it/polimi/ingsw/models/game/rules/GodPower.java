@@ -15,9 +15,10 @@ public class GodPower extends DefaultRule {
 
     /**
      * Adds the currentSpace.levelDifference(targetSpace) > -1 condition to the rules
+     * Used by athena and prometheus
      * Tested
      */
-    public static boolean athenaPower(Space currentSpace, Space targetSpace){
+    public static boolean cannotMoveUpPower(Space currentSpace, Space targetSpace){
         return currentSpace.levelDifference(targetSpace) > 0;
     }
 
@@ -26,34 +27,52 @@ public class GodPower extends DefaultRule {
      * Tested
      */
     public static boolean artemisPower(Space currentSpace, Space targetSpace){
-        return currentSpace.getWorkerData().getInitialSpace() != targetSpace;
+        return currentSpace.getWorker().previousSpace() != targetSpace;
     }
 
+    /**
+     * Needs to be tested again
+     */
     public static boolean panPower(Space currentSpace, Space targetSpace){
         return currentSpace.levelDifference(targetSpace) > 1;
     }
 
-    public static boolean atlasPower(Space currentSpace, Space targetSpace){
-        return !targetSpace.isOccupied();
-    }
-
+    /**
+     * Tested
+     */
     public static boolean demeterPower(Space currentSpace, Space targetSpace) {
-        return targetSpace != currentSpace.getWorkerData().getFirstBuild();
+        if(currentSpace.getWorker().hasBuilt()) {
+            return targetSpace != currentSpace.getWorker().previousBuild();
+        }
+        else return true;
     }
 
+    /**
+     * Tested
+     */
     public static boolean hephaestusPower(Space currentSpace, Space targetSpace) {
-        return (targetSpace == currentSpace.getWorkerData().getFirstBuild() && targetSpace.getLevel() != 2);
+        if(currentSpace.getWorker().hasBuilt()) {
+            return (targetSpace == currentSpace.getWorker().previousBuild());
+        }
+        else return true;
     }
 
+    /**
+     * Tested
+     */
     public static boolean minotaurPower(Space currentSpace, Space targetSpace) {
-        throw new UnsupportedOperationException("Not implemented yet!");
+        if(targetSpace.isOccupiedByWorker()){
+            return !currentSpace.getWorker().getPlayer().equals(targetSpace.getWorker().getPlayer()) &&
+                    currentSpace.getWorker().getWorld().pushSpace(currentSpace, targetSpace) != null &&
+                    !currentSpace.getWorker().getWorld().pushSpace(currentSpace, targetSpace).isOccupied();
+        }
+        return true;
     }
 
-    public static boolean prometheusPower(Space currentSpace, Space targetSpace) {
-        return currentSpace.getWorkerData().getInitialSpace()==currentSpace;
-    }
-
-    public static boolean forcingPower(Space currentSpace, Space targetSpace){
+    /**
+     * Tested
+     */
+    public static boolean apolloPower(Space currentSpace, Space targetSpace){
         if(targetSpace.isOccupiedByWorker()){
             return !currentSpace.getWorker().getPlayer().equals(targetSpace.getWorker().getPlayer());
         }

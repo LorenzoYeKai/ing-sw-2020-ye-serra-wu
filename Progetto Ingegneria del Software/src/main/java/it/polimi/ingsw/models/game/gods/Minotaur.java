@@ -2,25 +2,34 @@ package it.polimi.ingsw.models.game.gods;
 
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.models.game.rules.DefaultRule;
+import it.polimi.ingsw.models.game.rules.GodPower;
 
 /**
  * Not implemented yet
  */
 public class Minotaur extends God {
 
+    //Default action order
 
     @Override
     public void activateGodPower(Worker worker) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        worker.getRules().addMovementRules("minotaurPower", GodPower::minotaurPower);
+        worker.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
     }
 
     @Override
     public void deactivateGodPower(Worker worker) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        worker.getRules().getMovementRules().remove("minotaurPower");
+        worker.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
     }
 
     @Override
-    public void forcePower(Worker worker, Space targetSpace) {
-        System.out.println("Minotaur Power!");
+    public void forcePower(Worker worker, Space targetSpace){
+        if(targetSpace.getWorkerData().getPlayer().equals(worker.getPlayer())){
+            throw new UnsupportedOperationException("Should be fatal error");
+        }
+        Worker opponentWorker = targetSpace.getWorker();
+        worker.push(opponentWorker, targetSpace);
     }
 }

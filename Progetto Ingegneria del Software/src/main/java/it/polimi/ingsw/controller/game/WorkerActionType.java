@@ -4,5 +4,6 @@ public enum  WorkerActionType {
     PLACE, // during setup phase
     MOVE,
     BUILD,
-    BUILD_DOME
+    BUILD_DOME,
+    END_TURN,
 }

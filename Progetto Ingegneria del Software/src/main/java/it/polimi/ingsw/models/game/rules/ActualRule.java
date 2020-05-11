@@ -1,9 +1,13 @@
 package it.polimi.ingsw.models.game.rules;
 
+import it.polimi.ingsw.controller.game.WorkerActionType;
+import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.models.game.Space;
+import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.World;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiPredicate;
 
@@ -84,6 +88,10 @@ public class ActualRule {
                 .anyMatch(predicate -> predicate.test(currentSpace, targetSpace));
     }
 
+    public List<WorkerActionType> possibleActions(int phase, Worker worker){
+        return worker.getPlayer().getGod().workerActionOrder(phase, worker);
+    }
+
     private void resetDefaultRules() {
         this.movementRules.clear();
         this.buildRules.clear();
@@ -129,13 +137,10 @@ public class ActualRule {
         return this.winConditions;
     }
 
-    public GodPower getGodPower() {
-        return this.godPower;
+    public Map<String, BiPredicate<Space, Space>> getBuildDomeRules() {
+        return this.buildDomeRules;
     }
 
-    public int getDomeLevel() {
-        return this.domeLevel;
-    }
 
     public void addMovementRules(String key, BiPredicate<Space, Space> value) {
         this.movementRules.put(key, value);

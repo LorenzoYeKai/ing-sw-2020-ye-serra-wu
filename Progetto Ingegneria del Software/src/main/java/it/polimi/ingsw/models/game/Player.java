@@ -24,7 +24,7 @@ public class Player implements PlayerData {
     public Player(Game game, String name) {
         this.game = game;
         this.name = name;
-        this.workers = List.of(new Worker(this), new Worker(this));
+        this.workers = List.of(new Worker(this, 0), new Worker(this, 1));
         this.defeated = false;
     }
 

@@ -27,6 +27,15 @@ public class Space implements SpaceData {
         this.level = 0;
     }
 
+    public Space(Space copy){
+        this.onSpaceChanged = copy.onSpaceChanged;
+        this.x = copy.x;
+        this.y = copy.y;
+        this.worker = null;
+        this.occupiedByDome = copy.occupiedByDome;
+        this.level = copy.level;
+    }
+
     @Override
     public int getLevel() {
         return level;
@@ -123,5 +132,7 @@ public class Space implements SpaceData {
 
 
     }
+
+
 }
 

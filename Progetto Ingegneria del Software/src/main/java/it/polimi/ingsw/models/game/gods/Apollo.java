@@ -10,27 +10,28 @@ import it.polimi.ingsw.models.game.rules.GodPower;
  */
 public class Apollo extends God {
 
+    //Default action order
+
     @Override
     public void forcePower(Worker worker, Space targetSpace){
         if(targetSpace.getWorkerData().getPlayer().equals(worker.getPlayer())){
             throw new UnsupportedOperationException("Should be fatal error");
         }
         Worker opponentWorker = targetSpace.getWorker();
-        targetSpace.removeWorker();
-        worker.move(targetSpace);
-        worker.getInitialSpace().setWorker(opponentWorker);
+        worker.swap(opponentWorker, targetSpace);
     }
 
     @Override
     public void activateGodPower(Worker worker) {
-        worker.getRules().addMovementRules("forcingPower", GodPower::forcingPower);
+        worker.getRules().addMovementRules("apolloPower", GodPower::apolloPower);
         worker.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
     }
 
     @Override
     public void deactivateGodPower(Worker worker) {
-        worker.getRules().getMovementRules().remove("forcingPower");
+        worker.getRules().getMovementRules().remove("apolloPower");
         worker.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
 
     }
+
 }
