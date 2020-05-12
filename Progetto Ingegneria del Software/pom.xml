@@ -8,14 +8,14 @@
   <artifactId>progetto-ingegneria-del-software-serra-ye-wu</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>Progetto Ingegneria del Software</name>
+  <name>GC50</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>13</maven.compiler.source>
-    <maven.compiler.target>13</maven.compiler.target>
+    <maven.compiler.source>14</maven.compiler.source>
+    <maven.compiler.target>14</maven.compiler.target>
   </properties>
 
   <dependencies>
