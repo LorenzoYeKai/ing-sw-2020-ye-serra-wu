@@ -246,5 +246,11 @@ public class Worker implements WorkerData {
         return null;
     }
 
+    public void removeWorkerWhenDefeated(){
+        this.currentSpace.removeWorker();
+        this.currentSpace=null;
+
+    }
+
 }
 

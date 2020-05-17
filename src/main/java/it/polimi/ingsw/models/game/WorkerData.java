@@ -5,4 +5,5 @@ public interface WorkerData {
     Space getInitialSpace();
     World getWorld();
     Space getFirstBuild();
+    Space getCurrentSpace();
 }

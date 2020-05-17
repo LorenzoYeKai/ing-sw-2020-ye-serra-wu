@@ -1,13 +1,21 @@
 package it.polimi.ingsw.server;
 
+import it.polimi.ingsw.client.ChooseActionTurnMessage;
+import it.polimi.ingsw.client.GameSetupReply;
+import it.polimi.ingsw.client.TurnMessageReplay;
+import it.polimi.ingsw.client.WorkerStartPosition;
+import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.models.game.Space;
+import it.polimi.ingsw.models.game.Worker;
+import it.polimi.ingsw.models.game.WorkerData;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class GameServer implements Runnable{
@@ -17,8 +25,7 @@ public class GameServer implements Runnable{
     private Game game;
 
 
-    public GameServer(GameController controller,Socket socket,Game game)
-    {
+    public GameServer(GameController controller,Socket socket,Game game) throws NotExecutedException {
         this.socket= socket;
         this.controller= controller;
         this.game= game;
@@ -35,17 +42,23 @@ public class GameServer implements Runnable{
             clientUpdate(gameSetupOut, gameSetupArrayOut, gameSetup);  //sappiamo anche il challenger
             ByteArrayInputStream gameSetupArrayIn = new ByteArrayInputStream(gameSetupArrayOut.toByteArray());
             ObjectInputStream gameSetupIn = new ObjectInputStream(gameSetupArrayIn);
-            GameSetupReply reply = (GameSetupReply) gameSetupIn.readObject();
-            if(game.getListOfPlayers().get(0).getName().equals(reply.getName())){
-                controller.setAvailableGods(reply.getAvailableGods());
-                controller.setCurrentPlayer(replay.getCurrentPlayer());
+            GameSetupReply gameSetupReply = (GameSetupReply) gameSetupIn.readObject();
+            if(game.getListOfPlayers().get(0).getName().equals(gameSetupReply.getName())){
+                controller.setAvailableGods(gameSetupReply.getAvailableGods());
+                controller.setCurrentPlayer(gameSetupReply.getPlayerIndex());
             }
-            for(int x=0; x < game.getNumberOfActivePlayers(); x++){
-                WorkerStartPosition reply = (WorkerStartPosition) gameSetupIn.readObject();
-                if(game.getCurrentPlayer().getName().equals(reply.getName()))
+
+            // fase scelta giocatori da fare
+
+            for(int x=0; x < game.getNumberOfActivePlayers(); x++){   // scelta del potere
+                WorkerStartPosition workerStartPositionReply = (WorkerStartPosition) gameSetupIn.readObject();
+                if(game.getCurrentPlayer().getName().equals(workerStartPositionReply.getName()))
                 {
                     controller.place(game.getCurrentPlayer().getAllWorkers().get(0),
-                            game.getWorld().getSpaces(reply.getX(0), reply.getY(0)));
+                            game.getWorld().getSpaces(workerStartPositionReply.getX(0), workerStartPositionReply.getY(0)));
+                    controller.place(game.getCurrentPlayer().getAllWorkers().get(1),
+                            game.getWorld().getSpaces(workerStartPositionReply.getX(1), workerStartPositionReply.getY(1)));
+
                     controller.nextTurn();
                 }
                 WorldDisplay worldDisplay= new WorldDisplay(game);  // aggiorna il tabellone ogni volta
@@ -53,45 +66,49 @@ public class GameServer implements Runnable{
             }
             while(true)
             {
-                TurnMessage turnMessage = new TurnMessage(game.getCurrentPlayer());  //  scelta del worker
+                TurnMessage turnMessage = new TurnMessage();  //  scelta del worker
                 clientUpdate(gameSetupOut, gameSetupArrayOut, turnMessage);
                 TurnMessageReplay turnMessageReplay = (TurnMessageReplay) gameSetupIn.readObject();
+                int phase=0;
+
                 while(true){ // cicla fino a quando non premo end turn
-                    if(game.getCurrentPlayer().getName().equals(turnMessageReply.getName())) {
-                        TurnMessageAvaiableAction turnMessageAvaiableAction = new TurnMessageAvaiableAction(game.getCurrentPlayer(),game.getCurrentPlayer().getGod().getAvaiableAction());
+
+                    if(game.getCurrentPlayer().getName().equals(turnMessageReplay.getName())) {
+                        ArrayList<Space> availableSpaces = turnMessageReplay.getWorker().computeAvailableSpaces();
+                        TurnMessageAvaiableAction turnMessageAvaiableAction = new TurnMessageAvaiableAction();
                         clientUpdate(gameSetupOut, gameSetupArrayOut, turnMessageAvaiableAction);
-                        ChooseActionTurnMessage chooseActionTurnMessage = new ChooseActionTurnMessage(game.getCurrentPlayer());
-                        if (chooseActionTurnMessage.getType != "EndTurn") {
-                            updateWorld(turnMessageReplay.getWorker, chooseActionTurnMessage.getType, chooseActionTurnMessage.getX, chooseActionTurnMessage.gety); // controllo nel caso di vittoria o sconfitta
-                            WorldDisplay worldDisplay= new WorldDisplay(game);
-                            clientUpdate(gameSetupOut, gameSetupArrayOut, worldDisplay);
-                        }else{
-                            break;
+                        ChooseActionTurnMessage reply = (ChooseActionTurnMessage) gameSetupIn.readObject();
+                            if (!reply.getType().equals("EndTurn")) {
+                                controller.checkDefeat(reply.getType(),turnMessageReplay.getWorker());
+                                if (game.getCurrentPlayer().isDefeated()) {
+
+
+                                    controller.handleDefeat(game.getCurrentPlayer());
+                                    WorldDisplay worldDisplay = new WorldDisplay(game);
+                                    clientUpdate(gameSetupOut, gameSetupArrayOut, worldDisplay);
+                                    break;
+                                }
+                                updateWorld(turnMessageReplay.getWorker(), reply.getType(), reply.getX(), reply.getY());
+                                WorldDisplay worldDisplay = new WorldDisplay(game);
+                                clientUpdate(gameSetupOut, gameSetupArrayOut, worldDisplay);
+                                if(game.getListOfPlayers().size()==1)
+                                {
+                                    VictoryMessage victoryMessage  ;
+                                    clientUpdate(gameSetupOut, gameSetupArrayOut, turnMessageAvaiableAction);
+                                    // chiudo le connessioni
+                                }
+                            } else {
+                                break;
+                            }
                         }
                     }
+                    phase++;
                 }
-            }
-        } catch (IOException | ClassNotFoundException  e){
+        } catch (IOException | ClassNotFoundException | NotExecutedException e){
             System.err.println(e.getMessage());
         }
 
 
-
-
-        try{
-            Scanner inString = new Scanner(socket.getInputStream());
-            PrintWriter outString = new PrintWriter(socket.getOutputStream());
-            ByteArrayOutputStream outByteArray = new ByteArrayOutputStream();
-            ObjectOutputStream outObject  = new ObjectOutputStream (outByteArray);
-
-
-
-
-            while(true)
-            {
-
-            }
-        }
 
     }
 
@@ -101,15 +118,11 @@ public class GameServer implements Runnable{
         outObject.flush();
 
     }
-    public void updateWorld (Worker worker, WorkerActionType typeAction, int x, int y);
-    {
-        Space currentSpace = new Space (game.getCurrentPlayer().getWorker().getX,game.getCurrentPlayer().getWorker().getY);
-        Space targetSpace = new Space (game.getWorld().getSpaces().getX(),game.getWorld().getSpaces().getY());
-        if (game.getRules().winCondition(currentSpace,targetSpace)){
-            game.announceVictory();
-            break;
-        }
-        controller.workerAction( worker, typeAction ,targetSpace.getX(),targetSpace,getY );
+    public void updateWorld (WorkerData worker, WorkerActionType typeAction, int x, int y) throws NotExecutedException {
+        Space targetSpace = game.getWorld().getSpaces(x , y);
+        Space currentSpace = worker.getCurrentSpace();
+        controller.workerAction( worker , typeAction ,targetSpace.getX(),targetSpace.getY() );
     }
+
 
 }

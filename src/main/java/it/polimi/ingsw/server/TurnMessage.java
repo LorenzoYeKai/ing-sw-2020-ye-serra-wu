@@ -8,7 +8,7 @@ public class TurnMessage implements Serializable {
 
 
     private void startTurnMessage(){
-        switch (case)
+
     }
 
 }

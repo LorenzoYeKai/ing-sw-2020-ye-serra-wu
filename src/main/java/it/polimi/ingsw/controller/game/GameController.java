@@ -2,9 +2,11 @@ package it.polimi.ingsw.controller.game;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameController {
@@ -61,7 +63,28 @@ public class GameController {
                 break;
             case BUILD_DOME:
                 this.buildDome(worker, targetSpace);
+                break;
         }
+    }
+
+    public void setAvailableGods(ArrayList<God> availableGods){
+        //mettere il metodo in controller
+
+    }
+
+    public void nextTurn(){
+        if(game.getCurrentPlayer().getIndex()==game.getNumberOfActivePlayers()-1) {
+            game.setCurrentPlayer(0);
+        }
+        else{
+            game.setCurrentPlayer(game.getCurrentPlayer().getIndex() + 1);
+        }
+    }
+
+    public void setCurrentPlayer(int index){   // l'indice del giocatore lo prendiamo lato client
+
+        game.setCurrentPlayer(index);
+
     }
 
     public void place(Worker worker, Space targetSpace) throws NotExecutedException {
@@ -105,4 +128,32 @@ public class GameController {
         game.savePreviousWorld();
         worker.buildDome(targetSpace);
     }
+
+    public void handleDefeat(Player player){
+        if(player.getIndex()==game.getNumberOfActivePlayers()-1){
+            nextTurn();
+        }
+        game.getListOfPlayers().remove(player);
+        player.getAllWorkers().get(0).removeWorkerWhenDefeated();
+        player.getAllWorkers().get(1).removeWorkerWhenDefeated();
+
+    }
+
+    public void checkDefeat(WorkerActionType type, Worker worker){
+        switch(type){
+            case MOVE:
+                if(worker.computeAvailableSpaces().size()==0) {
+                    worker.getPlayer().setDefeated();
+                }
+            case BUILD  :
+                if(worker.computeBuildableSpaces().size()==0 && worker.computeDomeSpaces().size()==0) {
+                    worker.getPlayer().setDefeated();
+                }
+            case BUILD_DOME:
+                if(worker.computeBuildableSpaces().size()==0 && worker.computeDomeSpaces().size()==0) {
+                    worker.getPlayer().setDefeated();
+                }
+        }
+    }
+
 }

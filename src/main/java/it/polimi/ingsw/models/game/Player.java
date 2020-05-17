@@ -83,6 +83,15 @@ public class Player implements PlayerData {
         this.defeated = true;
     }
 
+    public int getIndex() {
+        for (int i = 0; i < game.getNumberOfActivePlayers(); i++) {
+            if (this.name.equals(game.getListOfPlayers().get(i).getName())) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Player not found");
+    }
+
 
 }
 
