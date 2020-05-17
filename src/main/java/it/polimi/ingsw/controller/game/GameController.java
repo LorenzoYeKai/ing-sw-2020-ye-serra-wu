@@ -50,7 +50,7 @@ public class GameController {
         }
 
         switch (action) {
-            case PLACE:
+            case PLACE:   //Da togliere
                 this.place(worker, targetSpace);
                 break;
             case MOVE:
@@ -64,7 +64,7 @@ public class GameController {
         }
     }
 
-    private void place(Worker worker, Space targetSpace) throws NotExecutedException {
+    public void place(Worker worker, Space targetSpace) throws NotExecutedException {
         if (targetSpace.isOccupied()) {
             throw new NotExecutedException("Cannot move to occupied space");
         }

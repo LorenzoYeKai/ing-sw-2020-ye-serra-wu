@@ -19,7 +19,7 @@ public class AvailableSpaceTest {
     void init(){
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
-        game.setCurrentTurn(1);
+        game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         spaceSetup();
         Space firstWorkerPosition = game.getWorld().getSpaces(1, 1);

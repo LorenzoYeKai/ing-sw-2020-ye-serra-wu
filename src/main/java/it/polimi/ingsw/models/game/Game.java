@@ -26,11 +26,16 @@ public class Game {
     private final World world;
     private World previousWorld;
     private ActualRule rules;
+
+
+
+
+
     private final List<Player> listOfPlayers;
     private final Map<String, GameView> gameViews;
 
     private GameStatus currentStatus;
-    private int currentTurn;
+    private int currentPlayer;
 
     /**
      * Creates a new game
@@ -56,7 +61,7 @@ public class Game {
                 .collect(Collectors.toUnmodifiableList());
         this.gameViews = new HashMap<>();
 
-        this.currentTurn = -1;
+        this.currentPlayer = -1;
         this.currentStatus = GameStatus.PLAYER_JOINING;
     }
 
@@ -185,7 +190,7 @@ public class Game {
     }
 
     public Player getCurrentPlayer() {
-        return this.listOfPlayers.get(this.currentTurn);
+        return this.listOfPlayers.get(this.currentPlayer);
     }
 
     public Player findPlayerByName(String name) {
@@ -207,7 +212,7 @@ public class Game {
      * Go to the next turn, and notify every attached view that turn has changed
      */
     public void goToNextTurn() {
-        this.currentTurn = ((this.currentTurn + 1) % this.listOfPlayers.size());
+        this.currentPlayer = ((this.currentPlayer + 1) % this.listOfPlayers.size());
         this.turnChangedNotifier.notify(this.getCurrentPlayer());
     }
 
@@ -251,7 +256,22 @@ public class Game {
     /**
      * Solo per i test, da togliere!!!!
      */
-    public void setCurrentTurn(int i){
-        this.currentTurn = i;
+    public void setCurrentPlayer(int i){
+        this.currentPlayer = i;
     }
+
+    public void nextPlayer(){
+        switch (currentPlayer){
+            case 2 : currentPlayer=0;
+            case 1 : currentPlayer=2;
+            case 0 : currentPlayer= 1;
+        }
+    }
+
+    public List<Player> getListOfPlayers() {
+        return listOfPlayers;
+    }
+
+
+
 }
