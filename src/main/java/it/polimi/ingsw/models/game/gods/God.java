@@ -4,13 +4,14 @@ import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Manages the default turn of a worker
  */
-public abstract class God {
+public abstract class God implements Serializable {
 
 
     public List<WorkerActionType> workerActionOrder(int phase, Worker worker){ //potrei usarlo solo e soltanto per ordinare le operazioni e aggiungerle a seconda del god

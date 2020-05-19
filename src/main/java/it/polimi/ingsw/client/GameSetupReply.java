@@ -1,25 +1,28 @@
 package it.polimi.ingsw.client;
 
-import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GameSetupReply implements Serializable {
+public class GameSetupReply extends ClientReply implements Serializable  {
 
-    private String name;
-    private ArrayList<God> listOfAvaiableGods;
+    private GodType[] listOfAvailableGods;
     private int index;
 
 
 
     public GameSetupReply(String name){
-        this.name=name;
+        super(name);
 
     }
 
-    public String getName(){return this.name;}
+    public GameSetupReply(GameSetupReply copy){
+        super(copy.getClientName());
+        this.listOfAvailableGods = copy.listOfAvailableGods;
+        this.index = copy.index;
+    }
 
     public void chooseAvaiableGods(int numberOfPlayer,ArrayList<God> allPossibleGods){
 
@@ -27,8 +30,8 @@ public class GameSetupReply implements Serializable {
 
 
 
-    public ArrayList<God> getAvailableGods(){
-        return listOfAvaiableGods;
+    public GodType[] getAvailableGods(){
+        return listOfAvailableGods;
     }
 
     public int getPlayerIndex() {

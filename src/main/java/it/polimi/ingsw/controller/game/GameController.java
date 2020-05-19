@@ -3,11 +3,13 @@ package it.polimi.ingsw.controller.game;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GameController {
     private final Game game;
@@ -22,12 +24,6 @@ public class GameController {
     public PlayerData joinGame(String nickname, GameView view) {
         this.game.attachView(nickname, view);
         return this.game.findPlayerByName(nickname);
-    }
-
-    public void playGame() {
-        this.game.setupGame();
-        this.gameStarted = true;
-        this.game.playGame();
     }
 
     // TODO: call worker.startTurn() somewhere
@@ -67,9 +63,8 @@ public class GameController {
         }
     }
 
-    public void setAvailableGods(ArrayList<God> availableGods){
-        //mettere il metodo in controller
-
+    public void addAvailableGods(GodType type){
+        game.addAvailableGods(type);
     }
 
     public void nextTurn(){
@@ -155,5 +150,23 @@ public class GameController {
                 }
         }
     }
+
+    public Game getGame(){
+        return this.game;
+    }
+
+    public void setupGame() {
+        this.game.setStatus(GameStatus.SETUP);
+    }
+
+    public void playGame() {
+        this.game.setStatus(GameStatus.PLAYING);
+    }
+
+    public void chooseGods(){
+        this.game.setStatus(GameStatus.CHOOSING_GODS);
+    }
+
+
 
 }

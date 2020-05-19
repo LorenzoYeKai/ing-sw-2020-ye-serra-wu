@@ -6,6 +6,7 @@ import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.World;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ import java.util.function.BiPredicate;
  * Used by Worker
  * Merges all the active rules
  */
-public class ActualRule {
+public class ActualRule implements Serializable {
 
     private final Map<String, BiPredicate<Space, Space>> movementRules;
     private final Map<String, BiPredicate<Space, Space>> buildRules;

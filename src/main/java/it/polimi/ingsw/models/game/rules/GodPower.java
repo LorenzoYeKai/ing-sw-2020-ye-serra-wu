@@ -3,11 +3,13 @@ package it.polimi.ingsw.models.game.rules;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 
+import java.io.Serializable;
+
 /**
  * Rules for Athena's passive power
  * Will be renamed as godPower
  */
-public class GodPower extends DefaultRule {
+public class GodPower extends DefaultRule implements Serializable {
 
     public GodPower(World world) {
         super(world);

@@ -2,9 +2,10 @@ package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Worker implements WorkerData {
+public class Worker implements WorkerData, Serializable {
     private Space currentSpace;
     private Space initialSpace;
     private final Player player;

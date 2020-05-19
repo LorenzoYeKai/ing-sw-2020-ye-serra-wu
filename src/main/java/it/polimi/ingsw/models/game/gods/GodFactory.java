@@ -1,9 +1,11 @@
 package it.polimi.ingsw.models.game.gods;
 
+import java.io.Serializable;
+
 /**
  * Creates God with the correct dynamic type
  */
-public class GodFactory {
+public class GodFactory implements Serializable {
 
     public God getGod(GodType god){
         God w = null;

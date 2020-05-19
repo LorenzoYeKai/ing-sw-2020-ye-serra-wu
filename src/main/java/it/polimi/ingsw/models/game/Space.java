@@ -3,7 +3,9 @@ package it.polimi.ingsw.models.game;
 import it.polimi.ingsw.Notifiable;
 import it.polimi.ingsw.models.InternalError;
 
-public class Space implements SpaceData {
+import java.io.Serializable;
+
+public class Space implements SpaceData, Serializable {
     private final Notifiable<SpaceData> onSpaceChanged;
 
     private int x;

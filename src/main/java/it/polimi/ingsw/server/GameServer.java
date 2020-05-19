@@ -1,84 +1,160 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.client.ChooseActionTurnMessage;
-import it.polimi.ingsw.client.GameSetupReply;
-import it.polimi.ingsw.client.TurnMessageReplay;
-import it.polimi.ingsw.client.WorkerStartPosition;
+import it.polimi.ingsw.Notifiable;
+import it.polimi.ingsw.Notifier;
+import it.polimi.ingsw.client.*;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.Worker;
-import it.polimi.ingsw.models.game.WorkerData;
+import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-public class GameServer implements Runnable{
+public class GameServer implements Runnable{ //connection for the game
 
     private Socket socket;
+
     private GameController controller;
     private Game game;
+    private int firstPlayerIndex;
+    private String name;
+    private Notifier<String> onStringReceived;
+    private Notifier<GameSetup> setupInfoNotifier;
+    private Notifier<AvailableGodsChoice> chooseGodsNotifier;
+    private GameRemoteView remoteView;
+    private ObjectOutputStream objectOutputStream;
 
-
-    public GameServer(GameController controller,Socket socket,Game game) throws NotExecutedException {
+    public GameServer(GameController controller,Socket socket,Game game, String name, Server server) throws NotExecutedException, IOException {
         this.socket= socket;
         this.controller= controller;
         this.game= game;
+        this.name = name;
+        this.remoteView = new GameRemoteView(this, game, controller, server);
+        this.objectOutputStream = new ObjectOutputStream(socket.getOutputStream());
+        this.onStringReceived = new Notifier<>();
+        this.setupInfoNotifier = new Notifier<>();
+        this.chooseGodsNotifier = new Notifier<>();
+    }
+
+    public synchronized void send(Object message) {
+        try {
+            objectOutputStream.reset();
+            objectOutputStream.writeObject(message);
+            objectOutputStream.flush();
+        } catch(IOException e){
+            System.err.println(e.getMessage());
+        }
+
     }
 
 
+    public void asyncSend(final Object message){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                send(message);
+            }
+        }).start();
+    }
 
     @Override
     public void run() {
         try {
+            System.out.println("Game Started!");
+            addListeners();
+            //Streams declarations
+            Scanner stringInput = new Scanner(socket.getInputStream());
+            /*PrintWriter stringOutput = new PrintWriter(socket.getOutputStream());*/
+            /*ByteArrayOutputStream gameSetupArrayOut= new ByteArrayOutputStream();*/
+
+            /*ByteArrayInputStream gameSetupArrayIn = new ByteArrayInputStream(gameSetupArrayOut.toByteArray());
+            ObjectInputStream gameSetupIn = new ObjectInputStream(gameSetupArrayIn);*/
+
+            send("You entered in a game!");
+
             GameSetup gameSetup = new GameSetup(GodType.getListOfGods(), game.getWorld(), game.getListOfPlayers());
+            setupInfoNotifier.notify(gameSetup);
+            String read;
+
+            while (true) {
+                read = stringInput.nextLine();
+                onStringReceived.notify(read);
+            }
+            //challengerMessage(stringOutput);
+            //stopSending(stringOutput);
+
+            /*if(isChallenger()) {
+                while(true){
+                    String read = stringInput.nextLine();
+                    if(read.equals("end")){
+                        break;
+                    }
+                    onStringReceived.notify(read);
+                }
+            }
+            else{
+                while (true){
+
+                }
+            }
+            stringOutput.println("The game ended!");
+            stringOutput.flush();*/
+        }catch(IOException  /*| InterruptedException*/ e){
+            System.err.println(e.getMessage());
+        }finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+            /*GameSetup gameSetup = new GameSetup(game.getListOfPlayers().get(0).getName(), GodType.getListOfGods(), game.getWorld(), game.getListOfPlayers());
+
             ByteArrayOutputStream gameSetupArrayOut= new ByteArrayOutputStream();
             ObjectOutputStream gameSetupOut = new ObjectOutputStream(gameSetupArrayOut);
-            clientUpdate(gameSetupOut, gameSetupArrayOut, gameSetup);  //sappiamo anche il challenger
             ByteArrayInputStream gameSetupArrayIn = new ByteArrayInputStream(gameSetupArrayOut.toByteArray());
             ObjectInputStream gameSetupIn = new ObjectInputStream(gameSetupArrayIn);
-            GameSetupReply gameSetupReply = (GameSetupReply) gameSetupIn.readObject();
-            if(game.getListOfPlayers().get(0).getName().equals(gameSetupReply.getName())){
-                controller.setAvailableGods(gameSetupReply.getAvailableGods());
-                controller.setCurrentPlayer(gameSetupReply.getPlayerIndex());
-            }
 
-            // fase scelta giocatori da fare
+            clientUpdate(gameSetupOut, gameSetupArrayOut, gameSetup); //Sends the information for the setUp phase
+            setupPhase(gameSetupIn); //Receives the available gods and the first player from the challenger
 
-            for(int x=0; x < game.getNumberOfActivePlayers(); x++){   // scelta del potere
-                WorkerStartPosition workerStartPositionReply = (WorkerStartPosition) gameSetupIn.readObject();
-                if(game.getCurrentPlayer().getName().equals(workerStartPositionReply.getName()))
-                {
+
+
+
+            do {
+                WorkerSetupReply workerStartPositionReply = (WorkerSetupReply) gameSetupIn.readObject();
+
+                if (game.getCurrentPlayer().getName().equals(workerStartPositionReply.getClientName())) {
                     controller.place(game.getCurrentPlayer().getAllWorkers().get(0),
                             game.getWorld().getSpaces(workerStartPositionReply.getX(0), workerStartPositionReply.getY(0)));
                     controller.place(game.getCurrentPlayer().getAllWorkers().get(1),
                             game.getWorld().getSpaces(workerStartPositionReply.getX(1), workerStartPositionReply.getY(1)));
-
                     controller.nextTurn();
+                    WorldDisplay worldDisplay = new WorldDisplay(game);
+                    clientUpdate(gameSetupOut, gameSetupArrayOut, worldDisplay);
                 }
-                WorldDisplay worldDisplay= new WorldDisplay(game);  // aggiorna il tabellone ogni volta
-                clientUpdate(gameSetupOut, gameSetupArrayOut, worldDisplay);
-            }
+            } while (game.getCurrentPlayer().getIndex() != this.firstPlayerIndex);
+
             while(true)
             {
-                TurnMessage turnMessage = new TurnMessage();  //  scelta del worker
+                WorkerChoice turnMessage = new WorkerChoice();  //  scelta del worker
                 clientUpdate(gameSetupOut, gameSetupArrayOut, turnMessage);
-                TurnMessageReplay turnMessageReplay = (TurnMessageReplay) gameSetupIn.readObject();
+                AvailableActionsReply turnMessageReplay = (AvailableActionsReply) gameSetupIn.readObject();
                 int phase=0;
 
                 while(true){ // cicla fino a quando non premo end turn
 
                     if(game.getCurrentPlayer().getName().equals(turnMessageReplay.getName())) {
                         ArrayList<Space> availableSpaces = turnMessageReplay.getWorker().computeAvailableSpaces();
-                        TurnMessageAvaiableAction turnMessageAvaiableAction = new TurnMessageAvaiableAction();
+                        AvailableActions turnMessageAvaiableAction = new AvailableActions();
                         clientUpdate(gameSetupOut, gameSetupArrayOut, turnMessageAvaiableAction);
-                        ChooseActionTurnMessage reply = (ChooseActionTurnMessage) gameSetupIn.readObject();
-                            if (!reply.getType().equals("EndTurn")) {
+                        ActionMessage reply = (ActionMessage) gameSetupIn.readObject();
+                            if (!reply.getType().equals(WorkerActionType.END_TURN)) {
                                 controller.checkDefeat(reply.getType(),turnMessageReplay.getWorker());
                                 if (game.getCurrentPlayer().isDefeated()) {
 
@@ -106,23 +182,53 @@ public class GameServer implements Runnable{
                 }
         } catch (IOException | ClassNotFoundException | NotExecutedException e){
             System.err.println(e.getMessage());
-        }
+        }*/
 
 
 
     }
 
-    private void clientUpdate(ObjectOutputStream outObject,ByteArrayOutputStream outByteArray,Object objectInput) throws IOException {
+
+    /*private void clientUpdate(ObjectOutputStream outObject,ByteArrayOutputStream outByteArray,Object objectInput) throws IOException {
         outObject.reset();
         outObject.writeObject(objectInput);
         outObject.flush();
-
     }
+
     public void updateWorld (WorkerData worker, WorkerActionType typeAction, int x, int y) throws NotExecutedException {
         Space targetSpace = game.getWorld().getSpaces(x , y);
         Space currentSpace = worker.getCurrentSpace();
         controller.workerAction( worker , typeAction ,targetSpace.getX(),targetSpace.getY() );
+    }*/
+
+    /*private synchronized void setup(Scanner stringInput, String read) throws IOException, ClassNotFoundException {
+        GameSetup gameSetup = new GameSetup(GodType.getListOfGods(), game.getWorld(), game.getListOfPlayers());
+        setupInfoNotifier.notify(gameSetup);
+
+        while (true) {
+            System.out.println("SETUP");
+            read = stringInput.nextLine();
+            onStringReceived.notify(read);
+        }
+    }*/
+
+    public GameRemoteView getRemoteView(){
+        return this.remoteView;
     }
 
+    private void addListeners(){
+        onStringReceived.addListener(remoteView, message -> remoteView.stringHandler(message));
+        setupInfoNotifier.addListener(remoteView, message -> remoteView.setupMessage(message));
+        chooseGodsNotifier.addListener(remoteView, message -> remoteView.chooseGodsMessage(message));
+    }
+
+
+    public boolean isChallenger(){
+        return this.name.equals(game.getListOfPlayers().get(0).getName());
+    }
+
+    public boolean isCurrentPlayer(){
+        return this.name.equals(game.getCurrentPlayer().getName());
+    }
 
 }

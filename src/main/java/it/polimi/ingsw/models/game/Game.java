@@ -10,12 +10,13 @@ import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class Game {
-    private final Notifier<GameStatus> gameStatusNotifier;
+public class Game implements Serializable {
+    //private final Notifier<GameStatus> gameStatusNotifier;
     private final Notifier<SpaceData> spaceChangedNotifier;
     private final Notifier<PlayerData> turnChangedNotifier;
     private final Notifier<PlayerData> playerLostNotifier;
@@ -36,6 +37,7 @@ public class Game {
 
     private GameStatus currentStatus;
     private int currentPlayer;
+    private GameStatus status;
 
     /**
      * Creates a new game
@@ -43,26 +45,25 @@ public class Game {
      * @param nicknames the nicknames of the players
      */
     public Game(List<String> nicknames) {
-        this.gameStatusNotifier = new Notifier<>();
+        //this.gameStatusNotifier = new Notifier<>();
         this.spaceChangedNotifier = new Notifier<>();
         this.turnChangedNotifier = new Notifier<>();
         this.playerLostNotifier = new Notifier<>();
 
         this.factory = new GodFactory();
-        this.availableGods = null;
+        this.availableGods = new HashSet<GodType>();
         this.world = new World(this.spaceChangedNotifier);
         this.previousWorld = null;
         this.rules = new ActualRule(this.world);
 
-        this.listOfPlayers = IntStream.range(0, nicknames.size())
-                .mapToObj(i -> i == 0
-                        ? new Challenger(this, nicknames.get(i))
-                        : new Player(this, nicknames.get(i)))
-                .collect(Collectors.toUnmodifiableList());
+
+        this.listOfPlayers = new ArrayList<Player>();
+        nicknames.forEach(n -> listOfPlayers.add(new Player(this, n)));
         this.gameViews = new HashMap<>();
 
         this.currentPlayer = -1;
         this.currentStatus = GameStatus.PLAYER_JOINING;
+        this.status = GameStatus.PLAYER_JOINING;
     }
 
     public void attachView(String name, GameView view) {
@@ -70,7 +71,7 @@ public class Game {
             throw new InternalError("Player already exist");
         }
 
-        this.gameStatusNotifier.addListener(view, view::notifyGameStatus);
+        //this.gameStatusNotifier.addListener(view, view::notifyGameStatus);
         this.spaceChangedNotifier.addListener(view, view::notifySpaceChange);
         this.turnChangedNotifier.addListener(view, view::notifyPlayerTurn);
         this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
@@ -81,7 +82,7 @@ public class Game {
             throw new InternalError("Invalid player name");
         }
 
-        this.gameStatusNotifier.removeListener(view);
+        //this.gameStatusNotifier.removeListener(view);
         this.spaceChangedNotifier.removeListener(view);
         this.turnChangedNotifier.removeListener(view);
         this.playerLostNotifier.removeListener(view);
@@ -100,19 +101,16 @@ public class Game {
     /**
      * Challenger should call this method to set available gods.
      *
-     * @param availableGodTypes The gods which can be used.
      */
-    public void setAvailableGods(GodType[] availableGodTypes) {
-        if (this.availableGods != null) {
+    public void addAvailableGods(GodType type) {
+        if (this.availableGods.size() == getNumberOfActivePlayers()) {
             throw new InternalError("Available gods already set");
         }
-        if (this.listOfPlayers.size() != availableGodTypes.length) {
-            throw new InternalError("Number of gods is different from number of players");
-        }
-        this.availableGods = new HashSet<>(Arrays.asList(availableGodTypes));
-        if (this.availableGods.size() != availableGodTypes.length) {
+        if (this.availableGods.contains(type)) {
             throw new InternalError("Challenger may have selected duplicated god types");
         }
+        this.availableGods.add(type);
+
     }
 
     public boolean isGodAvailable(GodType type) {
@@ -131,44 +129,6 @@ public class Game {
         }
         this.availableGods.remove(type);
         return factory.getGod(type);
-    }
-
-    /**
-     * Setup the game. Set worker positions, let challenger choose gods etc.
-     */
-    public void setupGame() {
-        this.setCurrentStatus(GameStatus.SETUP);
-
-        // TODO: Set start player / gods etc.
-        this.availableGods = Collections.emptySet();
-
-        for (int i = 0; i < this.listOfPlayers.size(); ++i) {
-            // let player place worker
-            this.goToNextTurn();
-            this.waitUntilTurnFinished();
-        }
-    }
-
-    /**
-     * Play the game.
-     */
-    public void playGame() {
-        this.setCurrentStatus(GameStatus.PLAYING);
-
-        if (this.availableGods == null) {
-            throw new InternalError("Available gods not set yet");
-        }
-        if (this.availableGods.size() != 0) {
-            throw new InternalError("Some players may have not chosen god yet");
-        }
-
-        // TODO: IMPLEMENT GAME VIEW DISCONNECT
-        while (this.getNumberOfActivePlayers() > 1) {
-            this.goToNextTurn();
-            this.waitUntilTurnFinished();
-        }
-
-        this.setCurrentStatus(GameStatus.ENDED);
     }
 
     public void announceVictory(Player winner) {
@@ -234,7 +194,7 @@ public class Game {
 
     public void setCurrentStatus(GameStatus status) {
         this.currentStatus = status;
-        this.gameStatusNotifier.notify(this.currentStatus);
+        //this.gameStatusNotifier.notify(this.currentStatus);
     }
 
     public void savePreviousWorld(){
@@ -251,6 +211,19 @@ public class Game {
 
     public World getPreviousWorld(){
         return this.previousWorld;
+    }
+
+
+    public List<PlayerData> getPlayerData(){
+        return new ArrayList<>(this.listOfPlayers);
+    }
+
+    public boolean availableGodsContains(GodType type){
+        return availableGods.contains(type);
+    }
+
+    public Set<GodType> getAvailableGods(){
+        return this.availableGods;
     }
 
     /**
@@ -272,6 +245,13 @@ public class Game {
         return listOfPlayers;
     }
 
+    public void setStatus(GameStatus status){
+        this.status = status;
+    }
+
+    public GameStatus getStatus(){
+        return this.status;
+    }
 
 
 }

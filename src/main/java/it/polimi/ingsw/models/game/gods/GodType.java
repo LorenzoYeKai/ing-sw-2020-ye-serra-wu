@@ -3,7 +3,9 @@ package it.polimi.ingsw.models.game.gods;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,6 +36,14 @@ public enum GodType implements Serializable {
 
     public static List<GodType> getListOfGods(){
         return Arrays.asList(GodType.values());
+    }
+
+    public static boolean contains(String s){
+        List<String> allTypes = new ArrayList<>();
+        for(int i = 0; i < GodType.getListOfGods().size(); i++){
+            allTypes.add(GodType.getListOfGods().get(i).toString());
+        }
+        return allTypes.contains(s.toUpperCase());
     }
 
 }

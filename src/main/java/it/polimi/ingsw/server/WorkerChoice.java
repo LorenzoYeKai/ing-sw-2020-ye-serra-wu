@@ -2,7 +2,7 @@ package it.polimi.ingsw.server;
 
 import java.io.Serializable;
 
-public class TurnMessage implements Serializable {
+public class WorkerChoice implements Serializable {
 
     String name;
 

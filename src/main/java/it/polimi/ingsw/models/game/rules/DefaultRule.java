@@ -3,10 +3,12 @@ package it.polimi.ingsw.models.game.rules;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 
+import java.io.Serializable;
+
 /**
  * Contains all the default rules implementation
  */
-public class DefaultRule {
+public class DefaultRule implements Serializable {
 
     private World world;
 

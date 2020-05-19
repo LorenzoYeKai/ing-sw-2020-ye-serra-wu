@@ -1,10 +1,11 @@
 package it.polimi.ingsw;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-public class Notifier<T> implements Notifiable<T> {
+public class Notifier<T> implements Notifiable<T> , Serializable {
     private final Map<Object, Consumer<T>> callbacks;
     private boolean iterating;
 
