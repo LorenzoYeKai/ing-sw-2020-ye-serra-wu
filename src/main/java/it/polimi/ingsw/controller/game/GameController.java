@@ -67,6 +67,10 @@ public class GameController {
         game.addAvailableGods(type);
     }
 
+    public void removeAvailableGod(GodType type){
+        game.removeAvailableGod(type);
+    }
+
     public void nextTurn(){
         if(game.getCurrentPlayer().getIndex()==game.getNumberOfActivePlayers()-1) {
             game.setCurrentPlayer(0);
@@ -159,14 +163,23 @@ public class GameController {
         this.game.setStatus(GameStatus.SETUP);
     }
 
-    public void playGame() {
-        this.game.setStatus(GameStatus.PLAYING);
-    }
-
     public void chooseGods(){
         this.game.setStatus(GameStatus.CHOOSING_GODS);
     }
 
+    public void placeWorkers(){
+        this.game.setStatus(GameStatus.PLACING);
+    }
+
+    public void playGame() {
+        this.game.setStatus(GameStatus.PLAYING);
+    }
+
+
+
+    public void setPlayerGod(Player player, GodType god){
+        player.setGod(god);
+    }
 
 
 }

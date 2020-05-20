@@ -113,6 +113,15 @@ public class Game implements Serializable {
 
     }
 
+    public void removeAvailableGod(GodType type){
+        if(this.availableGods.contains(type)){
+            this.availableGods.remove(type);
+        }
+        else{
+            throw new IllegalArgumentException("The god is not available");
+        }
+    }
+
     public boolean isGodAvailable(GodType type) {
         return this.availableGods.contains(type);
     }

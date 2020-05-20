@@ -60,6 +60,10 @@ public class Player implements PlayerData, Serializable {
         return this.god;
     }
 
+    public GodType getGodType(God god){
+        return GodType.parseFromGod(god);
+    }
+
     /**
      * Sets the God that will be used by this player
      */

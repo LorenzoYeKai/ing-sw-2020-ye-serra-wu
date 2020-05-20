@@ -253,5 +253,9 @@ public class Worker implements WorkerData, Serializable {
 
     }
 
+    public int getIndex(){
+        return this.index;
+    }
+
 }
 

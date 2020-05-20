@@ -34,6 +34,37 @@ public enum GodType implements Serializable {
         return GodType.valueOf(s.toUpperCase());
     }
 
+    public static GodType parseFromGod(God god){
+        if(god instanceof Apollo){
+            return GodType.APOLLO;
+        }
+        if(god instanceof Athena){
+            return GodType.ATHENA;
+        }
+        if(god instanceof Artemis){
+            return GodType.ARTEMIS;
+        }
+        if(god instanceof Atlas){
+            return GodType.ATLAS;
+        }
+        if(god instanceof Demeter){
+            return GodType.DEMETER;
+        }
+        if(god instanceof Hephaestus){
+            return GodType.HEPHAESTUS;
+        }
+        if(god instanceof Minotaur){
+            return GodType.MINOTAUR;
+        }
+        if(god instanceof Pan){
+            return GodType.PAN;
+        }
+        if(god instanceof Prometheus){
+            return GodType.PROMETHEUS;
+        }
+        throw new IllegalArgumentException("ERROR");
+    }
+
     public static List<GodType> getListOfGods(){
         return Arrays.asList(GodType.values());
     }

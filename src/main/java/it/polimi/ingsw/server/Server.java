@@ -1,13 +1,9 @@
 package it.polimi.ingsw.server;
 
-import com.sun.security.auth.UnixNumericGroupPrincipal;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.GameStatus;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
@@ -64,10 +60,21 @@ public class Server {
         }
     }
 
-    public void setupEnd(AvailableGodsChoice availableGodsChoice){
+    public void sendChooseGodsMessage(AvailableGodsChoice availableGodsChoice){
         this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
     }
 
+    public void sendPlacingMessage(WorldDisplay display){
+        this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
+    }
+
+    public void sendUpdateWorldMessage(WorldDisplay display){
+        this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
+    }
+
+    public void sendStartTurnMessage(AvailableWorkersDisplay display){
+        this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
+    }
 
     public List<String> getNicknames(){
         return this.nicknames;

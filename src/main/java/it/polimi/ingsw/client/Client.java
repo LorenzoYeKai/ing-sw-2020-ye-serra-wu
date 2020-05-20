@@ -21,48 +21,5 @@ public class Client {
         System.out.println("Connection established");
         TempLobbyClient lobbyClient = new TempLobbyClient(socket, this);
         lobbyClient.run();
-
-        /*Scanner socketIn = new Scanner(socket.getInputStream());
-        PrintWriter socketOut = new PrintWriter(socket.getOutputStream());
-        Scanner stdin = new Scanner(System.in);
-        String socketLine;
-        try{
-            while(true) {
-                socketLine = socketIn.nextLine();
-                if(!socketLine.equals("end")) {
-                    System.out.println(socketLine);
-                }
-                else{
-                    break;
-                }
-            }
-            while (true){
-                while(true) {
-                    String inputLine = stdin.nextLine();
-                    if(!inputLine.equals("end")) {
-                        socketOut.println(inputLine);
-                        socketOut.flush();
-                    }
-                    else{
-                        break;
-                    }
-                }
-                while(true) {
-                    socketLine = socketIn.nextLine();
-                    if (!socketLine.equals("end")) {
-                        System.out.println(socketLine);
-                    } else {
-                        break;
-                    }
-                }
-            }
-        } catch(NoSuchElementException e){
-            System.out.println("Connection closed from the client side");
-        } finally {
-            stdin.close();
-            socketIn.close();
-            socketOut.close();
-            socket.close();
-        }*/
-    }
+}
 }

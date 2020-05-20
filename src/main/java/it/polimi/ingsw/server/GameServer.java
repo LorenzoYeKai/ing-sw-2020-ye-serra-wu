@@ -231,4 +231,8 @@ public class GameServer implements Runnable{ //connection for the game
         return this.name.equals(game.getCurrentPlayer().getName());
     }
 
+    public Player getPlayer(){
+        return game.findPlayerByName(this.name);
+    }
+
 }

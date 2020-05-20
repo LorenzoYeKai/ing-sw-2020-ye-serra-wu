@@ -37,7 +37,6 @@ public class GameClient {
                     while (isActive()) {
                         Object inputObject = socketIn.readObject();
                         if(inputObject instanceof String){
-                            System.out.println("String received with async read!");
                             System.out.println((String)inputObject);
                         } else if (inputObject instanceof ServerMessage){
                             ((ServerMessage)inputObject).displayMessage();

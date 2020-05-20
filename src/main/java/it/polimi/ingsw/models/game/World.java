@@ -42,6 +42,9 @@ public class World implements Serializable, WorldData {
         return this.spaces;
     }
 
+    public boolean isInWorld(int x, int y){
+        return y > -1 && y < 5 && x > -1 && x < 5;
+    }
 
     /**
      * returns null if not in the world
