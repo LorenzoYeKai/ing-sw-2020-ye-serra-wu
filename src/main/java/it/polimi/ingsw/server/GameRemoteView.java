@@ -144,8 +144,7 @@ public class GameRemoteView {
                     controller.nextTurn();
                     if(game.getCurrentPlayer().getGod() != null){
                         controller.placeWorkers();
-                        WorldDisplay display = new WorldDisplay(game);
-                        server.sendPlacingMessage(display);
+                        server.sendPlacingMessage(this.game);
                     }
                     else{
                         AvailableGodsChoice availableGodsChoice = new AvailableGodsChoice(game.getAvailableGods());
@@ -180,8 +179,7 @@ public class GameRemoteView {
                                 try{
                                     controller.place(this.game.getCurrentPlayer().getAllWorkers().get(0), this.game.getWorld().getSpaces(x, y));
                                     gameServer.asyncSend("You set your worker number 1 successfully on the space [" + x + "][" + y + "]!");
-                                    WorldDisplay display = new WorldDisplay(game);
-                                    server.sendUpdateWorldMessage(display);
+                                    server.sendUpdateWorldMessage(this.game);
                                     gameServer.asyncSend("Now place the other worker, type \"place x,y\":");
                                 }catch (NotExecutedException e){
                                     gameServer.asyncSend(e.getMessage());
@@ -191,18 +189,19 @@ public class GameRemoteView {
                                 try{
                                     controller.place(this.game.getCurrentPlayer().getAllWorkers().get(1), this.game.getWorld().getSpaces(x, y));
                                     gameServer.asyncSend("You set your worker number 2 successfully on the space [" + x + "][" + y + "]!");
-                                    WorldDisplay display = new WorldDisplay(game);
-                                    server.sendUpdateWorldMessage(display); //TODO: does not show to the current player
+                                    server.sendUpdateWorldMessage(this.game); //TODO: does not show to the current player
                                     gameServer.asyncSend("You set all your workers successfully!");
                                     controller.nextTurn();
-                                    if(!this.game.getCurrentPlayer().getAllWorkers().contains(null)){
+                                    if(game.getCurrentPlayer().getAllWorkers().get(0).getCurrentSpace() != null && game.getCurrentPlayer().getAllWorkers().get(1).getCurrentSpace() != null){
                                         controller.playGame();
-                                        display = new WorldDisplay(game);
-                                        server.sendUpdateWorldMessage(display);
+                                        server.sendUpdateWorldMessage(this.game);
                                         List<Integer> n = new ArrayList<>();
                                         game.getCurrentPlayer().getAvailableWorkers().forEach(w -> n.add(w.getIndex()));
                                         AvailableWorkersDisplay availableWorkers = new AvailableWorkersDisplay(n);
                                         server.sendStartTurnMessage(availableWorkers);
+                                    }
+                                    else{
+                                        server.sendPlacingMessage(this.game);
                                     }
                                 }catch (NotExecutedException e){
                                     gameServer.asyncSend(e.getMessage());

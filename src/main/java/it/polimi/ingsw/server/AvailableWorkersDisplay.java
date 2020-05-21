@@ -2,9 +2,10 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.models.game.Worker;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class AvailableWorkersDisplay extends ServerMessage {
+public class AvailableWorkersDisplay extends ServerMessage implements Serializable {
 
     private List<Integer> availableWorkers;
 

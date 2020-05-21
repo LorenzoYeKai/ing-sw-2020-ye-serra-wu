@@ -2,6 +2,8 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.models.game.Game;
+import it.polimi.ingsw.models.game.World;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -64,11 +66,13 @@ public class Server {
         this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
     }
 
-    public void sendPlacingMessage(WorldDisplay display){
+    public void sendPlacingMessage(Game game){
+        WorldDisplay display = new WorldDisplay(game);
         this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
     }
 
-    public void sendUpdateWorldMessage(WorldDisplay display){
+    public void sendUpdateWorldMessage(Game game){
+        WorldDisplay display = new WorldDisplay(game);
         this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
