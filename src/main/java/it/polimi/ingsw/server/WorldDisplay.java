@@ -28,6 +28,7 @@ public class WorldDisplay extends ServerMessage implements Serializable {
 
     @Override
     public void displayMessage() {
+        System.out.println("\nCurrent active players: ");
         for(int i = 0; i < this.listOfPlayersAndGods.size(); i++){
             System.out.println(new ArrayList<>(this.listOfPlayersAndGods.keySet()).get(i) + ": " + new ArrayList<>(this.listOfPlayersAndGods.values()).get(i));
         }

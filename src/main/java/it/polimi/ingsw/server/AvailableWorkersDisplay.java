@@ -15,8 +15,8 @@ public class AvailableWorkersDisplay extends ServerMessage implements Serializab
 
     @Override
     public void displayMessage() {
-        System.out.println("Here are the available workers: ");
+        System.out.println("\nHere are the available workers: ");
         this.availableWorkers.forEach(i -> System.out.println("Worker " + i));
-        System.out.println("Select one worker, type \"select [number]\": ");
+        System.out.println("Select one worker, type \"select number\": ");
     }
 }

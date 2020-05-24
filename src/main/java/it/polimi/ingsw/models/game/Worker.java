@@ -247,6 +247,17 @@ public class Worker implements WorkerData, Serializable {
         return null;
     }
 
+    public Space previousDome(){ //this will be called only after the selected worker has built
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if(!player.getGame().getPreviousWorld().getSpaces(i, j).isOccupiedByDome() && player.getGame().getWorld().getSpaces(i, j).isOccupiedByDome()){
+                    return this.player.getGame().getWorld().getSpaces(i, j);
+                }
+            }
+        }
+        return null;
+    }
+
     public void removeWorkerWhenDefeated(){
         this.currentSpace.removeWorker();
         this.currentSpace=null;

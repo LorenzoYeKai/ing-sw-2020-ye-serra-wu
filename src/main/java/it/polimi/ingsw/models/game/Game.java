@@ -26,6 +26,7 @@ public class Game implements Serializable {
     private Set<GodType> availableGods;
     private final World world;
     private World previousWorld;
+    private List<World> previousWorlds;
     private ActualRule rules;
 
 
@@ -54,6 +55,7 @@ public class Game implements Serializable {
         this.availableGods = new HashSet<GodType>();
         this.world = new World(this.spaceChangedNotifier);
         this.previousWorld = null;
+        this.previousWorlds = new ArrayList<>();
         this.rules = new ActualRule(this.world);
 
 
@@ -216,6 +218,16 @@ public class Game implements Serializable {
                 }
             }
         }
+        this.previousWorlds.add(this.previousWorld);
+    }
+
+    public int getTurnPhase(){
+        return this.previousWorlds.size();
+    }
+
+    public void clearPreviousWorlds(){
+        this.previousWorld = null;
+        this.previousWorlds.clear();
     }
 
     public World getPreviousWorld(){

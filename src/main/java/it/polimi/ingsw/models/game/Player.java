@@ -4,14 +4,10 @@ import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
-import it.polimi.ingsw.models.game.rules.ActualRule;
+
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class Player implements PlayerData, Serializable {
@@ -21,12 +17,14 @@ public class Player implements PlayerData, Serializable {
     private final List<Worker> workers;
     private God god;
     private boolean defeated;
+    private int selectedWorker;
 
     public Player(Game game, String name) {
         this.game = game;
         this.name = name;
         this.workers = List.of(new Worker(this, 0), new Worker(this, 1));
         this.defeated = false;
+        this.selectedWorker = -1;
     }
 
     @Override
@@ -96,6 +94,34 @@ public class Player implements PlayerData, Serializable {
         }
         throw new IllegalArgumentException("Player not found");
     }
+
+    public void selectWorker(int index){
+        if(index == 0 || index == 1) {
+            this.selectedWorker = index;
+        }
+        else{
+            this.selectedWorker = -1;
+            throw new IllegalArgumentException("Worker doesn't exist");
+        }
+    }
+
+    public void deselectWorker(){
+        this.selectedWorker = -1;
+    }
+
+    public boolean hasSelectedAWorker(){
+        return this.selectedWorker != -1;
+    }
+
+    public Worker getSelectedWorker(){
+        if(this.selectedWorker == 0 || this.selectedWorker == 1) {
+            return this.workers.get(this.selectedWorker);
+        }
+        else{
+            throw new IllegalArgumentException("You have not selected a worker yet!");
+        }
+    }
+
 
 
 }

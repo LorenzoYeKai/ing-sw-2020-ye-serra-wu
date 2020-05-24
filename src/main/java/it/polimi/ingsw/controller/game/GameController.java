@@ -88,15 +88,15 @@ public class GameController {
 
     public void place(Worker worker, Space targetSpace) throws NotExecutedException {
         if (targetSpace.isOccupied()) {
-            throw new NotExecutedException("Cannot move to occupied space");
+            throw new NotExecutedException("Cannot place in an occupied space!");
         }
 
         worker.setStartPosition(targetSpace);
     }
 
-    private void move(Worker worker, Space targetSpace) throws NotExecutedException {
+    public void move(Worker worker, Space targetSpace) throws NotExecutedException {
         if (!worker.computeAvailableSpaces().contains(targetSpace)){
-            throw new NotExecutedException("Cannot move there");
+            throw new NotExecutedException("Cannot move there!");
         }
         if(targetSpace.isOccupiedByWorker()){
             try {
@@ -110,19 +110,20 @@ public class GameController {
             game.savePreviousWorld();
             worker.move(targetSpace);
         }
+
     }
 
-    private void build(Worker worker, Space targetSpace) throws NotExecutedException {
+    public void build(Worker worker, Space targetSpace) throws NotExecutedException {
         if (!worker.computeBuildableSpaces().contains(targetSpace)) {
-            throw new NotExecutedException("Cannot build there");
+            throw new NotExecutedException("Cannot build there!");
         }
         game.savePreviousWorld();
         worker.buildBlock(targetSpace);
     }
 
-    private void buildDome(Worker worker, Space targetSpace) throws NotExecutedException {
+    public void buildDome(Worker worker, Space targetSpace) throws NotExecutedException {
         if (!worker.computeDomeSpaces().contains(targetSpace)) {
-            throw new NotExecutedException("Cannot build dome there");
+            throw new NotExecutedException("Cannot build a dome there!");
         }
         game.savePreviousWorld();
         worker.buildDome(targetSpace);
@@ -181,5 +182,11 @@ public class GameController {
         player.setGod(god);
     }
 
+    public void selectWorker(int index){
+        game.getCurrentPlayer().selectWorker(index);
+    }
 
+    public void resetTurnPhase(){
+        this.game.clearPreviousWorlds();
+    }
 }

@@ -2,6 +2,7 @@ package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.Notifiable;
 import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.views.utils.Coordinates;
 
 import java.io.Serializable;
 
@@ -135,6 +136,9 @@ public class Space implements SpaceData, Serializable {
 
     }
 
+    public Coordinates getCoordinates(){
+        return new Coordinates(this.x, this.y);
+    }
 
 }
 

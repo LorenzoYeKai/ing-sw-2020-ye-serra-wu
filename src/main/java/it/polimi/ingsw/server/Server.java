@@ -62,7 +62,8 @@ public class Server {
         }
     }
 
-    public void sendChooseGodsMessage(AvailableGodsChoice availableGodsChoice){
+    public void sendChooseGodsMessage(Game game){
+        AvailableGodsChoice availableGodsChoice = new AvailableGodsChoice(game.getAvailableGods());
         this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
     }
 
@@ -76,7 +77,10 @@ public class Server {
         this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
-    public void sendStartTurnMessage(AvailableWorkersDisplay display){
+    public void sendStartTurnMessage(Game game){
+        List<Integer> n = new ArrayList<>();
+        game.getCurrentPlayer().getAvailableWorkers().forEach(w -> n.add(w.getIndex()));
+        AvailableWorkersDisplay display = new AvailableWorkersDisplay(n);
         this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
     }
 
