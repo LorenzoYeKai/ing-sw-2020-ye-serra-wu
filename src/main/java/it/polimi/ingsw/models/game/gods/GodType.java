@@ -14,7 +14,6 @@ import java.util.List;
 public enum GodType implements Serializable {
 
 
-    APHRODITE,
     APOLLO,
     ARTEMIS,
     ATHENA,

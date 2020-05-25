@@ -186,7 +186,8 @@ public class GameController {
         game.getCurrentPlayer().selectWorker(index);
     }
 
-    public void resetTurnPhase(){
+    public void resetTurn(){
         this.game.clearPreviousWorlds();
+        this.game.getCurrentPlayer().deselectWorker();
     }
 }

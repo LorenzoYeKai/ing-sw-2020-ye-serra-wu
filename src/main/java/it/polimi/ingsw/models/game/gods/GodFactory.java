@@ -10,9 +10,6 @@ public class GodFactory implements Serializable {
     public God getGod(GodType god){
         God w = null;
         switch (god){
-            case APHRODITE:
-                w = new Aphrodite();
-                break;
             case APOLLO:
                 w = new Apollo();
                 break;

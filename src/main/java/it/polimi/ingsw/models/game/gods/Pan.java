@@ -22,7 +22,7 @@ public class Pan extends God {
 
     @Override
     public void deactivateGodPower(Worker worker) {
-        throw new UnsupportedOperationException("Not implemented yet");
+        worker.getRules().getMovementRules().remove("panPower");
     }
 
     @Override

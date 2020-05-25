@@ -8,9 +8,7 @@ import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.utils.Coordinates;
 import it.polimi.ingsw.views.utils.Patterns;
 
-import javax.swing.*;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -227,6 +225,7 @@ public class GameRemoteView {
                     int index = Integer.parseInt(message.substring(7, 8));
                     if(index == 0 || index == 1){
                         controller.selectWorker(index);
+                        gameServer.asyncSend("You selected worker number " + this.game.getCurrentPlayer().getSelectedWorker().getIndex());
                         gameServer.asyncSend("Phase: " + this.game.getTurnPhase());
                         Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
                         ActionDisplay display = new ActionDisplay(actions);
@@ -321,7 +320,7 @@ public class GameRemoteView {
                 else if(message.equals("end")){
                     if(possibleActions.contains(WorkerActionType.END_TURN)) {
                         gameServer.asyncSend("You ended your turn!");
-                        controller.resetTurnPhase();
+                        controller.resetTurn();
                         controller.nextTurn();
                         server.sendStartTurnMessage(this.game);
                     }
