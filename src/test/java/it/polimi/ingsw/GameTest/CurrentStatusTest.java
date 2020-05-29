@@ -22,55 +22,55 @@ public class CurrentStatusTest {
         }
         @Test
         @DisplayName("Test SU CurrentStatus")
-        void CurrentStatusTest ()
+        void getCurrentStatusTest ()
         {
             game.setStatus(GameStatus.PLAYER_JOINING);
-            assertEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertNotEquals(game.getStatus(), GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.ENDED);
+            assertTrue(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertFalse(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.ENDED));
 
             game.setStatus(GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertEquals(game.getStatus(), GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.ENDED);
+            assertTrue(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertFalse(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.ENDED));
+
 
             game.setStatus(GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertNotEquals(game.getStatus(), GameStatus.SETUP);
-            assertEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.ENDED);
+            assertTrue(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertFalse(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.ENDED));
 
             game.setStatus(GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertNotEquals(game.getStatus(), GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertEquals(game.getStatus(), GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.ENDED);
+            assertTrue(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.ENDED));
 
             game.setStatus(GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertNotEquals(game.getStatus(), GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLACING);
-            assertEquals(game.getStatus(), GameStatus.PLAYING);
-            assertNotEquals(game.getStatus(), GameStatus.ENDED);
+            assertTrue(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertFalse(game.getStatus().equals(GameStatus.ENDED));
 
             game.setStatus(GameStatus.ENDED);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
-            assertNotEquals(game.getStatus(), GameStatus.SETUP);
-            assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-            assertNotEquals(game.getStatus(), GameStatus.PLACING);
-            assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-            assertEquals(game.getStatus(), GameStatus.ENDED);
-
+            assertFalse(game.getStatus().equals(GameStatus.SETUP));
+            assertFalse(game.getStatus().equals(GameStatus.CHOOSING_GODS));
+            assertFalse(game.getStatus().equals(GameStatus.PLACING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYING));
+            assertFalse(game.getStatus().equals(GameStatus.PLAYER_JOINING));
+            assertTrue(game.getStatus().equals(GameStatus.ENDED));
         }
 }

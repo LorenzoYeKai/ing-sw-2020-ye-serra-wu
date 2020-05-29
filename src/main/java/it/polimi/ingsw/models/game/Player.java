@@ -122,6 +122,10 @@ public class Player implements PlayerData, Serializable {
         }
     }
 
+    public int getIndexSelectedWorker(){
+        return selectedWorker;
+    }
+
 
 
 }

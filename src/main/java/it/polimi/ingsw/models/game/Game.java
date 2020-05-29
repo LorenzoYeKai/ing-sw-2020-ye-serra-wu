@@ -187,6 +187,11 @@ public class Game implements Serializable {
         this.turnChangedNotifier.notify(this.getCurrentPlayer());
     }
 
+    // solo per i test //
+    public int getCurrentPlayerIndex(){
+        return currentPlayer;
+    }
+
     public World getWorld() {
         return this.world;
     }
@@ -256,9 +261,9 @@ public class Game implements Serializable {
 
     public void nextPlayer(){
         switch (currentPlayer){
-            case 2 : currentPlayer=0;
-            case 1 : currentPlayer=2;
-            case 0 : currentPlayer= 1;
+            case 2 : setCurrentPlayer(0);
+            case 1 : setCurrentPlayer(2);
+            case 0 : setCurrentPlayer(1);
         }
     }
 
