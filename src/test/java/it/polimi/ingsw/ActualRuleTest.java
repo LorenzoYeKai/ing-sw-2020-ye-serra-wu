@@ -36,6 +36,7 @@ public class ActualRuleTest {
         assertFalse(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(1, 4)));
         assertFalse(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(1, 0)));
         assertFalse(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(0, 1)));
+        assertFalse(rules.canMoveThere(world.getSpaces(1, 1), world.getSpaces(1, 1)));
     }
 
 
