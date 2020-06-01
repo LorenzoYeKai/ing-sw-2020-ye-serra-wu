@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class App 
 {
-    public static void main( String[] args ) throws IOException {
+    public static void dummy( String[] args ) throws IOException {
         try {
             System.out.println("Creating lobby controller and lobby view...");
             LobbyController lobbyController = new LobbyController();

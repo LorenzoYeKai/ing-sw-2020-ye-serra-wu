@@ -1,7 +1,5 @@
 package it.polimi.ingsw.client;
 
-import it.polimi.ingsw.Client;
-
 import java.io.Serializable;
 
 public abstract class ClientReply implements Serializable {
