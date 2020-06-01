@@ -1,13 +1,16 @@
 package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.Notifier;
+import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
+import it.polimi.ingsw.server.GameRemoteView;
 import it.polimi.ingsw.views.game.GameView;
+import it.polimi.ingsw.views.utils.Coordinates;
 
 
 import java.io.Serializable;
@@ -20,6 +23,7 @@ public class Game implements Serializable {
     private final Notifier<SpaceData> spaceChangedNotifier;
     private final Notifier<PlayerData> turnChangedNotifier;
     private final Notifier<PlayerData> playerLostNotifier;
+    private final Notifier<PlayerData> playerWonNotifier;
 
 
     private final GodFactory factory;
@@ -35,6 +39,7 @@ public class Game implements Serializable {
 
     private final List<Player> listOfPlayers;
     private final Map<String, GameView> gameViews;
+    private final Map<String, GameRemoteView> gameRemoteViews;
 
     private GameStatus currentStatus;
     private int currentPlayer;
@@ -50,6 +55,7 @@ public class Game implements Serializable {
         this.spaceChangedNotifier = new Notifier<>();
         this.turnChangedNotifier = new Notifier<>();
         this.playerLostNotifier = new Notifier<>();
+        this.playerWonNotifier = new Notifier<>();
 
         this.factory = new GodFactory();
         this.availableGods = new HashSet<GodType>();
@@ -62,13 +68,14 @@ public class Game implements Serializable {
         this.listOfPlayers = new ArrayList<Player>();
         nicknames.forEach(n -> listOfPlayers.add(new Player(this, n)));
         this.gameViews = new HashMap<>();
+        this.gameRemoteViews = new HashMap<>();
 
         this.currentPlayer = -1;
         this.currentStatus = GameStatus.PLAYER_JOINING;
         this.status = GameStatus.PLAYER_JOINING;
     }
 
-    public void attachView(String name, GameView view) {
+    public void oldAttachView(String name, GameView view) {
         if(this.gameViews.containsKey(name)) {
             throw new InternalError("Player already exist");
         }
@@ -77,6 +84,16 @@ public class Game implements Serializable {
         this.spaceChangedNotifier.addListener(view, view::notifySpaceChange);
         this.turnChangedNotifier.addListener(view, view::notifyPlayerTurn);
         this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
+    }
+
+    public void attachView(String name, GameRemoteView view) {
+        if(this.gameViews.containsKey(name)) {
+            throw new InternalError("Player already exist");
+        }
+
+        this.gameRemoteViews.put(name, view);
+        this.playerWonNotifier.addListener(view, view::victoryMessage);
+        this.playerLostNotifier.addListener(view, view::defeatMessage);
     }
 
     public void detachView(String name, GameView view) {
@@ -143,11 +160,8 @@ public class Game implements Serializable {
     }
 
     public void announceVictory(Player winner) {
-        for (Player player : this.listOfPlayers) {
-            if (player != winner) {
-                this.announceDefeat(player);
-            }
-        }
+        this.playerWonNotifier.notify(winner);
+        //TODO: End game
     }
 
     public void announceDefeat(Player player) {
@@ -274,5 +288,45 @@ public class Game implements Serializable {
         return this.status;
     }
 
+    public Map<WorkerActionType, List<Coordinates>> workerActionTypeListMap(){
+        Map<WorkerActionType, List<Coordinates>> actions = new HashMap<>();
+        Worker selectedWorker = getCurrentPlayer().getSelectedWorker();
+        List<WorkerActionType> possibleActions = getRules().possibleActions(getTurnPhase(), selectedWorker);
+        for(WorkerActionType w : possibleActions){
+            if(w == WorkerActionType.MOVE) {
+                List<Coordinates> availableSpacesCoordinates = new ArrayList<>();
+                List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
+                availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getCoordinates()));
+                actions.put(w, availableSpacesCoordinates);
+            }
+            else if(w == WorkerActionType.BUILD) {
+                List<Coordinates> buildableSpacesCoordinates = new ArrayList<>();
+                List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
+                buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getCoordinates()));
+                actions.put(w, buildableSpacesCoordinates);
+            }
+            else if(w == WorkerActionType.BUILD_DOME) {
+                List<Coordinates> buildDomeSpacesCoordinates = new ArrayList<>();
+                List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
+                buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getCoordinates()));
+                actions.put(w, buildDomeSpacesCoordinates);
+            }
+            else if(w == WorkerActionType.END_TURN){
+                actions.put(w, null);
+            }
+        }
+        if(checkDefeat(actions)){
+            announceDefeat(getCurrentPlayer());
+        }
+        return actions;
+    }
 
+    private boolean checkDefeat(Map<WorkerActionType, List<Coordinates>> actions){
+        for(List<Coordinates> c : actions.values()){
+            if(!c.isEmpty() && c != null){
+                return false;
+            }
+        }
+        return true;
+    }
 }

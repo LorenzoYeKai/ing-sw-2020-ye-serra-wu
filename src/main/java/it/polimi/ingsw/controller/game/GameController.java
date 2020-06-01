@@ -2,14 +2,12 @@ package it.polimi.ingsw.controller.game;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
+import it.polimi.ingsw.server.GameRemoteView;
 import it.polimi.ingsw.views.game.GameView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class GameController {
     private final Game game;
@@ -22,8 +20,12 @@ public class GameController {
     }
 
     public PlayerData joinGame(String nickname, GameView view) {
-        this.game.attachView(nickname, view);
+        this.game.oldAttachView(nickname, view);
         return this.game.findPlayerByName(nickname);
+    }
+
+    public void connectRemoteView(String nickName, GameRemoteView view){
+        this.game.attachView(nickName, view);
     }
 
     // TODO: call worker.startTurn() somewhere
@@ -129,14 +131,15 @@ public class GameController {
         worker.buildDome(targetSpace);
     }
 
-    public void handleDefeat(Player player){
-        if(player.getIndex()==game.getNumberOfActivePlayers()-1){
+    public void handleDefeat(PlayerData player){
+        Player looser = game.findPlayerByName(player.getName());
+        if(looser.getIndex() != game.getNumberOfActivePlayers()-1){
             nextTurn();
         }
-        game.getListOfPlayers().remove(player);
-        player.getAllWorkers().get(0).removeWorkerWhenDefeated();
-        player.getAllWorkers().get(1).removeWorkerWhenDefeated();
-
+        game.getListOfPlayers().remove(looser);
+        looser.getAllWorkers().get(0).removeWorkerWhenDefeated();
+        looser.getAllWorkers().get(1).removeWorkerWhenDefeated();
+        resetTurn();
     }
 
     public void checkDefeat(WorkerActionType type, Worker worker){

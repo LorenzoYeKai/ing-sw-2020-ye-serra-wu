@@ -3,7 +3,6 @@ package it.polimi.ingsw.server;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.World;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -57,8 +56,6 @@ public class Server {
             executor.submit(gameServer1);
             executor.submit(gameServer2);
             executor.submit(gameServer3);
-
-
         }
     }
 
@@ -77,10 +74,8 @@ public class Server {
         this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
-    public void sendStartTurnMessage(Game game){
-        List<Integer> n = new ArrayList<>();
-        game.getCurrentPlayer().getAvailableWorkers().forEach(w -> n.add(w.getIndex()));
-        AvailableWorkersDisplay display = new AvailableWorkersDisplay(n);
+    public void sendStartTurnMessage(){
+        AvailableWorkersDisplay display = new AvailableWorkersDisplay();
         this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
     }
 

@@ -9,14 +9,12 @@ public class AvailableWorkersDisplay extends ServerMessage implements Serializab
 
     private List<Integer> availableWorkers;
 
-    public AvailableWorkersDisplay(List<Integer> availableWorkers){
-        this.availableWorkers = availableWorkers;
-    }
-
     @Override
     public void displayMessage() {
+        System.out.println("It's your turn!");
         System.out.println("\nHere are the available workers: ");
-        this.availableWorkers.forEach(i -> System.out.println("Worker " + i));
+        System.out.println("Worker 0");
+        System.out.println("Worker 1");
         System.out.println("Select one worker, type \"select number\": ");
     }
 }
