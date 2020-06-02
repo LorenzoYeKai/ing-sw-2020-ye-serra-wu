@@ -28,11 +28,10 @@ public class GameRemoteView {
         this.game = game;
         this.controller = controller;
         this.server = server;
-
-
+        this.controller.bindGameRemoteView(this.gameServer.getPlayer().getName(), this);
     }
 
-    public void stringHandler(String message){
+    public void clientMessageHandler(String message){
         System.out.println(message);
         if(game.getStatus().equals(GameStatus.SETUP)) {
             setup(message);
@@ -99,6 +98,17 @@ public class GameRemoteView {
     public void playGameMessage(ActionDisplay display){
         if(gameServer.isCurrentPlayer()){
             gameServer.asyncSend(display);
+        }
+    }
+
+    public void playerDefeatMessage(PlayerData looser){
+        if(this.gameServer.getPlayer().getName().equals(looser.getName())){
+            this.controller.handleDefeat(this.gameServer.getPlayer());
+            gameServer.asyncSend("You lost!");
+            server.sendStartTurnMessage();
+        }
+        else{
+            gameServer.asyncSend(looser.getName() + " lost!");
         }
     }
 
@@ -193,7 +203,7 @@ public class GameRemoteView {
                             if(game.getCurrentPlayer().getAllWorkers().get(0).getCurrentSpace() != null && game.getCurrentPlayer().getAllWorkers().get(1).getCurrentSpace() != null){
                                 controller.playGame();
                                 server.sendUpdateWorldMessage(this.game);
-                                server.sendStartTurnMessage(this.game);
+                                server.sendStartTurnMessage();
                                 //TODO: check defeat (is possible to lose right after the placing phase!)
                             }
                             else{
@@ -227,7 +237,7 @@ public class GameRemoteView {
                         controller.selectWorker(index);
                         gameServer.asyncSend("You selected worker number " + this.game.getCurrentPlayer().getSelectedWorker().getIndex());
                         gameServer.asyncSend("Phase: " + this.game.getTurnPhase());
-                        Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                         ActionDisplay display = new ActionDisplay(actions);
                         this.playGameMessage(display);
                     }
@@ -252,7 +262,7 @@ public class GameRemoteView {
                             gameServer.asyncSend("You moved your worker to [" + selectedWorker.getCurrentSpace().getX() + "][" + selectedWorker.getCurrentSpace().getY() + "]");
                             server.sendUpdateWorldMessage(this.game);
                             gameServer.asyncSend("Phase: " + this.game.getTurnPhase());
-                            Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                            Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                             ActionDisplay display = new ActionDisplay(actions);
                             this.playGameMessage(display);
                         }
@@ -262,7 +272,7 @@ public class GameRemoteView {
                     }
                     else{
                         gameServer.asyncSend("You cannot move!");
-                        Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                         ActionDisplay display = new ActionDisplay(actions);
                         this.playGameMessage(display);
                     }
@@ -277,7 +287,7 @@ public class GameRemoteView {
                             gameServer.asyncSend("Your worker built in [" + selectedWorker.previousBuild().getX() + "][" + selectedWorker.previousBuild().getY() + "]");
                             server.sendUpdateWorldMessage(this.game);
                             gameServer.asyncSend("Phase: " + this.game.getTurnPhase());
-                            Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                            Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                             ActionDisplay display = new ActionDisplay(actions);
                             this.playGameMessage(display);
                         }
@@ -287,7 +297,7 @@ public class GameRemoteView {
                     }
                     else{
                         gameServer.asyncSend("You cannot build!");
-                        Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                         ActionDisplay display = new ActionDisplay(actions);
                         this.playGameMessage(display);
                     }
@@ -302,7 +312,7 @@ public class GameRemoteView {
                             gameServer.asyncSend("Your worker built a dome in [" + selectedWorker.previousDome().getX() + "][" + selectedWorker.previousDome().getY() + "]");
                             server.sendUpdateWorldMessage(this.game);
                             gameServer.asyncSend("Phase: " + this.game.getTurnPhase());
-                            Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                            Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                             ActionDisplay display = new ActionDisplay(actions);
                             this.playGameMessage(display);
                         }
@@ -312,7 +322,7 @@ public class GameRemoteView {
                     }
                     else{
                         gameServer.asyncSend("You cannot build a dome!");
-                        Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                         ActionDisplay display = new ActionDisplay(actions);
                         this.playGameMessage(display);
                     }
@@ -322,18 +332,18 @@ public class GameRemoteView {
                         gameServer.asyncSend("You ended your turn!");
                         controller.resetTurn();
                         controller.nextTurn();
-                        server.sendStartTurnMessage(this.game);
+                        server.sendStartTurnMessage();
                     }
                     else{
                         gameServer.asyncSend("You cannot end your turn yet!");
-                        Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                         ActionDisplay display = new ActionDisplay(actions);
                         this.playGameMessage(display);
                     }
                 }
                 else{
                     gameServer.asyncSend("Your command doesn't exist!");
-                    Map<WorkerActionType, List<Coordinates>> actions = workerActionTypeListMap(this.game.getTurnPhase());
+                    Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
                     ActionDisplay display = new ActionDisplay(actions);
                     this.playGameMessage(display);
                 }
@@ -344,34 +354,6 @@ public class GameRemoteView {
         }
     }
 
-    private Map<WorkerActionType, List<Coordinates>> workerActionTypeListMap(int phase){
-        Map<WorkerActionType, List<Coordinates>> actions = new HashMap<>();
-        Worker selectedWorker = this.game.getCurrentPlayer().getSelectedWorker();
-        List<WorkerActionType> possibleActions = this.game.getRules().possibleActions(phase, selectedWorker);
-        for(WorkerActionType w : possibleActions){
-            if(w == WorkerActionType.MOVE) {
-                List<Coordinates> availableSpacesCoordinates = new ArrayList<>();
-                List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
-                availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getCoordinates()));
-                actions.put(w, availableSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.BUILD) {
-                List<Coordinates> buildableSpacesCoordinates = new ArrayList<>();
-                List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
-                buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getCoordinates()));
-                actions.put(w, buildableSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.BUILD_DOME) {
-                List<Coordinates> buildDomeSpacesCoordinates = new ArrayList<>();
-                List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
-                buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getCoordinates()));
-                actions.put(w, buildDomeSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.END_TURN){
-                actions.put(w, null);
-            }
-        }
-        return actions;
-    }
+
 
 }

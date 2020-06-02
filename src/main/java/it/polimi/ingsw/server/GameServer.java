@@ -1,18 +1,13 @@
 package it.polimi.ingsw.server;
 
-import it.polimi.ingsw.Notifiable;
 import it.polimi.ingsw.Notifier;
-import it.polimi.ingsw.client.*;
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class GameServer implements Runnable{ //connection for the game
@@ -217,7 +212,7 @@ public class GameServer implements Runnable{ //connection for the game
     }
 
     private void addListeners(){
-        onStringReceived.addListener(remoteView, message -> remoteView.stringHandler(message));
+        onStringReceived.addListener(remoteView, message -> remoteView.clientMessageHandler(message));
         setupInfoNotifier.addListener(remoteView, message -> remoteView.setupMessage(message));
         chooseGodsNotifier.addListener(remoteView, message -> remoteView.chooseGodsMessage(message));
     }

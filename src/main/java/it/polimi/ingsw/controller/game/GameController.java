@@ -2,14 +2,12 @@ package it.polimi.ingsw.controller.game;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
+import it.polimi.ingsw.server.GameRemoteView;
 import it.polimi.ingsw.views.game.GameView;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class GameController {
     private final Game game;
@@ -21,9 +19,13 @@ public class GameController {
         this.rules = this.game.getRules();
     }
 
-    public PlayerData joinGame(String nickname, GameView view) {
-        this.game.attachView(nickname, view);
+    public PlayerData joinGame(String nickname, GameView view) { //Old method for the local game view
+        this.game.oldAttachView(nickname, view);
         return this.game.findPlayerByName(nickname);
+    }
+
+    public void bindGameRemoteView(String nickname, GameRemoteView view){
+        this.game.attachView(nickname, view);
     }
 
     // TODO: call worker.startTurn() somewhere
@@ -130,7 +132,7 @@ public class GameController {
     }
 
     public void handleDefeat(Player player){
-        if(player.getIndex()==game.getNumberOfActivePlayers()-1){
+        if(!(player.getIndex() == game.getNumberOfActivePlayers()-1)){
             nextTurn();
         }
         game.getListOfPlayers().remove(player);

@@ -77,10 +77,8 @@ public class Server {
         this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
-    public void sendStartTurnMessage(Game game){
-        List<Integer> n = new ArrayList<>();
-        game.getCurrentPlayer().getAvailableWorkers().forEach(w -> n.add(w.getIndex()));
-        AvailableWorkersDisplay display = new AvailableWorkersDisplay(n);
+    public void sendStartTurnMessage(){
+        AvailableWorkersDisplay display = new AvailableWorkersDisplay();
         this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
     }
 
