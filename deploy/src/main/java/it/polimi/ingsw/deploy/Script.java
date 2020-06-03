@@ -5,6 +5,9 @@
   It can also be used to stop or restart manually the game server.
 
   This script will setup a HTTP server on port 8000.
+
+  NOTE: For now, this script cannot update itself. So a new version of this
+  script must be manually uploaded to server and be run manually.
 */
 
 package it.polimi.ingsw.deploy;
@@ -33,11 +36,13 @@ public class Script {
 
     private Script(List<String> args) throws IOException {
         this.args = args;
+        // setup a basic HTTP server to monitor and manage the game server.
         this.httpServer = HttpServer.create(new InetSocketAddress(8000), 0);
 
         var password = this.findArgument("-password");
         var directory = this.findArgument("-directory");
 
+        // by default it shows the available URLs (i.e. commands):
         this.addHandler("/", exchange -> {
             var response = "Available commands: \r\n" +
                     "isServerOnline\r\n" +
