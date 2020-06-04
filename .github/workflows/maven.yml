@@ -30,4 +30,6 @@ jobs:
       with:
         name: 'jar'
         path: target/*.jar
+    - name: Invoke Server HTTP API
+      run: curl 18.195.117.7:8000/updateGameServer
 

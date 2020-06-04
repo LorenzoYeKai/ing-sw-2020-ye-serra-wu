@@ -80,7 +80,7 @@
           <archive>
             <manifest>
               <addClasspath>true</addClasspath>
-              <mainClass>Script</mainClass>
+              <mainClass>it.polimi.ingsw.deploy.Script</mainClass>
             </manifest>
           </archive>
         </configuration>

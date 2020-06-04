@@ -12,11 +12,10 @@
 
 package it.polimi.ingsw.deploy;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.Process;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Date;
 import java.util.function.Supplier;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -24,23 +23,21 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class Script {
-    private List<String> args;
-    private HttpServer httpServer = null;
+    private final HttpServer httpServer;
+    private final StringWriter log;
+    private final PrintWriter logger;
     private Process gameServer = null;
 
     public static void main(String[] args) throws Exception {
-        //var script = new Script(Arrays.asList(args));
-        var script = new Script(Arrays.asList("-password", "123", "-directory", "."));
+        var script = new Script("123", ".");
         script.run();
     }
 
-    private Script(List<String> args) throws IOException {
-        this.args = args;
+    private Script(String password, String directory) throws IOException {
         // setup a basic HTTP server to monitor and manage the game server.
         this.httpServer = HttpServer.create(new InetSocketAddress(8000), 0);
-
-        var password = this.findArgument("-password");
-        var directory = this.findArgument("-directory");
+        this.log = new StringWriter();
+        this.logger = new PrintWriter(this.log);
 
         // by default it shows the available URLs (i.e. commands):
         this.addHandler("/", exchange -> {
@@ -48,17 +45,18 @@ public class Script {
                     "isServerOnline\r\n" +
                     "killGameServer[password]\r\n" +
                     "restartGameServer[password]\r\n" +
-                    "updateGameServer";
+                    "updateGameServer\r\n";
+            response += "Logs:\r\n" + this.log.toString();
+
             sendStringResponse(exchange, 200, response);
         });
 
         // check if server is online
-        this.addHandler("/isServerOnline", exchange -> {
-            var response = "false";
+        this.addHandler("/isServerOnline", () -> {
             if (this.gameServer != null && this.gameServer.isAlive()) {
-                response = "true";
+                return "true";
             }
-            sendStringResponse(exchange, 200, response);
+            return "false";
         });
 
         // killGameServer can only be invoked with correct password
@@ -93,19 +91,18 @@ public class Script {
         this.httpServer.start();
     }
 
-    // get value from command line arguments
-    private String findArgument(String argumentName) {
-        var index = this.args.indexOf(argumentName);
-        if (index == -1) {
-            throw new IllegalArgumentException("Missing argument " + argumentName);
-        }
-        return args.get(index + 1);
-    }
-
     // create a handler which executes synchronized code
     private void addHandler(String path, HttpHandler handler) {
         this.httpServer.createContext(path, exchange -> {
             synchronized (this) {
+                // shrink the log buffer if its length is greater than 4KB
+                if (this.log.getBuffer().length() > 4096) {
+                    this.log.getBuffer().replace(0, 2048, "");
+                }
+
+                this.logger.println(new Date() + " | " +
+                        exchange.getRequestMethod() + " " +
+                        exchange.getRequestURI());
                 handler.handle(exchange);
             }
         });
@@ -113,10 +110,13 @@ public class Script {
 
     // create a synchronized handler which executes the action and then print the result
     private void addHandler(String path, Supplier<String> action) {
-        this.httpServer.createContext(path, httpExchange -> {
+        this.addHandler(path, httpExchange -> {
             try {
-                sendStringResponse(httpExchange, 200, action.get());
+                var response = action.get();
+                this.logger.println(" - reply: " + response);
+                sendStringResponse(httpExchange, 200, response);
             } catch (Exception e) {
+                this.logger.println(" - error: " + e);
                 sendStringResponse(httpExchange, 500, "Error: " + e);
             }
         });
