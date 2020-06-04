@@ -20,10 +20,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 14
-    - name: Build with Maven
-      run: mvn -Dmaven.test.skip=true -B package --file pom.xml
-    - name: Test with Maven
-      run: mvn -B test --file pom.xml
+    - name: Build Server
+      # -B means 'batch mode' (i.e. without colored output etc.)
+      run: mvn package -P BuildServer -B
+    - name: Build Client
+      run: mvn package -P BuildClient -B
     - name: Upload jars
       uses: actions/upload-artifact@v2
       with:
