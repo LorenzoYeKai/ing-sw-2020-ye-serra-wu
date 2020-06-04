@@ -11,9 +11,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up JDK 14
@@ -25,11 +23,21 @@ jobs:
       run: mvn package -P BuildServer -B
     - name: Build Client
       run: mvn package -P BuildClient -B
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
     - name: Upload jars
       uses: actions/upload-artifact@v2
       with:
         name: 'jar'
-        path: target/*.jar
+        path: [ 'target/server*.jar', 'target/client*.jar' ]
+  notify:
+    needs: publish
+    runs-on: ubuntu-latest
     - name: Invoke Server HTTP API
-      run: curl 18.195.117.7:8000/updateGameServer
-
+      # save the response, print the response, and check if response is "game server updated"
+      run: |
+        result = $(curl 18.195.117.7:8000/updateGameServer)
+        echo "output: `$result`"
+        [[ "$result" = "game server updated" ]]
