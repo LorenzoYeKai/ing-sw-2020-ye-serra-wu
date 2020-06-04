@@ -59,14 +59,7 @@
               </excludes>
             </configuration>
           </plugin>
-          <!-- set the final name of server jar -->
-          <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-              <finalName>server-${project.build.finalName}</finalName>
-            </configuration>
-          </plugin>
-          <!-- set the main class name of server jar -->
+          <!-- set the final name and the main class of server jar -->
           <plugin>
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
@@ -75,6 +68,7 @@
                   <mainClass>it.polimi.ingsw.server.ServerApp</mainClass>
                 </transformer>
               </transformers>
+              <finalName>server-${project.build.finalName}</finalName>
             </configuration>
           </plugin>
         </plugins>
@@ -94,14 +88,7 @@
               </excludes>
             </configuration>
           </plugin>
-          <!-- set the final name of client jar -->
-          <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-              <finalName>client-${project.build.finalName}</finalName>
-            </configuration>
-          </plugin>
-          <!-- set the main class name of client jar -->
+          <!-- set the final name and the main class of client jar -->
           <plugin>
             <artifactId>maven-shade-plugin</artifactId>
             <configuration>
@@ -110,6 +97,7 @@
                   <mainClass>it.polimi.ingsw.client.ClientApp</mainClass>
                 </transformer>
               </transformers>
+              <finalName>client-${project.build.finalName}</finalName>
             </configuration>
           </plugin>
         </plugins>
