@@ -23,21 +23,25 @@ jobs:
       run: mvn package -P BuildServer -B
     - name: Build Client
       run: mvn package -P BuildClient -B
-  publish:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
+
+      # create a directory, then move server and client jars to there
+    - name: Move jars
+      run: |
+        mkdir upload-jars
+        mv target/server*.jar upload-jars/
+        mv target/client*.jar upload-jars/
     - name: Upload jars
       uses: actions/upload-artifact@v2
       with:
         name: 'jar'
-        path: [ 'target/server*.jar', 'target/client*.jar' ]
+        path: upload-jars
   notify:
-    needs: publish
+    needs: build
     runs-on: ubuntu-latest
+    steps:
     - name: Invoke Server HTTP API
       # save the response, print the response, and check if response is "game server updated"
       run: |
-        result = $(curl 18.195.117.7:8000/updateGameServer)
-        echo "output: `$result`"
-        [[ "$result" = "game server updated" ]]
+        result=$(curl 18.195.117.7:8000/updateGameServer)
+        echo output: ${result}
+        [[ "${result}" = 'game server updated' ]]
