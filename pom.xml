@@ -61,15 +61,13 @@
           </plugin>
           <!-- set the final name and the main class of server jar -->
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
+            <artifactId>maven-shade-plugin</artifactId>
             <configuration>
-              <archive>
-                <manifest>
-                  <addClasspath>true</addClasspath>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>it.polimi.ingsw.server.ServerApp</mainClass>
-                </manifest>
-              </archive>
+                </transformer>
+              </transformers>
               <finalName>server-${project.build.finalName}</finalName>
             </configuration>
           </plugin>
@@ -92,15 +90,13 @@
           </plugin>
           <!-- set the final name and the main class of client jar -->
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
+            <artifactId>maven-shade-plugin</artifactId>
             <configuration>
-              <archive>
-                <manifest>
-                  <addClasspath>true</addClasspath>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>it.polimi.ingsw.client.ClientApp</mainClass>
-                </manifest>
-              </archive>
+                </transformer>
+              </transformers>
               <finalName>client-${project.build.finalName}</finalName>
             </configuration>
           </plugin>
@@ -152,11 +148,40 @@
         </plugin>
         <!-- plugin for creating a single jar -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>3.2.3</version>
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <!-- plugin for creating a single jar -->
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- exclude these stuffs below to prevent "duplicate classes" warning" -->
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/MANIFEST.MF</exclude>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+          <!-- don't generate extra useless files -->
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
