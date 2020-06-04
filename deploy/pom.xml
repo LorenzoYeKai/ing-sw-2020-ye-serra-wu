@@ -12,6 +12,19 @@
   <groupId>it.polimi.ingsw</groupId>
   <artifactId>progetto-ingegneria-del-software-deploy-script</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20200518</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.7</version>
+    </dependency>
+  </dependencies>
 
   <name>DeployScript</name>
   <url>https://github.com/Kishin98/ing-sw-2020-ye-serra-wu</url>
@@ -66,23 +79,44 @@
         </plugin>
         <!-- plugin for creating a single jar -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-shade-plugin</artifactId>
           <version>3.2.3</version>
         </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
-      <!-- setup a manifest in the jar file, to specify the main class -->
+      <!-- plugin for creating a single jar -->
       <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
+          <!-- exclude these stuffs below to prevent "duplicate classes" warning" -->
+          <filters>
+            <filter>
+              <artifact>*:*</artifact>
+              <excludes>
+                <exclude>META-INF/MANIFEST.MF</exclude>
+                <exclude>META-INF/*.SF</exclude>
+                <exclude>META-INF/*.DSA</exclude>
+                <exclude>META-INF/*.RSA</exclude>
+              </excludes>
+            </filter>
+          </filters>
+          <!-- don't generate extra useless files -->
+          <createDependencyReducedPom>false</createDependencyReducedPom>
+          <!-- setup a manifest in the jar file, to specify the main class -->
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
               <mainClass>it.polimi.ingsw.deploy.Script</mainClass>
-            </manifest>
-          </archive>
+            </transformer>
+          </transformers>
         </configuration>
       </plugin>
     </plugins>
