@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ * ]
   pull_request:
-    branches: [ master ]
+    branches: [ * ]
 
 jobs:
   build:
@@ -24,3 +24,9 @@ jobs:
       run: mvn -Dmaven.test.skip=true -B package --file pom.xml
     - name: Test with Maven
       run: mvn -B test --file pom.xml
+    - name: Copy generated jar
+      run: mkdir created-jars && cp target/*.jar created-jars
+    - name: Upload jars
+      uses: actions/upload-artifact@v2
+      path: created-jars/
+
