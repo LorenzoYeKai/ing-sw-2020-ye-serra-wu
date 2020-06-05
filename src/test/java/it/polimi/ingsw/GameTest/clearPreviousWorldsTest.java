@@ -10,10 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class clearPreviusWorldsTest {
+public class clearPreviousWorldsTest {
     Game game;
     Player player1;
     @BeforeEach
@@ -30,12 +29,12 @@ public class clearPreviusWorldsTest {
     }
     @Test
     @DisplayName("test pulizia stati precedenti")
-    void clearPreviusWorldsTest(){
+    void clearPreviousWorldsTest(){
         game.savePreviousWorld();
         game.getWorld().getSpaces(2,2).setDome();
         assertFalse(worldsComparison());
         game.clearPreviousWorlds();
-        assertTrue(game.getPreviousWorld()== null);
+        assertThrows(UnsupportedOperationException.class, () -> game.getPreviousWorld());
 
     }
     boolean worldsComparison(){

@@ -54,18 +54,18 @@ public class ControllerTest {
     void nextTurnTest() {
         controller.setCurrentPlayer(0);
         controller.nextTurn();
-        assertFalse(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(0)));
-        assertTrue(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(1)));
+        assertNotEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(0));
+        assertEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(1));
 
         controller.setCurrentPlayer(1);
         controller.nextTurn();
-        assertFalse(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(1)));
-        assertTrue(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(2)));
+        assertNotEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(1));
+        assertEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(2));
 
         controller.setCurrentPlayer(2);
         controller.nextTurn();
-        assertFalse(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(2)));
-        assertTrue(controller.getGame().getCurrentPlayer().equals(controller.getGame().getListOfPlayers().get(0)));
+        assertNotEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(2));
+        assertEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(0));
 
     }
 
@@ -101,13 +101,13 @@ public class ControllerTest {
     @DisplayName("fasi test")
     void phaseTest(){
         controller.setupGame();
-        assertTrue(controller.getGame().getStatus().equals(GameStatus.SETUP));
+        assertEquals(controller.getGame().getStatus(), GameStatus.SETUP);
         controller.chooseGods();
-        assertTrue(controller.getGame().getStatus().equals(GameStatus.CHOOSING_GODS));
+        assertEquals(controller.getGame().getStatus(), GameStatus.CHOOSING_GODS);
         controller.placeWorkers();
-        assertTrue(controller.getGame().getStatus().equals(GameStatus.PLACING));
+        assertEquals(controller.getGame().getStatus(), GameStatus.PLACING);
         controller.playGame();
-        assertTrue(controller.getGame().getStatus().equals(GameStatus.PLAYING));
+        assertEquals(controller.getGame().getStatus(), GameStatus.PLAYING);
 
     }
 
@@ -121,7 +121,7 @@ public class ControllerTest {
     @DisplayName("selectWorkerTest")
     void selectWorkerTest(){
         controller.selectWorker(0);
-        assertTrue(controller.getGame().getCurrentPlayer().getIndexSelectedWorker()==0);
+        assertEquals(0, controller.getGame().getCurrentPlayer().getIndexSelectedWorker());
     }
 
     @Test
@@ -129,10 +129,10 @@ public class ControllerTest {
     void resetTurnTest() throws NotExecutedException {
         spaceSetup();
         controller.getGame().savePreviousWorld();
-        assertFalse(controller.getGame().getPreviousWorld()==null);
+        assertNotNull(controller.getGame().getPreviousWorld());
         controller.resetTurn();
-        assertTrue(controller.getGame().getPreviousWorld()==null);
-        assertTrue(controller.getGame().getCurrentPlayer().getIndexSelectedWorker() == -1);
+        assertThrows(UnsupportedOperationException.class, () -> controller.getGame().getPreviousWorld());
+        assertEquals(controller.getGame().getCurrentPlayer().getIndexSelectedWorker(), -1);
 
     }
 

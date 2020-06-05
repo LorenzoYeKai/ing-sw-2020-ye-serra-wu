@@ -254,6 +254,9 @@ public class Game implements Serializable {
     }
 
     public World getPreviousWorld(){
+        if(this.previousWorlds.isEmpty()){
+            throw new UnsupportedOperationException("Empty World error non implemented yet!"); //TODO: handle empty previousWorlds
+        }
         return this.previousWorlds.get(this.previousWorlds.size() - 1);
     }
 
