@@ -16,34 +16,44 @@ import java.io.*;
 import java.lang.Process;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 
-// helper functional interface, similar to Supplier
-// but can throw errors
-interface Supplier {
-    String get() throws Exception;
+// helper functional interface, similar to HttpHandler
+// but it returns a String which will be the response
+interface Handler {
+    String get(HttpExchange exchange) throws Exception;
+}
+
+interface StringHandler {
+    String apply(String data) throws Exception;
 }
 
 public class Script {
+    private static final String APIBase =
+            "https://api.github.com/repos/Kishin98/ing-sw-2020-ye-serra-wu";
+    private final ScheduledExecutorService executor;
     private final HttpServer httpServer;
+    private final Path directory; // the directory which stores the downloaded jar
+    private final String githubToken;
     private final StringWriter log = new StringWriter();
     private final PrintWriter logger = new PrintWriter(this.log);
-    //the Github API access token
-    private final String token;
     // the url for downloading jar
-    private String lastRedirectUrl = null;
+    private String lastRedirectURL = null;
     // the game server process
     private Process gameServer = null;
 
@@ -56,7 +66,7 @@ public class Script {
         var directory = FileSystems.getDefault()
                 .getPath(directoryInput).normalize().toAbsolutePath();
         System.out.println("Directory is " + directory);
-        System.out.println("Github Access Token: ");
+        System.out.println("Github Token: ");
         var token = input.nextLine();
         var script = new Script(password, directory, token);
         System.out.println("Starting the server...");
@@ -64,24 +74,28 @@ public class Script {
     }
 
     private Script(String password, Path directory, String token) throws IOException {
+        // create an executor
+        this.executor = new ScheduledThreadPoolExecutor(2);
         // setup a basic HTTP server to monitor and manage the game server.
         this.httpServer = HttpServer.create(new InetSocketAddress(8000), 0);
-        // save the github api token
-        this.token = token;
+        this.httpServer.setExecutor(this.executor);
+        this.directory = directory;
+        this.githubToken = token;
         // by default it shows the available URLs (i.e. commands):
-        this.addHandler("/", exchange -> {
+        this.addHttpHandler("/", exchange -> {
             var response = "Available commands: \r\n" +
                     "isServerOnline\r\n" +
                     "killGameServer[password]\r\n" +
                     "restartGameServer[password]\r\n" +
-                    "updateGameServer\r\n";
+                    "updateGameServer[github api token]\r\n";
             response += "Logs:\r\n" + this.log.toString();
 
             sendStringResponse(exchange, 200, response);
         });
 
+
         // check if server is online
-        this.addHandler("/isServerOnline", () -> {
+        this.addHandler("/isServerOnline", exchange -> {
             if (this.gameServer != null && this.gameServer.isAlive()) {
                 return "true";
             }
@@ -89,13 +103,19 @@ public class Script {
         });
 
         // killGameServer can only be invoked with correct password
-        this.addHandler("/killGameServer" + password, () -> {
+        this.addStringHandler("/killGameServer", inputPassword -> {
+            if (!inputPassword.equals(password)) {
+                throw new IllegalArgumentException("Incorrect password");
+            }
             this.killServer();
             return "game server killed";
         });
 
         // restartGameServer can only be invoked with correct password
-        this.addHandler("/restartGameServer" + password, () -> {
+        this.addStringHandler("/restartGameServer", inputPassword -> {
+            if (!inputPassword.equals(password)) {
+                throw new IllegalArgumentException("Incorrect password");
+            }
             this.killServer();
             this.startServer();
             return "game server restarted";
@@ -103,27 +123,15 @@ public class Script {
 
         // check if if a new version of game server exists.
         // if yes, download it and restart the server.
-        this.addHandler("/updateGameServer", () -> {
-            var url = this.getLastVersionUrl();
-            if (url.equals(this.lastRedirectUrl)) {
-                return "game server is already the latest version";
-            }
-            this.killServer();
-            this.downloadFile(new URL(url), directory);
-            this.startServer();
-            this.lastRedirectUrl = url;
-            return "game server updated";
-        });
+        this.addHandler("/updateGameServer", httpExchange -> this.updateGameServer(3));
     }
 
     private void run() {
-        // set default executor
-        this.httpServer.setExecutor(null);
         this.httpServer.start();
     }
 
     // create a handler which executes synchronized code
-    private void addHandler(String path, HttpHandler handler) {
+    private void addHttpHandler(String path, HttpHandler handler) {
         this.httpServer.createContext(path, exchange -> {
             synchronized (this) {
                 // shrink the log buffer if its length is greater than 4KB
@@ -133,23 +141,38 @@ public class Script {
 
                 this.logger.println(new Date() + " | " +
                         exchange.getRequestMethod() + " " +
-                        exchange.getRequestURI());
+                        path);
                 handler.handle(exchange);
             }
         });
     }
 
     // create a synchronized handler which executes the action and then print the result
-    private void addHandler(String path, Supplier action) {
-        this.addHandler(path, httpExchange -> {
+    private void addHandler(String path, Handler action) {
+        this.addHttpHandler(path, httpExchange -> {
             try {
-                var response = action.get();
+                var response = action.get(httpExchange);
                 this.logger.println(" - reply: " + response);
                 sendStringResponse(httpExchange, 200, response);
             } catch (Exception e) {
                 this.logger.println(" - error: " + e);
                 sendStringResponse(httpExchange, 500, "Error: " + e);
             }
+        });
+    }
+
+    // create a handler which accepts the extra string appended on the url as argument
+    private void addStringHandler(String path, StringHandler handler) {
+        this.addHandler(path, httpExchange -> {
+            var actualPath = httpExchange.getRequestURI().getPath();
+            var startPosition = actualPath.indexOf(path);
+            if (startPosition == -1) {
+                throw new UnsupportedOperationException("Unexpected path");
+            }
+            var dataStartPosition = startPosition + path.length();
+            var data = actualPath.substring(dataStartPosition);
+
+            return handler.apply(data);
         });
     }
 
@@ -163,39 +186,96 @@ public class Script {
         exchange.close();
     }
 
-    private String getLastVersionUrl() throws IOException {
-        // start a http request to Github API to check artifacts
-        final var apiUrl =
-                "https://api.github.com/repos/Kishin98/ing-sw-2020-ye-serra-wu/actions/artifacts";
-        var connection = new URL(apiUrl).openConnection();
-        connection.addRequestProperty("Authorization", "token " + this.token);
-        connection.connect();
-        try (var responseStream = connection.getInputStream()) {
-            // read response into string, and parse it to json
-            var response = IOUtils.toString(responseStream, StandardCharsets.UTF_8);
-            var json = new JSONObject(response);
+    // Try to update game server. If Github Actions isn't completed yet, try again multiple times
+    private synchronized String updateGameServer(int tryCount) {
+        try {
+            if (!this.isLastWorkflowCompleted()) {
+                if (tryCount <= 0) {
+                    this.logger.println("workflow not completed yet, stop checking.");
+                    return "cannot update";
+                }
 
-            this.logger.println("total number of artifacts: " + json.getInt("total_count"));
-            var last = json.getJSONArray("artifacts").getJSONObject(0);
+                Runnable next = () -> this.updateGameServer(tryCount - 1);
+                // if tryCount is 1, then wait 5000 / 1 milliseconds, = 5 seconds
+                var delay = 5000 / tryCount;
+                this.executor.schedule(next, delay, TimeUnit.MILLISECONDS);
+                this.logger.println("workflow not completed yet, will check again in " + delay / 1000.0 + " seconds");
+                return "will check later";
+            }
 
-            // get the redirect url
-            var redirectUrl = last.getString("archive_download_url");
-            this.logger.println("redirect url: " + redirectUrl);
-            return redirectUrl;
+            // get the url of latest artifacts (jar)
+            var url = this.getLastVersionURL();
+            if (url.equals(this.lastRedirectURL)) {
+                this.logger.println("game server is already the latest version");
+                return "already up-to-date";
+            }
+
+            this.killServer();
+            this.downloadFile(new URL(url));
+            this.startServer();
+            this.lastRedirectURL = url;
+
+            var message = "game server updated";
+            this.logger.println(message);
+            return message;
+        } catch (Exception e) {
+            var message = "Error when updating server: " + e;
+            this.logger.println(message);
+            return message;
         }
     }
 
-    private void downloadFile(URL redirectUrl, Path directory) throws IOException {
+    // Connect to Github API with credentials
+    private URLConnection connectGithubAPI(URL url) throws IOException {
+        var connection = url.openConnection();
+        connection.addRequestProperty("Authorization", "token " + this.githubToken);
+        connection.connect();
+        return connection;
+    }
+
+    private JSONObject getGithubAPI(URL url) throws IOException {
+        var connection = this.connectGithubAPI(url);
+        try (var responseStream = connection.getInputStream()) {
+            // read response into string, and parse it to json
+            var response = IOUtils.toString(responseStream, StandardCharsets.UTF_8);
+            return new JSONObject(response);
+        }
+    }
+
+    // Check if last Github Actions workflow runs has already completed
+    // because if it isn't completed, it means we can't download any artifact yet
+    private boolean isLastWorkflowCompleted() throws IOException {
+        // start a http request to Github API to check workflow
+        var workflowURL = this.getGithubAPI(new URL(APIBase + "/actions/workflows"))
+                .getJSONArray("workflows")
+                .getJSONObject(0)
+                .getString("url");
+        var status = this.getGithubAPI(new URL(workflowURL + "/runs"))
+                .getJSONArray("workflow_runs")
+                .getJSONObject(0)
+                .getString("status");
+        return status.equals("completed");
+    }
+
+    private String getLastVersionURL() throws IOException {
+        var artifacts = this.getGithubAPI(new URL(APIBase + "/actions/artifacts"));
+        this.logger.println("total number of artifacts: " + artifacts.getInt("total_count"));
+        var last = artifacts.getJSONArray("artifacts").getJSONObject(0);
+        // get the redirect url
+        var redirectURL = last.getString("archive_download_url");
+        this.logger.println("redirect url: " + redirectURL);
+        return redirectURL;
+    }
+
+    private void downloadFile(URL redirectURL) throws IOException {
         // start a http request to Github API to download files
         // using the last redirect url. Java's URLConnection will automatically
         // follow redirect, so we will request the actual file
-        var connection = redirectUrl.openConnection();
-        connection.addRequestProperty("Authorization", "token " + this.token);
-        connection.connect();
+        var connection = this.connectGithubAPI(redirectURL);
         this.logger.println("Connected to " + connection.getURL());
 
         // then let's download it to a file
-        var archiveFile = directory.resolve("downloaded.zip");
+        var archiveFile = this.directory.resolve("downloaded.zip");
         try (var stream = connection.getInputStream();
              var output = new FileOutputStream(archiveFile.toFile())) {
             stream.transferTo(output);

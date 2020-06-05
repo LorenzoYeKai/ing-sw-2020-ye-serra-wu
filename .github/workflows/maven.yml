@@ -44,4 +44,4 @@ jobs:
       run: |
         result=$(curl 18.195.117.7:8000/updateGameServer)
         echo output: ${result}
-        [[ "${result}" = 'game server updated' ]]
+        [[ "${result}" = 'will check later' ]] || [[ "${result}" = 'game server updated' ]]
