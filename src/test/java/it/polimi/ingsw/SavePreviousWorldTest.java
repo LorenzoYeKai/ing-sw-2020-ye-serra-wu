@@ -31,6 +31,8 @@ public class SavePreviousWorldTest {
     @DisplayName("save previous World after move")
     void savePreviousWorldMoveTest(){
         game.savePreviousWorld();
+        System.out.println("Phase: " + game.getTurnPhase());
+        //assertEquals(game.getPreviousWorld(), game.getPreviousWorldA());
         player1.getAllWorkers().get(0).move(game.getWorld().getSpaces(1, 0));
 
         System.out.println("World:");
@@ -49,8 +51,10 @@ public class SavePreviousWorldTest {
         }
         //Worker 1 moves for the second time
         game.savePreviousWorld();
-        player1.getAllWorkers().get(0).move(game.getWorld().getSpaces(0, 0));
 
+        player1.getAllWorkers().get(0).move(game.getWorld().getSpaces(0, 0));
+        System.out.println("Phase: " + game.getTurnPhase());
+        //assertEquals(game.getPreviousWorld(), game.getPreviousWorldA());
         System.out.println("World second movement:");
         printIsOccupiedByWorker(game.getWorld());
         System.out.println(("Previous World second movement:"));

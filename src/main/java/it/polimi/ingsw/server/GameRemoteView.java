@@ -112,6 +112,16 @@ public class GameRemoteView {
         }
     }
 
+    public void playerVictoryMessage(PlayerData winner){
+        if(this.gameServer.getPlayer().getName().equals(winner.getName())){
+            gameServer.asyncSend("You Won!");
+            //TODO: handleVictory should be created in gameController
+        }
+        else{
+            gameServer.asyncSend(winner.getName() + " Won!");
+        }
+    }
+
     public void setup(String message){
         if (gameServer.isChallenger()) {
             if (GodType.contains(message)) {

@@ -23,12 +23,13 @@ public class Game implements Serializable {
     private final Notifier<SpaceData> spaceChangedNotifier;
     private final Notifier<PlayerData> turnChangedNotifier;
     private final Notifier<PlayerData> playerLostNotifier;
+    private final Notifier<PlayerData> playerWonNotifier;
 
 
     private final GodFactory factory;
     private Set<GodType> availableGods;
     private final World world;
-    private World previousWorld;
+    private World previousWorld; //TODO: delete this.previousWorld
     private List<World> previousWorlds;
     private ActualRule rules;
 
@@ -54,6 +55,7 @@ public class Game implements Serializable {
         this.spaceChangedNotifier = new Notifier<>();
         this.turnChangedNotifier = new Notifier<>();
         this.playerLostNotifier = new Notifier<>();
+        this.playerWonNotifier = new Notifier<>();
 
         this.factory = new GodFactory();
         this.availableGods = new HashSet<GodType>();
@@ -90,6 +92,7 @@ public class Game implements Serializable {
         }
         this.gameRemoteViews.put(name, view);
         this.playerLostNotifier.addListener(view, view::playerDefeatMessage);
+        this.playerWonNotifier.addListener(view, view::playerVictoryMessage);
     }
 
     public void detachView(String name, GameView view) {
@@ -156,11 +159,12 @@ public class Game implements Serializable {
     }
 
     public void announceVictory(Player winner) {
-        for (Player player : this.listOfPlayers) {
+        /*for (Player player : this.listOfPlayers) {
             if (player != winner) {
                 this.announceDefeat(player);
             }
-        }
+        }*/
+        this.playerWonNotifier.notify(winner);
     }
 
     public void announceDefeat(Player player) {
@@ -228,6 +232,7 @@ public class Game implements Serializable {
 
     public void savePreviousWorld(){
         this.previousWorld = new World(this.world);
+        this.previousWorlds.add(this.previousWorld);
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 Worker w = this.world.getSpaces(i, j).getWorker();
@@ -236,7 +241,7 @@ public class Game implements Serializable {
                 }
             }
         }
-        this.previousWorlds.add(this.previousWorld);
+
     }
 
     public int getTurnPhase(){
@@ -249,9 +254,8 @@ public class Game implements Serializable {
     }
 
     public World getPreviousWorld(){
-        return this.previousWorld;
+        return this.previousWorlds.get(this.previousWorlds.size() - 1);
     }
-
 
     public List<PlayerData> getPlayerData(){
         return new ArrayList<>(this.listOfPlayers);
@@ -265,9 +269,6 @@ public class Game implements Serializable {
         return this.availableGods;
     }
 
-    /**
-     * Solo per i test, da togliere!!!!
-     */
     public void setCurrentPlayer(int i){
         this.currentPlayer = i;
     }
