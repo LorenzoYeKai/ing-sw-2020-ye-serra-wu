@@ -20,16 +20,22 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 
@@ -44,8 +50,9 @@ interface StringHandler {
 }
 
 public class Script {
-    private static final String APIBase =
+    private static final String apiBase =
             "https://api.github.com/repos/Kishin98/ing-sw-2020-ye-serra-wu";
+    private static final String serverJarName = "server.jar";
     private final ScheduledExecutorService executor;
     private final HttpServer httpServer;
     private final Path directory; // the directory which stores the downloaded jar
@@ -81,26 +88,45 @@ public class Script {
         this.httpServer.setExecutor(this.executor);
         this.directory = directory;
         this.githubToken = token;
+
+        // check and create the directory
+        if (!this.directory.toFile().isDirectory()) {
+            if (!this.directory.toFile().mkdirs()) {
+                throw new IOException("Failed to create directory");
+            }
+        }
+
         // by default it shows the available URLs (i.e. commands):
         this.addHttpHandler("/", exchange -> {
-            var response = "Available commands: \r\n" +
-                    "isServerOnline\r\n" +
-                    "killGameServer[password]\r\n" +
-                    "restartGameServer[password]\r\n" +
-                    "updateGameServer[github api token]\r\n";
-            response += "Logs:\r\n" + this.log.toString();
+            var responseBuffer = new StringWriter();
+            var response = new PrintWriter(responseBuffer);
+            response.println("Available commands: ");
+            response.println("isServerOnline");
+            response.println("killGameServer[password]");
+            response.println("restartGameServer[password]");
+            response.println("updateGameServer");
 
-            sendStringResponse(exchange, 200, response);
+            response.println("Server status: ");
+            if (this.gameServer == null) {
+                response.println("Server is null");
+            } else {
+                this.gameServer.info().startInstant().ifPresent(instant -> {
+                    var milliseconds = Duration.between(instant, Instant.now()).toMillis();
+                    var duration = DurationFormatUtils.formatDurationHMS(milliseconds);
+                    response.println("Server was created at " + instant + " which is " + duration + " ago");
+                });
+
+                response.println("Server is " + (this.gameServer.isAlive() ? "ONLINE" : "OFFLINE"));
+            }
+            response.println();
+            response.println("Logs:");
+            response.print(this.log.toString());
+            sendStringResponse(exchange, 200, responseBuffer.toString());
         });
 
 
         // check if server is online
-        this.addHandler("/isServerOnline", exchange -> {
-            if (this.gameServer != null && this.gameServer.isAlive()) {
-                return "true";
-            }
-            return "false";
-        });
+        this.addHandler("/isServerOnline", exchange -> Boolean.toString(this.isServerAlive()));
 
         // killGameServer can only be invoked with correct password
         this.addStringHandler("/killGameServer", inputPassword -> {
@@ -123,7 +149,7 @@ public class Script {
 
         // check if if a new version of game server exists.
         // if yes, download it and restart the server.
-        this.addHandler("/updateGameServer", httpExchange -> this.updateGameServer(3));
+        this.addHandler("/updateGameServer", httpExchange -> this.updateGameServer(5));
     }
 
     private void run() {
@@ -178,10 +204,11 @@ public class Script {
 
     // send a plain text response, and close the HttpExchange
     private static void sendStringResponse(HttpExchange exchange, int code, String string) throws IOException {
-        exchange.sendResponseHeaders(code, string.length());
+        var bytes = string.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(code, bytes.length);
         exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf8");
         var out = exchange.getResponseBody();
-        out.write(string.getBytes());
+        out.write(bytes);
         out.close();
         exchange.close();
     }
@@ -196,7 +223,7 @@ public class Script {
                 }
 
                 Runnable next = () -> this.updateGameServer(tryCount - 1);
-                // if tryCount is 1, then wait 5000 / 1 milliseconds, = 5 seconds
+                // if tryCount is 1, then wait 5000ms / 1, = 5 seconds
                 var delay = 5000 / tryCount;
                 this.executor.schedule(next, delay, TimeUnit.MILLISECONDS);
                 this.logger.println("workflow not completed yet, will check again in " + delay / 1000.0 + " seconds");
@@ -246,7 +273,7 @@ public class Script {
     // because if it isn't completed, it means we can't download any artifact yet
     private boolean isLastWorkflowCompleted() throws IOException {
         // start a http request to Github API to check workflow
-        var workflowURL = this.getGithubAPI(new URL(APIBase + "/actions/workflows"))
+        var workflowURL = this.getGithubAPI(new URL(apiBase + "/actions/workflows"))
                 .getJSONArray("workflows")
                 .getJSONObject(0)
                 .getString("url");
@@ -258,9 +285,11 @@ public class Script {
     }
 
     private String getLastVersionURL() throws IOException {
-        var artifacts = this.getGithubAPI(new URL(APIBase + "/actions/artifacts"));
+        var artifacts = this.getGithubAPI(new URL(apiBase + "/actions/artifacts"));
         this.logger.println("total number of artifacts: " + artifacts.getInt("total_count"));
         var last = artifacts.getJSONArray("artifacts").getJSONObject(0);
+        this.logger.println("last artifact id: " + last.getInt("id"));
+        this.logger.println("updated at: " + last.getString("updated_at"));
         // get the redirect url
         var redirectURL = last.getString("archive_download_url");
         this.logger.println("redirect url: " + redirectURL);
@@ -274,20 +303,67 @@ public class Script {
         var connection = this.connectGithubAPI(redirectURL);
         this.logger.println("Connected to " + connection.getURL());
 
-        // then let's download it to a file
-        var archiveFile = this.directory.resolve("downloaded.zip");
+        // then download the zip file
+        var archiveFile = this.directory.resolve("downloaded.zip").toFile();
         try (var stream = connection.getInputStream();
-             var output = new FileOutputStream(archiveFile.toFile())) {
-            stream.transferTo(output);
+             var destination = new FileOutputStream(archiveFile)) {
+            stream.transferTo(destination);
         }
-        this.logger.println("Archive file downloaded to " + archiveFile);
+        this.logger.println("zip file saved to " + archiveFile);
+        this.logger.println("parsing zip file");
+
+        // open the zip file
+        try (var zipFile = new ZipFile(archiveFile)) {
+            // find the server jar
+            ZipEntry serverJarEntry = null;
+            var entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                var entry = entries.nextElement();
+                this.logger.println("got entry" + entry.getName());
+                if (entry.getName().startsWith("server")) {
+                    serverJarEntry = entry;
+                    break;
+                }
+            }
+            if (serverJarEntry == null) {
+                throw new FileNotFoundException("server jar not found");
+            }
+            var serverJar = this.directory.resolve(serverJarName).toFile();
+            this.logger.println("Decompressing server jar to " + serverJar);
+            try (var entryStream = zipFile.getInputStream(serverJarEntry);
+                 var outputStream = new FileOutputStream(serverJar)) {
+                entryStream.transferTo(outputStream);
+            }
+        }
     }
 
-    private void killServer() {
-
+    private void killServer() throws ExecutionException, InterruptedException {
+        if (!this.isServerAlive()) {
+            this.logger.println("game server is not alive, no need to kill");
+            return;
+        }
+        this.logger.println("killing the server...");
+        this.gameServer.destroyForcibly();
+        this.gameServer.onExit().get();
     }
 
-    private void startServer() {
+    private void startServer() throws IOException {
+        if (this.isServerAlive()) {
+            throw new UnsupportedOperationException("cannot start server when server is already running");
+        }
+        var processBuilder = new ProcessBuilder("java", "-jar", this.getServerJar().getAbsolutePath());
+        this.logger.println("starting the server with command line: ");
+        this.logger.println(processBuilder.command());
+        processBuilder.redirectOutput(this.directory.resolve("serverOutputLog.txt").toFile());
+        processBuilder.redirectError(this.directory.resolve("serverErrorLog.txt").toFile());
+        this.gameServer = processBuilder.start();
+    }
 
+    private File getServerJar() {
+        return this.directory.resolve(serverJarName).toFile();
+    }
+
+    private boolean isServerAlive() {
+        return this.gameServer != null && this.gameServer.isAlive();
     }
 }
