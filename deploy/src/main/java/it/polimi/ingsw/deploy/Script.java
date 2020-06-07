@@ -19,7 +19,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Objects;
@@ -99,12 +98,11 @@ public class Script {
             if (this.gameServer == null) {
                 serverStatus.append("Game server is null<br />");
             } else {
-                this.gameServer.info().startInstant().ifPresent(instant -> {
-                    var milliseconds = Duration.between(instant, Instant.now()).toMillis();
-                    serverStatus.append("Game server was created at {{ new Date(\"")
-                            .append(instant)
-                            .append("\") }}<br />");
-                });
+                this.gameServer.info().startInstant().ifPresent(instant ->
+                        serverStatus.append("Game server was created at {{ new Date(\"")
+                                .append(instant)
+                                .append("\") }}<br />")
+                );
                 serverStatus.append("Game server is ")
                         .append(this.gameServer.isAlive()
                                 ? "<span style=\"color: green\">⬤</span> ONLINE"
