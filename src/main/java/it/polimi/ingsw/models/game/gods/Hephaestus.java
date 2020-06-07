@@ -26,6 +26,7 @@ public class Hephaestus extends God {
             actionOrder.add(WorkerActionType.BUILD_DOME);
         }
         if(phase == 2){
+            this.activateGodPower(worker);
             if(worker.previousBuild().getLevel() < 3 && !worker.previousBuild().isOccupiedByDome()){
                 actionOrder.add(WorkerActionType.BUILD);
             }

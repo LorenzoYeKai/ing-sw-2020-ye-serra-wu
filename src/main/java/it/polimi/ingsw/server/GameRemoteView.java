@@ -351,6 +351,18 @@ public class GameRemoteView {
                         this.playGameMessage(display);
                     }
                 }
+                else if(message.equals("undo")){
+                    try{
+                        controller.undo();
+                        gameServer.asyncSend("You did and undo!");
+                        server.sendUpdateWorldMessage(this.game);
+                        Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();
+                        ActionDisplay display = new ActionDisplay(actions);
+                        this.playGameMessage(display);
+                    } catch (UnsupportedOperationException e){
+                        System.err.println(e.getMessage());
+                    }
+                }
                 else{
                     gameServer.asyncSend("Your command doesn't exist!");
                     Map<WorkerActionType, List<Coordinates>> actions = this.game.workerActionTypeListMap();

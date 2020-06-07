@@ -25,6 +25,7 @@ public class Demeter extends God {
             actionOrder.add(WorkerActionType.BUILD_DOME);
         }
         if(phase == 2){
+            this.activateGodPower(worker); //for undo
             if(worker.computeBuildableSpaces().size() > 0){
                 actionOrder.add(WorkerActionType.BUILD);
                 actionOrder.add(WorkerActionType.BUILD_DOME);

@@ -5,6 +5,7 @@ import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,18 @@ public class World implements Serializable, WorldData {
                 this.spaces[i][j] = new Space(copy.spaces[i][j]);
             }
         }
+    }
+
+    public List<Worker> getWorkersInWorld(){
+        List<Worker> listOfWorkers = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                if(this.spaces[i][j].isOccupiedByWorker()){
+                    listOfWorkers.add(this.spaces[i][j].getWorker());
+                }
+            }
+        }
+        return listOfWorkers;
     }
 
     @Override

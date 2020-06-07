@@ -17,6 +17,7 @@ public class Artemis extends God{
     public List<WorkerActionType> workerActionOrder(int phase, Worker worker){
         List<WorkerActionType> actionOrder = new ArrayList<>();
         if(phase == 0){
+            this.deactivateGodPower(worker); //for undo
             actionOrder.add(WorkerActionType.MOVE);
         }
         if(phase == 1){

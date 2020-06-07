@@ -268,5 +268,19 @@ public class Worker implements WorkerData, Serializable {
         return this.index;
     }
 
+    public void workerUndo(World previousWorld){
+        if(!this.hasMoved()) {
+            previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY()).removeWorker(); //removes the dummy worker in previousWorld
+            this.currentSpace = previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY());
+        }
+        else{
+            Space previousSpace = this.previousSpace();
+            previousWorld.getSpaces(previousSpace.getX(), previousSpace.getY()).removeWorker();
+            this.currentSpace = previousWorld.getSpaces(previousSpace.getX(), previousSpace.getY());
+        }
+        previousWorld.getSpaces(currentSpace.getX(), currentSpace.getY()).setWorker(this);
+    }
+
+
 }
 

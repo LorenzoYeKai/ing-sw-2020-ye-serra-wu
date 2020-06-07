@@ -192,4 +192,24 @@ public class GameController {
         this.game.clearPreviousWorlds();
         this.game.getCurrentPlayer().deselectWorker();
     }
+
+
+    public void undo(){
+        //TODO: some god may have the power activated after the undo!!!
+        try{
+            World previousWorld = this.game.getPreviousWorld();
+            World currentWorld = this.game.getWorld();
+            for (int i = 0; i < 5; i++) {
+                for (int j = 0; j < 5; j++) {
+                    if(currentWorld.getSpaces(i,j).isOccupiedByWorker()){
+                        Worker w = currentWorld.getSpaces(i,j).getWorker();
+                        w.workerUndo(previousWorld);
+                    }
+                }
+            }
+            game.gameUndo();
+        } catch(UnsupportedOperationException e ){
+            System.err.println(e.getMessage());
+        }
+    }
 }

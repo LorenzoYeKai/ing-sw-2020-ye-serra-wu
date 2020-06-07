@@ -21,6 +21,7 @@ public abstract class God implements Serializable {
             actionOrder.add(WorkerActionType.MOVE);
         }
         if(phase == 1){
+            this.activateGodPower(worker); //for undo
             actionOrder.add(WorkerActionType.BUILD);
             actionOrder.add(WorkerActionType.BUILD_DOME);
         }

@@ -28,7 +28,7 @@ public class Game implements Serializable {
 
     private final GodFactory factory;
     private Set<GodType> availableGods;
-    private final World world;
+    private World world;
     private World previousWorld; //TODO: delete this.previousWorld
     private List<World> previousWorlds;
     private ActualRule rules;
@@ -258,6 +258,12 @@ public class Game implements Serializable {
             throw new UnsupportedOperationException("Empty World error non implemented yet!"); //TODO: handle empty previousWorlds
         }
         return this.previousWorlds.get(this.previousWorlds.size() - 1);
+    }
+
+    public void gameUndo(){
+        World previousWorld = this.getPreviousWorld();
+        this.previousWorlds.remove(previousWorld);
+        this.world = previousWorld;
     }
 
     public List<PlayerData> getPlayerData(){

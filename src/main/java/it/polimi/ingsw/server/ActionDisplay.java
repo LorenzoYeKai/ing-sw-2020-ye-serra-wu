@@ -56,5 +56,6 @@ public class ActionDisplay extends ServerMessage implements Serializable {
                 System.out.println(action + ": end");
             }
         }
+        System.out.println("Type \"undo\" for undo your last action!");
     }
 }

@@ -18,6 +18,7 @@ public class Prometheus extends God {
     public List<WorkerActionType> workerActionOrder(int phase, Worker worker){
         List<WorkerActionType> actionOrder = new ArrayList<>();
         if(phase == 0){
+            this.deactivateGodPower(worker);
             actionOrder.add(WorkerActionType.MOVE);
             actionOrder.add(WorkerActionType.BUILD);
             actionOrder.add(WorkerActionType.BUILD_DOME);

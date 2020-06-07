@@ -11,8 +11,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Progetto Ingegneria del Software" target="14" />
-      <module name="progetto-ingegneria-del-software-deploy-script" target="14" />
+      <module name="Progetto Ingegneria del Software" target="13" />
+      <module name="progetto-ingegneria-del-software-deploy-script" target="13" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -14,7 +14,7 @@ public class Player implements PlayerData, Serializable {
 
     private final String name;
     private final Game game;
-    private final List<Worker> workers;
+    private List<Worker> workers;
     private God god;
     private boolean defeated;
     private int selectedWorker;
@@ -125,7 +125,6 @@ public class Player implements PlayerData, Serializable {
     public int getIndexSelectedWorker(){
         return selectedWorker;
     }
-
 
 
 }
