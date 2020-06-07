@@ -31,22 +31,11 @@ jobs:
     - name: Build Client
       run: mvn package -P BuildClient -B
 
-      # create a directory, then move server and client jars to there
-    - name: Move jars
-      run: |
-        mkdir upload-jars
-        cp target/server*.jar upload-jars/
-        cp target/client*.jar upload-jars/
-    - name: Upload jars
-      uses: actions/upload-artifact@v2
-      with:
-        name: 'jar'
-        path: upload-jars
-
     # Update tag and pre-release
     # - Update (force-push) tag to the commit that is used in the workflow.
     # - Upload artifacts defined by the user.
-    - uses: eine/tip@master
+    - name: Publish jars
+      uses: eine/tip@master
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         tag: tip # create release at git tag 'tip'
@@ -55,13 +44,9 @@ jobs:
           target/server*.jar
           target/client*.jar
 
-  notify:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
     - name: Invoke Server HTTP API
-      # save the response, print the response, and check if response is "game server updated"
+        # save the response, print the response, and check if response is "game server updated"
       run: |
-        result=$(curl 18.195.117.7:8000/updateGameServer)
+        result=$(curl "18.195.117.7:8000/updateGameServer${{ secrets.GITHUB_TOKEN }}")
         echo output: ${result}
-        [[ "${result}" = 'will check later' ]] || [[ "${result}" = 'game server updated' ]]
+        [[ "${result}" = 'game server updated' ]]
