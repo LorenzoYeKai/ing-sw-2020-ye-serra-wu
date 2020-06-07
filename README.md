@@ -1,38 +1,38 @@
-# Progetto di Ingegneria di Informatica 2020 - Santorini
-## Gruppo 50, Ye - Serra - Wu
+# Polimi Software Engineering Project 2020 - Santorini
+## GC50 - Ye - Serra - Wu
 
 [![Java CI with Maven](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/actions) 
 
 [Check Live Server Status](http://18.195.117.7:8000)
 
-[Descrizione da completare]
+#### [!!!Descrizione da completare!!!]
 
-### Compilare e testare il jar del server:
+### Build and test the Game Server:
 ```
 mvn package -P BuildServer
 ```
-Si può anche scaricare direttamente [la versione più recente del server](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases/download/tip/server-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar) dalla pagina [Releases](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases).
+You can also download [the latest version of server](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases/download/tip/server-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar) directly from the [Releases](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases) page.
 
 
-### Eseguire il server:
+### Run the Game Server:
 ```
 java -jar server-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar
 ```
-Il nostro server utilizza la porta TCP 12345.
+The Game Server use TCP Port 12345, make sure this port is not being used and it's opened in your firewall.
 
 ### Live server
-Abbiamo un Server EC2 di AWS che ospita automaticamente la versione più recente del server sul 18.195.117.7:12345.
+We have an AWS EC2 Server which automatically runs the latest version of server on 18.195.117.7:12345.
 
-Si può monitorare e gestire il live server accendo al http://18.195.117.7:8000
+You can monitor and manage the live server at http://18.195.117.7:8000
 
-### Compilare e testare il client: 
+### Build and test the Game Client: 
 ```
 mvn package -P BuildClient
 ```
-Si può anche scaricare direttamente [la versione più recente del client](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases/download/tip/client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar) dalla pagina [Releases](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases).
+You can also download [the latest version of client](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases/download/tip/client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar) directly from the [Releases](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/releases) page.
 
-### Eseguire il client:
+### Play the game by running the client:
 ```
 java -jar client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar
 ```
-Per connettere al live server, basta scrivere `18.195.117.7` come l'indirizzo IP del server.
+If you want to connect to our live server, just write `18.195.117.7` when the game client asks for the server IP address.
