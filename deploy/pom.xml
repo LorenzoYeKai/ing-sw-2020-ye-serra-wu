@@ -1,14 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!--
+  This special maven project is used to build a simple script which can
+  automatically download / update and run our game server.
+  It's used in conjunction with Github Actions:
+  https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/actions
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>it.polimi.ingsw</groupId>
-  <artifactId>progetto-ingegneria-del-software-serra-ye-wu</artifactId>
+  <artifactId>progetto-ingegneria-del-software-deploy-script</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.json/json -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20200518</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.7</version>
+    </dependency>
+  </dependencies>
 
-  <name>GC50</name>
+  <name>DeployScript</name>
   <url>https://github.com/Kishin98/ing-sw-2020-ye-serra-wu</url>
 
   <properties>
@@ -17,98 +35,6 @@
     <maven.compiler.target>14</maven.compiler.target>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.6.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-api</artifactId>
-        <version>5.6.1</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <!--
-    We define two different profiles:
-    - BuildServer: this profile is used to build our Santorini Game Server.
-    - BuildClient: this profile is used to build our Santorini Game Client.
-    When building with Maven, one and exactly one profile must be activated.
-  -->
-  <profiles>
-    <profile>
-      <id>BuildServer</id>
-      <build>
-        <plugins>
-          <!-- exclude client classes -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**it/polimi/ingsw/client/*</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-          <!-- set the final name and the main class of server jar -->
-          <plugin>
-            <artifactId>maven-shade-plugin</artifactId>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>it.polimi.ingsw.server.ServerApp</mainClass>
-                </transformer>
-              </transformers>
-              <finalName>server-${project.build.finalName}</finalName>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>BuildClient</id>
-      <build>
-        <plugins>
-          <!-- exclude server classes -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**it/polimi/ingsw/server/*</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-          <!-- set the final name and the main class of client jar -->
-          <plugin>
-            <artifactId>maven-shade-plugin</artifactId>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>it.polimi.ingsw.client.ClientApp</mainClass>
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
-                </transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
-                  <addHeader>false</addHeader>
-                </transformer>
-              </transformers>
-              <finalName>client-${project.build.finalName}</finalName>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults (may be moved to parent pom) -->
       <plugins>
@@ -185,6 +111,17 @@
           </filters>
           <!-- don't generate extra useless files -->
           <createDependencyReducedPom>false</createDependencyReducedPom>
+          <!-- setup a manifest in the jar file, to specify the main class -->
+          <transformers>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+              <mainClass>it.polimi.ingsw.deploy.Script</mainClass>
+            </transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+            </transformer>
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+              <addHeader>false</addHeader>
+            </transformer>
+          </transformers>
         </configuration>
       </plugin>
     </plugins>
