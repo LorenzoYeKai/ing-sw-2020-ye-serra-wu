@@ -18,6 +18,13 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 14
+    - name: Cache Maven Dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
     - name: Build Server
       # -B means 'batch mode' (i.e. without colored output etc.)
       run: mvn package -P BuildServer -B
