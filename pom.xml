@@ -96,6 +96,11 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <mainClass>it.polimi.ingsw.client.ClientApp</mainClass>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                  <addHeader>false</addHeader>
+                </transformer>
               </transformers>
               <finalName>client-${project.build.finalName}</finalName>
             </configuration>
