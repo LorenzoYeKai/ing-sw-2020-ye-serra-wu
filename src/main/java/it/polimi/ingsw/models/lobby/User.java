@@ -1,44 +1,41 @@
 package it.polimi.ingsw.models.lobby;
 
 import it.polimi.ingsw.models.game.Player;
-import it.polimi.ingsw.models.game.PlayerData;
 import it.polimi.ingsw.views.lobby.LobbyView;
+
+import java.util.Optional;
 
 /**
  * Represents a user in the lobby,
  * Who might become a {@link Player}
  */
-public class User implements UserData {
-    private final String username;
+public class User {
+    private final String name;
     private final LobbyView view;
-    private RoomData currentRoom;
+    private String currentRoomName;
 
-    public User(String username, LobbyView view) {
-        this.username = username;
+    public User(String name, LobbyView view) {
+        this.name = name;
         this.view = view;
-        this.currentRoom = null;
+        this.currentRoomName = null;
     }
 
-    @Override
-    public String getUsername() {
-        return this.username;
+    public String getName() {
+        return name;
     }
 
-    public RoomData getCurrentRoom() {
-        return this.currentRoom;
+    public Optional<String> getCurrentRoomName() {
+        return Optional.ofNullable(this.currentRoomName);
     }
 
-    public void setCurrentRoom(RoomData room) {
-        this.currentRoom = room;
-        this.getView().notifyRoomChanged(this.currentRoom);
+    public void setCurrentRoomName(String roomName) {
+        this.currentRoomName = roomName;
+        this.getView().notifyRoomChanged(roomName);
     }
 
     public LobbyView getView() {
         return this.view;
     }
 
-    public void givePlayer(PlayerData player) {
-
-    }
 
 }

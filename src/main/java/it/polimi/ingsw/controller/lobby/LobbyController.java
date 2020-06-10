@@ -1,158 +1,84 @@
 package it.polimi.ingsw.controller.lobby;
 
 import it.polimi.ingsw.controller.NotExecutedException;
-import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.lobby.*;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class LobbyController {
-    private final Lobby lobby;
-
-    public LobbyController() {
-        this.lobby = new Lobby();
-    }
+public interface LobbyController {
 
     /**
      * Join the lobby with a username.
      * An {@link User} will be created with the specified username and view.
      * Event listeners will automatically be set up.
      *
-     * @param username The desired username
+     * @param username The desired username.
      * @param view     The {@link LobbyView} used by the current "pre-user".
-     * @return The created {@link User}
+     * @return a private {@link UserToken} which uniquely identifies the user
      * @throws NotExecutedException If the desired username is already been used.
      */
-    public UserData joinLobby(String username, LobbyView view) throws NotExecutedException {
-        if (this.lobby.getUser(username) != null) {
-            throw new NotExecutedException("Username already taken");
-        }
-
-        User newUser = new User(username, view);
-        this.lobby.addUser(newUser);
-        return newUser;
-    }
-
-    public void leaveLobby(UserData userData) throws NotExecutedException {
-        this.throwIfUserNotInLobby(userData);
-
-        User user = this.lobby.getUser(userData.getUsername());
-        this.lobby.removeUser(user);
-    }
-
-    public void createRoom(UserData userData, String roomName) throws NotExecutedException {
-        this.throwIfUserNotInLobby(userData);
-        this.throwIfAlreadyInRoom(userData);
-
-        User host = this.lobby.getUser(userData.getUsername());
-        Room room = new Room(this.lobby, host, roomName);
-        this.lobby.addRoom(room);
-    }
-
-    public void joinRoom(UserData userData, RoomData roomData) throws NotExecutedException {
-        this.throwIfUserNotInLobby(userData);
-        this.throwIfAlreadyInRoom(userData);
-        this.throwIfRoomNotInLobby(roomData);
-
-        User user = this.lobby.getUser(userData.getUsername());
-        Room room = this.lobby.getRoom(roomData.getRoomId());
-        room.join(user);
-    }
+    UserToken joinLobby(String username, LobbyView view) throws NotExecutedException;
 
     /**
-     * Make some user to leave the room, with an optional message.
+     * Leave the lobby.
+     *
+     * @param userToken The token of user who wants to leave the lobby.
+     * @throws NotExecutedException If user cannot leave from the lobby.
+     */
+    void leaveLobby(UserToken userToken) throws NotExecutedException;
+
+    /**
+     * Create a room.
+     *
+     * @param userToken The token of user who wants to create a room.
+     * @throws NotExecutedException If user cannot create this room.
+     */
+    void createRoom(UserToken userToken) throws NotExecutedException;
+
+    /**
+     * Join a room.
+     *
+     * @param userToken The token of user who wants to join a room.
+     * @param roomName  The name of room which the user wants to join.
+     * @throws NotExecutedException If user cannot join this room.
+     */
+    void joinRoom(UserToken userToken, String roomName) throws NotExecutedException;
+
+    /**
+     * Leave the room.
      * If host has left room, everybody leaves too.
      *
-     * @param user     The user who will leave the room
-     * @param roomData The room from which the user wants to leave.
-     * @throws NotExecutedException If the user is not in the room
+     * @param userToken The token of user who wants leave the room.
+     * @throws NotExecutedException If the user cannot leave this room.
      */
-    public void leaveRoom(UserData user, RoomData roomData) throws NotExecutedException {
-        this.throwIfUserNotInLobby(user);
-        this.throwIfRoomNotInLobby(roomData);
-        this.throwIfNotInRoom(user, roomData);
+    void leaveRoom(UserToken userToken) throws NotExecutedException;
 
-        Room room = this.lobby.getRoom(roomData.getRoomId());
-        room.leave(user);
-    }
+    /**
+     * Change the position of a player inside the player list.
+     *
+     * @param hostToken      The token of host. Only host can change player position.
+     * @param targetUserName The name of target user.
+     * @param offset         The offset (in the player list) to apply.
+     * @throws NotExecutedException If the target player cannot be moved.
+     */
+    void changePlayerPosition(UserToken hostToken,
+                              String targetUserName,
+                              int offset) throws NotExecutedException;
 
-    public void changePlayerPosition(UserData host,
-                                     RoomData roomData,
-                                     UserData target,
-                                     int offset) throws NotExecutedException {
-        this.throwIfUserNotInLobby(host);
-        this.throwIfUserNotInLobby(target);
-        this.throwIfRoomNotInLobby(roomData);
-        this.throwIfNotInRoom(host, roomData);
-        this.throwIfNotHost(host);
-        this.throwIfNotInRoom(host, roomData);
+    /**
+     * Kick the target player from the room.
+     *
+     * @param hostToken      The token of host. Only host can kick players.
+     * @param targetUserName The victim to be kicked.
+     * @throws NotExecutedException If the target player cannot be kicked
+     */
+    void kickUser(UserToken hostToken, String targetUserName) throws NotExecutedException;
 
-        Room room = this.lobby.getRoom(roomData.getRoomId());
-        room.moveUser(target, offset);
-    }
-
-    public void kickUser(UserData host, RoomData roomData, UserData target) throws NotExecutedException {
-        this.throwIfUserNotInLobby(host);
-        this.throwIfUserNotInLobby(target);
-        this.throwIfRoomNotInLobby(roomData);
-        this.throwIfNotInRoom(host, roomData);
-        this.throwIfNotHost(host);
-        this.throwIfNotInRoom(target, roomData);
-        if (host == target) {
-            throw new NotExecutedException("Cannot kick yourself, leave instead");
-        }
-
-        Room room = this.lobby.getRoom(roomData.getRoomId());
-        room.kick(target);
-    }
-
-    public void startGame(UserData host, RoomData roomData) throws NotExecutedException {
-        this.throwIfUserNotInLobby(host);
-        this.throwIfRoomNotInLobby(roomData);
-        this.throwIfNotInRoom(host, roomData);
-        this.throwIfNotHost(host);
-
-        Room room = this.lobby.getRoom(roomData.getRoomId());
-        List<String> nicknames = room.getUsers().stream()
-                .map(UserData::getUsername)
-                .collect(Collectors.toUnmodifiableList());
-        GameController gameController = new GameController(nicknames);
-        room.startGame(gameController);
-    }
-
-    private void throwIfUserNotInLobby(UserData user) throws NotExecutedException {
-        if (this.lobby.getUser(user.getUsername()) != user) {
-            throw new NotExecutedException("Username does not exist");
-        }
-    }
-
-    private void throwIfRoomNotInLobby(RoomData room) throws NotExecutedException {
-        if (this.lobby.getRoom(room.getRoomId()) != room) {
-            throw new NotExecutedException("Room not in lobby");
-        }
-    }
-
-    private void throwIfAlreadyInRoom(UserData userData) throws NotExecutedException {
-        User user = this.lobby.getUser(userData.getUsername());
-        if (user.getCurrentRoom() != null) {
-            throw new NotExecutedException("Already in another room");
-        }
-    }
-
-    private void throwIfNotInRoom(UserData userData, RoomData room) throws NotExecutedException {
-        User user = this.lobby.getUser(userData.getUsername());
-        if (user.getCurrentRoom() != room) {
-            throw new NotExecutedException("Not inside the room");
-        }
-    }
-
-    private void throwIfNotHost(UserData userData) throws NotExecutedException {
-        User user = this.lobby.getUser(userData.getUsername());
-        if (user.getCurrentRoom().getHost() != user) {
-            throw new NotExecutedException("You are not host");
-        }
-    }
+    /**
+     * Start the game with players inside the room.
+     *
+     * @param hostToken The token of host. Only host can start the game.
+     * @throws NotExecutedException If game cannot be started from this room.
+     */
+    void startGame(UserToken hostToken) throws NotExecutedException;
 }

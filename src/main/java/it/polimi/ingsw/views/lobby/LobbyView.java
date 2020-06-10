@@ -2,8 +2,6 @@ package it.polimi.ingsw.views.lobby;
 
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
-import it.polimi.ingsw.models.lobby.RoomData;
-import it.polimi.ingsw.models.lobby.UserData;
 
 import java.util.Collection;
 
@@ -14,15 +12,15 @@ public abstract class LobbyView {
         this.controller = controller;
     }
 
-    public abstract void displayAvailableRooms(Collection<RoomData> rooms);
+    public abstract void displayAvailableRooms(Collection<String> roomNames);
 
-    public abstract void displayUserList(Collection<UserData> users);
+    public abstract void displayUserList(Collection<String> userNames);
 
     public abstract void notifyMessage(String author, String message);
 
-    public abstract void notifyRoomChanged(RoomData roomData);
+    public abstract void notifyRoomChanged(String newRoomName);
 
-    public abstract void displayRoomPlayerList(Collection<UserData> playerList);
+    public abstract void displayRoomPlayerList(Collection<String> playerList);
 
     public abstract void notifyGameStarted(GameController gameController);
 }

@@ -4,81 +4,63 @@ import it.polimi.ingsw.Notifier;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.InternalError;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-public class Room implements RoomData {
-    private static int lastRoomId;
+public class Room {
     private final Lobby lobby;
-    private final Notifier<List<UserData>> usersChangedNotifier;
-    private final int roomId;
-    private final String roomName;
-    private final UserData host;
-    private final List<User> allUsers;
+    private final Notifier<List<String>> usersChangedNotifier;
+    private final User host;
+    private final List<User> users;
 
     /**
      * Creates a new room in the lobby
      *
-     * @param lobby    the lobby from which the room is created.
-     * @param host     the {@link User} who created this room.
-     * @param roomName the name fo this room.
+     * @param lobby the lobby from which the room is created.
+     * @param host  the {@link User} who created this room.
      */
-    public Room(Lobby lobby, User host, String roomName) {
+    public Room(Lobby lobby, User host) {
         this.lobby = lobby;
         this.usersChangedNotifier = new Notifier<>();
-        this.roomId = ++lastRoomId;
-        this.roomName = roomName;
         this.host = host;
-        this.allUsers = new ArrayList<>();
-
+        this.users = new ArrayList<>();
         this.join(host);
     }
 
-    @Override
-    public int getRoomId() {
-        return this.roomId;
+    public String getName() {
+        return this.host.getName();
     }
 
-    @Override
-    public String getRoomName() {
-        return this.roomName;
-    }
-
-    @Override
-    public UserData getHost() {
-        return this.host;
-    }
-
-    public List<UserData> getUsers() {
-        return Collections.unmodifiableList(this.allUsers);
+    public List<User> getUsers() {
+        return Collections.unmodifiableList(this.users);
     }
 
     /**
-     * Called to make someone join the room.
+     * Make someone join the room.
      *
      * @param user the user who is joining
      */
     public void join(User user) {
-        this.allUsers.add(user);
-        user.setCurrentRoom(this);
+        this.users.add(user);
+        user.setCurrentRoomName(this.getName());
         this.addListener(user, players -> user.getView().displayRoomPlayerList(players));
-        this.usersChangedNotifier.notify(this.getUsers());
+        this.notifyUsersChanged();
     }
 
     /**
-     * Called let someone leaving the room.
+     * Make someone to leave the room.
      *
      * @param user the user who is leaving
      */
-    public void leave(UserData user) {
-        if (user == this.getHost()) {
-            // make a temporary copy of the list because the
-            // original list might be edited when iterating
-            for (User member : new ArrayList<>(this.allUsers)) {
+    public void leave(User user) {
+        // if host leaves the room, everyone leaves too
+        if (user == this.host) {
+            // create a copy of list because we are mutating the list
+            // while iterating over it
+            for (User member : new ArrayList<>(this.users)) {
                 // host must leave after everyone else has left
-                if (member == user) {
+                if (user == member) {
                     continue;
                 }
 
@@ -94,8 +76,8 @@ public class Room implements RoomData {
      *
      * @param user the user who needs to be kicked
      */
-    public void kick(UserData user) {
-        if (user == this.getHost()) {
+    public void kick(User user) {
+        if (user == this.host) {
             throw new InternalError("Cannot kick yourself");
         }
 
@@ -103,57 +85,30 @@ public class Room implements RoomData {
     }
 
     /**
-     * Remove a user from player list.
-     * If this room becomes empty, it's removed from the {@link Lobby}.
-     *
-     * @param userData the user who wants to leave the room.
-     */
-    private void remove(UserData userData, String message) {
-        //noinspection SuspiciousMethodCalls
-        int index = this.allUsers.indexOf(userData);
-        if (index == -1) {
-            throw new InternalError("User not in this room");
-        }
-        User user = this.allUsers.get(index);
-
-        if (message != null) {
-            user.getView().notifyMessage("SYSTEM", message);
-        }
-        this.allUsers.remove(user);
-        user.setCurrentRoom(null);
-        this.removeListener(user);
-        this.usersChangedNotifier.notify(this.getUsers());
-        if (this.allUsers.isEmpty()) {
-            this.lobby.removeRoom(this);
-        }
-    }
-
-    /**
      * Move the user in the player list
      *
-     * @param user   the user to be moved
-     * @param offset number of positions to offset
+     * @param user the user to be moved
+     * @param offset   number of positions to offset
      */
-    public void moveUser(UserData user, int offset) {
-        //noinspection SuspiciousMethodCalls
-        int userIndex = this.allUsers.indexOf(user);
+    public void moveUser(User user, int offset) {
+        int userIndex = this.users.indexOf(user);
         if (userIndex == -1) {
             throw new InternalError("User not in room");
         }
 
         // Calculate destination position
         int destinationIndex = userIndex + offset;
-        destinationIndex = Math.max(0, Math.min(destinationIndex, this.allUsers.size() - 1));
+        destinationIndex = Math.max(0, Math.min(destinationIndex, this.users.size() - 1));
         if (userIndex == destinationIndex) {
             // same position, no move required
             return;
         }
 
-        User movingUser = this.allUsers.get(userIndex);
-        this.allUsers.set(userIndex, this.allUsers.get(destinationIndex));
-        this.allUsers.set(destinationIndex, movingUser);
+        User movingUser = this.users.get(userIndex);
+        this.users.set(userIndex, this.users.get(destinationIndex));
+        this.users.set(destinationIndex, movingUser);
 
-        this.usersChangedNotifier.notify(this.getUsers());
+        this.notifyUsersChanged();
     }
 
     /**
@@ -163,20 +118,49 @@ public class Room implements RoomData {
      * @param gameController the newly-created game controller.
      */
     public void startGame(GameController gameController) {
-        // make a temporary copy of the list because the
-        // original list might be edited when iterating
-        for (User member : new ArrayList<>(this.allUsers)) {
+        for (User member : this.users) {
             member.getView().notifyGameStarted(gameController);
         }
 
-        this.leave(this.getHost());
+        // let host (so everyone) leave the room
+        this.leave(this.host);
     }
 
-    private void addListener(Object key, Consumer<List<UserData>> onUsersChanged) {
+    /**
+     * Remove a user from player list.
+     * If this room becomes empty, it's removed from the {@link Lobby}.
+     *
+     * @param user the user who wants to leave the room.
+     */
+    private void remove(User user, String message) {
+        int index = this.users.indexOf(user);
+        if(index == -1) {
+            throw new InternalError("User not in room");
+        }
+
+        if (message != null) {
+            user.getView().notifyMessage("SYSTEM", message);
+        }
+        this.users.remove(user);
+        this.notifyUsersChanged();
+        user.setCurrentRoomName(null);
+        this.removeListener(user);
+        if (this.users.isEmpty()) {
+            this.lobby.removeRoom(this);
+        }
+    }
+
+    private void addListener(Object key, Consumer<List<String>> onUsersChanged) {
         this.usersChangedNotifier.addListener(key, onUsersChanged);
     }
 
     private void removeListener(Object key) {
         this.usersChangedNotifier.removeListener(key);
+    }
+
+    private void notifyUsersChanged(){
+        this.usersChangedNotifier.notify(this.users.stream()
+                .map(User::getName)
+                .collect(Collectors.toList()));
     }
 }

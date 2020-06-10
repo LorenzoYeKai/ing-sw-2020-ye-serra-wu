@@ -3,6 +3,7 @@ package it.polimi.ingsw.models.lobby;
 import it.polimi.ingsw.models.InternalError;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.Notifier;
+import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -12,58 +13,98 @@ import java.util.function.Consumer;
  * and can create new {@link Game}s.
  */
 public class Lobby {
-    private final Notifier<Collection<UserData>> usersChangedNotifier;
-    private final Notifier<Collection<RoomData>> roomsChangedNotifier;
+    private final Notifier<Collection<String>> usersChangedNotifier;
+    private final Notifier<Collection<String>> roomsChangedNotifier;
     private final Map<String, User> users;
-    private final Map<Integer, Room> stagingRooms;
+    private final Map<UserToken, User> usersByToken;
+    private final Map<String, Room> stagingRooms;
 
     public Lobby() {
         this.usersChangedNotifier = new Notifier<>();
         this.roomsChangedNotifier = new Notifier<>();
         this.users = new HashMap<>();
+        this.usersByToken = new HashMap<>();
         this.stagingRooms = new HashMap<>();
     }
 
-    public User getUser(String username) {
-        return this.users.get(username);
+    public Optional<User> getUser(String userName) {
+        if (!this.users.containsKey(userName)) {
+            return Optional.empty();
+        }
+        return Optional.of(this.users.get(userName));
     }
 
-    public void addUser(User user) {
-        if (this.getUser(user.getUsername()) != null) {
+    public Optional<User> getUser(UserToken userToken) {
+        if (!this.usersByToken.containsKey(userToken)) {
+            return Optional.empty();
+        }
+        return Optional.of(this.usersByToken.get(userToken));
+    }
+
+    public UserToken createUser(String userName, LobbyView view) {
+        if (this.users.containsKey(userName)) {
             throw new InternalError("Username already exists");
         }
 
-        this.users.put(user.getUsername(), user);
+        User user = new User(userName, view);
+        UserToken token = new UserToken();
+        this.users.put(userName, user);
+        this.usersByToken.put(token, user);
         this.addListeners(user,
                 users -> user.getView().displayUserList(users),
                 rooms -> user.getView().displayAvailableRooms(rooms));
-        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.values()));
+        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.keySet()));
+        return token;
     }
 
-    public void removeUser(User user) {
+    public void removeUser(UserToken userToken) {
+        if (!this.usersByToken.containsKey(userToken)) {
+            throw new InternalError("User token does not exist");
+        }
+
+        User user = this.usersByToken.get(userToken);
+
         user.getView().notifyMessage("SYSTEM", "You are leaving the lobby");
-        this.users.remove(user.getUsername());
+        this.users.remove(user.getName());
+        this.usersByToken.remove(userToken);
         this.removeListeners(user);
-        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.values()));
+        this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.keySet()));
     }
 
-    public Room getRoom(int roomId) {
-        return this.stagingRooms.get(roomId);
+    public Optional<Room> getRoom(String roomName) {
+        if (!this.stagingRooms.containsKey(roomName)) {
+            return Optional.empty();
+        }
+        return Optional.of(this.stagingRooms.get(roomName));
     }
 
-    public void addRoom(Room room) {
-        this.stagingRooms.put(room.getRoomId(), room);
-        this.roomsChangedNotifier.notify(Collections.unmodifiableCollection(this.stagingRooms.values()));
+    public Room createRoom(UserToken hostToken) {
+        if (!this.usersByToken.containsKey(hostToken)) {
+            throw new InternalError("User token does not exist");
+        }
+
+        User user = this.usersByToken.get(hostToken);
+        if (user.getCurrentRoomName().isPresent()) {
+            throw new InternalError("User is already inside a room");
+        }
+
+        Room room = new Room(this, user);
+        if (this.stagingRooms.containsKey(room.getName())) {
+            throw new InternalError("Room already exists");
+        }
+        this.stagingRooms.put(room.getName(), room);
+        this.roomsChangedNotifier.notify(Collections.unmodifiableCollection(this.stagingRooms.keySet()));
+        return room;
     }
 
     public void removeRoom(Room room) {
-        this.stagingRooms.remove(room.getRoomId());
-        this.roomsChangedNotifier.notify(Collections.unmodifiableCollection(this.stagingRooms.values()));
+        this.stagingRooms.remove(room.getName());
+        this.roomsChangedNotifier.notify(Collections.unmodifiableCollection(this.stagingRooms.keySet()));
     }
 
     private void addListeners(Object key,
-                             Consumer<Collection<UserData>> onUsersChanged,
-                             Consumer<Collection<RoomData>> onRoomsChanged) {
+                              Consumer<Collection<String>> onUsersChanged,
+                              Consumer<Collection<String>> onRoomsChanged) {
         this.usersChangedNotifier.addListener(key, onUsersChanged);
         this.roomsChangedNotifier.addListener(key, onRoomsChanged);
     }
