@@ -15,4 +15,7 @@ public class InternalError extends RuntimeException {
     public InternalError(String why) {
         super(why);
     }
+    public InternalError(Exception innerException) {
+        super(innerException);
+    }
 }

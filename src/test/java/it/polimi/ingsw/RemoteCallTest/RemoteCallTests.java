@@ -1,0 +1,219 @@
+package it.polimi.ingsw.RemoteCallTest;
+
+import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.rpc.RemoteCommandHandler;
+import it.polimi.ingsw.rpc.RequestProcessor;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.Inet4Address;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.Function;
+
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.function.Executable;
+
+
+@Timeout(1)
+public class RemoteCallTests implements AutoCloseable {
+
+    private static class Helpers {
+
+
+        static <T> CompletableFuture<T> runAsync(Callable<T> supplier) {
+            CompletableFuture<T> future = new CompletableFuture<>();
+            new Thread(() -> {
+                try {
+                    future.complete(supplier.call());
+                } catch (Throwable exception) {
+                    future.completeExceptionally(exception);
+                }
+            }).start();
+            return future;
+        }
+
+        static CompletableFuture<Void> assertNotThrowsAsync(Executable executable) {
+            return Helpers.runAsync(() -> {
+                Assertions.assertDoesNotThrow(executable);
+                return null;
+            });
+        }
+
+        static <T> RemoteCommandHandler buildHandler(Class<T> type,
+                                                     Function<T, Serializable> handler) {
+            return new RemoteCommandHandler() {
+                @Override
+                public boolean isProcessable(Object command) {
+                    return type.isInstance(command);
+                }
+
+                @Override
+                public Serializable processCommand(Object command) {
+                    return handler.apply(type.cast(command));
+                }
+            };
+        }
+    }
+
+    private RequestProcessor alice;
+    private RequestProcessor reimu;
+
+
+    @Timeout(1)
+    @BeforeEach
+    void init() throws Exception {
+        // setup connection
+        final int port = 12345;
+        try (ServerSocket server = new ServerSocket(port)) {
+            Future<RequestProcessor> futureAlice = Helpers.runAsync(() ->
+            {
+                Socket socket = new Socket(Inet4Address.getLocalHost(), port);
+                return new RequestProcessor(socket) {
+                    @Override
+                    public String toString() {
+                        return "Alice";
+                    }
+                };
+            });
+
+            Future<RequestProcessor> futureReimu = Helpers.runAsync(() ->
+            {
+                Socket socket = server.accept();
+                return new RequestProcessor(socket) {
+                    @Override
+                    public String toString() {
+                        return "Reimu";
+                    }
+                };
+            });
+
+            this.alice = futureAlice.get();
+            this.reimu = futureReimu.get();
+        }
+    }
+
+    @Timeout(1)
+    @AfterEach
+    @Override
+    public synchronized void close() throws IOException {
+        // release resources
+        if (this.reimu != null) {
+            this.reimu.close();
+        }
+        if (this.alice != null) {
+            this.alice.close();
+        }
+    }
+
+    @Test
+    @DisplayName("Test what happens when there are no handlers for the request")
+    public void requestNoHandlerTest() throws ExecutionException, InterruptedException {
+        // remote handler should not fail
+        Future<Void> future = Helpers.assertNotThrowsAsync(() ->
+                this.reimu.handleNextIncomingRequest());
+        // this remote request should fail because there aren't any handlers
+        // on another side
+        Assertions.assertThrows(NotExecutedException.class, () ->
+                this.alice.makeRequest(null));
+        future.get();
+    }
+
+    @Test
+    @DisplayName("Test what happens when there are no handlers for the message")
+    public void messageNoHandlerTest() throws ExecutionException, InterruptedException {
+        // remote handlers should not fail
+        Future<Void> future = Helpers.assertNotThrowsAsync(() ->
+                this.reimu.handleNextIncomingRequest());
+        // this should not fail because with sendMessage we don't care if it
+        // succeeded on the remote side or not
+        Assertions.assertDoesNotThrow(() -> this.alice.sendMessage(null));
+        future.get();
+    }
+
+    @Test
+    @DisplayName("Test a simple request handler")
+    public void simpleHandlerTest() throws ExecutionException, InterruptedException {
+        Future<Void> future = Helpers.assertNotThrowsAsync(() -> {
+            // creates a remote handler which multiplies the input by 3
+            RemoteCommandHandler handler =
+                    Helpers.buildHandler(Integer.class, i -> i * 3);
+            this.reimu.addHandler(handler);
+            this.reimu.handleNextIncomingRequest();
+            this.reimu.removeHandler(handler);
+        });
+        Assertions.assertDoesNotThrow(() -> {
+            int result = (int) this.alice.makeRequest(10);
+            // assert 10 * 3 = 30
+            Assertions.assertEquals(result, 30);
+        });
+        future.get();
+    }
+
+    @Test
+    @DisplayName("Test complex call chain")
+    public void callChainTest() throws NotExecutedException, IOException, ExecutionException, InterruptedException {
+        RemoteCommandHandler aliceHandler = RemoteCallTests.getQuickSorter(this.alice);
+        RemoteCommandHandler reimuHandler = RemoteCallTests.getQuickSorter(this.reimu);
+
+        this.alice.addHandler(aliceHandler);
+        this.reimu.addHandler(reimuHandler);
+
+        Future<Void> future = Helpers.assertNotThrowsAsync(() ->
+                this.reimu.handleNextIncomingRequest());
+        ArrayList<Integer> list = new ArrayList<>(List.of(1, 9, 4, 8, 0, 2, 5, 7, 3, 6));
+        ArrayList<Integer> controlList = new ArrayList<>(list);
+        controlList.sort(Comparator.naturalOrder());
+        Serializable testList = this.alice.makeRequest(list);
+
+        Assertions.assertEquals(controlList, testList);
+        Assertions.assertNotEquals(controlList, list);
+
+        future.get();
+
+        this.alice.removeHandler(aliceHandler);
+        this.reimu.addHandler(reimuHandler);
+    }
+
+    // a quicksort that involves two peers
+    private static RemoteCommandHandler getQuickSorter(RequestProcessor processor) {
+        return Helpers.buildHandler(ArrayList.class, l -> {
+            // noinspection unchecked
+            ArrayList<Integer> list = (ArrayList<Integer>) l;
+            if (list.size() <= 1) {
+                return list;
+            }
+            int pivot = list.get(0);
+            ArrayList<Integer> less = new ArrayList<>();
+            ArrayList<Integer> notLess = new ArrayList<>();
+            for (int x : list.subList(1, list.size())) {
+                if (x < pivot) {
+                    less.add(x);
+                } else {
+                    notLess.add(x);
+                }
+            }
+
+            // let the other peer do the quicksort
+            ArrayList<Integer> x = Assertions.assertDoesNotThrow(() -> {
+                // noinspection unchecked
+                return (ArrayList<Integer>) processor.makeRequest(less);
+            });
+            // let the other peer do the quicksort
+            ArrayList<Integer> y = Assertions.assertDoesNotThrow(() -> {
+                // noinspection unchecked
+                return (ArrayList<Integer>) processor.makeRequest(notLess);
+            });
+            x.add(pivot);
+            x.addAll(y);
+            return x;
+        });
+    }
+}
