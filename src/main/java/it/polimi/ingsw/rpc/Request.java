@@ -1,7 +1,7 @@
 package it.polimi.ingsw.rpc;
 
-import it.polimi.ingsw.controller.NotExecutedException;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.NotExecutedException;
+import it.polimi.ingsw.InternalError;
 
 import java.io.Serializable;
 

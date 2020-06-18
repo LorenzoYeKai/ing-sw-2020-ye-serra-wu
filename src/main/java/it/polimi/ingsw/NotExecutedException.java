@@ -1,4 +1,4 @@
-package it.polimi.ingsw.controller;
+package it.polimi.ingsw;
 
 /**
  * Represents an exception which should be thrown by the controller or other

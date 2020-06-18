@@ -1,6 +1,6 @@
 package it.polimi.ingsw.rpc;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 
 import java.io.Serializable;
 

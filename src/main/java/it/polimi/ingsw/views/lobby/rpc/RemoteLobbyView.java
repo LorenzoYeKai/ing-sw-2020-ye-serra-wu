@@ -1,6 +1,6 @@
 package it.polimi.ingsw.views.lobby.rpc;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.rpc.RemoteCommandHandler;
 import it.polimi.ingsw.views.lobby.LobbyView;
 

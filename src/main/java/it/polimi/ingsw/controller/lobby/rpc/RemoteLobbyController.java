@@ -1,8 +1,8 @@
 package it.polimi.ingsw.controller.lobby.rpc;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.lobby.LobbyController;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.lobby.UserToken;
 import it.polimi.ingsw.rpc.RequestProcessor;
 import it.polimi.ingsw.views.lobby.LobbyView;

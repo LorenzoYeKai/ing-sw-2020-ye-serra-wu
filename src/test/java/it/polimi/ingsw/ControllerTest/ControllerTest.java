@@ -1,6 +1,6 @@
 package it.polimi.ingsw.ControllerTest;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodType;

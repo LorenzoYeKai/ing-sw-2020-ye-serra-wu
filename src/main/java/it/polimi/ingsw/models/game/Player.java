@@ -1,6 +1,6 @@
 package it.polimi.ingsw.models.game;
 
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;

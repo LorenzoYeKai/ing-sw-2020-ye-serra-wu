@@ -1,6 +1,6 @@
 package it.polimi.ingsw.views.utils;
 
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 
 import java.io.*;
 import java.util.ArrayList;

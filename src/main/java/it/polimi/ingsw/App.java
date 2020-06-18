@@ -1,6 +1,5 @@
 package it.polimi.ingsw;
 
-import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.controller.lobby.LocalLobbyController;
 import it.polimi.ingsw.views.game.MultiUserConsoleGameView;

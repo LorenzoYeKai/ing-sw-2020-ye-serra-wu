@@ -1,11 +1,14 @@
 package it.polimi.ingsw.rpc;
 
-import it.polimi.ingsw.controller.NotExecutedException;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.NotExecutedException;
+import it.polimi.ingsw.InternalError;
 
-import java.io.IOException;
 import java.io.Serializable;
 
+/**
+ * @see RequestProcessor
+ * @see Request
+ */
 class Response implements Serializable {
     private final long sequenceNumber;
     private final boolean isException;

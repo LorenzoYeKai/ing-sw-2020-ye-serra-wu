@@ -2,7 +2,7 @@ package it.polimi.ingsw.models.lobby;
 
 import it.polimi.ingsw.Notifier;
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 
 import java.util.*;
 import java.util.function.Consumer;

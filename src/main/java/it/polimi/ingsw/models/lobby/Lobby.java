@@ -1,6 +1,6 @@
 package it.polimi.ingsw.models.lobby;
 
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.Notifier;
 import it.polimi.ingsw.views.lobby.LobbyView;

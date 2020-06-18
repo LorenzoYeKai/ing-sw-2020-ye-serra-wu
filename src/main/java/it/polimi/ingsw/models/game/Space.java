@@ -1,7 +1,7 @@
 package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.Notifiable;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.views.utils.Coordinates;
 
 import java.io.Serializable;

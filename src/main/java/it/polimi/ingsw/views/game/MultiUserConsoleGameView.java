@@ -1,9 +1,9 @@
 package it.polimi.ingsw.views.game;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.models.InternalError;
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.views.utils.ConsoleMatrix;
 

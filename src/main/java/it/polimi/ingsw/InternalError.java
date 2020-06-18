@@ -1,6 +1,6 @@
-package it.polimi.ingsw.models;
+package it.polimi.ingsw;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 
 /**
  * An exception thrown by Model or other code in exceptional situations.

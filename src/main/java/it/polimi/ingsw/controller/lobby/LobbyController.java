@@ -1,6 +1,6 @@
 package it.polimi.ingsw.controller.lobby;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.models.lobby.*;
 import it.polimi.ingsw.views.lobby.LobbyView;
 

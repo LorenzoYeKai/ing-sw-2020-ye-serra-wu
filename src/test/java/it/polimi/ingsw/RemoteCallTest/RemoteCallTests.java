@@ -1,6 +1,6 @@
 package it.polimi.ingsw.RemoteCallTest;
 
-import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.rpc.RemoteCommandHandler;
 import it.polimi.ingsw.rpc.RequestProcessor;
 
