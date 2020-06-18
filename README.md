@@ -7,6 +7,14 @@
 
 #### [!!!Descrizione da completare!!!]
 
+### Features
+- [X] Complete Game Rules (Basic gods) 
+- [X] CLI
+- [ ] GUI
+- [X] Socket
+- [ ] Advanced features #1: Undo
+- [ ] Advanced features #2: Lobby and multiple matches in parallel 
+
 ### Build and test the Game Server:
 ```
 mvn package -P BuildServer
