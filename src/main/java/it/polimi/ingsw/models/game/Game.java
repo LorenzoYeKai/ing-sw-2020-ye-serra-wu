@@ -15,8 +15,6 @@ import it.polimi.ingsw.views.utils.Coordinates;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class Game implements Serializable {
     //private final Notifier<GameStatus> gameStatusNotifier;

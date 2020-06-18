@@ -1,6 +1,7 @@
 package it.polimi.ingsw.rpc;
 
 import it.polimi.ingsw.controller.NotExecutedException;
+import it.polimi.ingsw.models.InternalError;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -20,18 +21,12 @@ class Response implements Serializable {
         return sequenceNumber;
     }
 
-    public Serializable getResult() throws NotExecutedException, IOException {
+    public Serializable getResult() throws NotExecutedException {
         if (isException) {
             if (result instanceof NotExecutedException) {
                 throw (NotExecutedException) result;
             } else {
-                // remote peer's handler has failed with a possibly
-                // unrecoverable runtime exception, from perspective
-                // of local caller, remote peer will die soon.
-                // So I think here it's appropriate to throw an IOException
-                // and let the calling code handle it just like a network
-                // failure.
-                throw new IOException((RuntimeException)result);
+                throw new InternalError("Unexpected exception type " + result);
             }
         }
         return result;

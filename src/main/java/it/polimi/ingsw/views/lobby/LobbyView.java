@@ -1,26 +1,20 @@
 package it.polimi.ingsw.views.lobby;
 
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.lobby.LobbyController;
 
 import java.util.Collection;
 
-public abstract class LobbyView {
-    protected final LobbyController controller;
+public interface LobbyView {
 
-    protected LobbyView(LobbyController controller) {
-        this.controller = controller;
-    }
+    void displayAvailableRooms(Collection<String> roomNames);
 
-    public abstract void displayAvailableRooms(Collection<String> roomNames);
+    void displayUserList(Collection<String> userNames);
 
-    public abstract void displayUserList(Collection<String> userNames);
+    void notifyMessage(String author, String message);
 
-    public abstract void notifyMessage(String author, String message);
+    void notifyRoomChanged(String newRoomName);
 
-    public abstract void notifyRoomChanged(String newRoomName);
+    void displayRoomPlayerList(Collection<String> playerList);
 
-    public abstract void displayRoomPlayerList(Collection<String> playerList);
-
-    public abstract void notifyGameStarted(GameController gameController);
+    void notifyGameStarted(GameController gameController);
 }

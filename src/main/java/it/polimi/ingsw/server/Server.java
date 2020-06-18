@@ -2,8 +2,11 @@ package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.lobby.LobbyController;
+import it.polimi.ingsw.controller.lobby.LocalLobbyController;
+import it.polimi.ingsw.controller.lobby.rpc.RemoteControlledLobby;
 import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.rpc.RequestProcessor;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,8 +16,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Server {
-    private static final int PORT= 12345;
+    private static final int PORT = 12345;
     private ServerSocket serverSocket;
+    private final LobbyController lobby = new LocalLobbyController();
     private ExecutorService executor = Executors.newFixedThreadPool(128);
     private List<String> nicknames = new ArrayList<>();
     private Map<String, Socket> lobbyWaitingList = new HashMap<>();
@@ -25,23 +29,33 @@ public class Server {
         this.gameServers = new HashSet<>();
     }
 
-    public void run(){
+    public void run() {
         System.out.println("Server listening on port: " + PORT);
-        while(true){
+        while (true) {
             try {
                 Socket socket = serverSocket.accept();
-                TempLobby lobby = new TempLobby(socket, this);
-                executor.submit(lobby);
-            } catch (IOException e){
+                executor.submit(() -> this.handleClientConnection(socket));
+            } catch (IOException e) {
                 System.err.println("Connection error!");
             }
+        }
+    }
+
+    private void handleClientConnection(Socket newSocket) {
+        try (RequestProcessor processor = new RequestProcessor(newSocket);
+             RemoteControlledLobby lobby = new RemoteControlledLobby(processor, this.lobby)) {
+            processor.invokeAsync(() -> processor.addHandler(lobby));
+            processor.runEventLoop();
+        } catch (Exception e) {
+            System.err.println("Client connection terminated");
+            e.printStackTrace();
         }
     }
 
     public void lobby(Socket socket, String nickname) throws NotExecutedException, IOException {
         this.lobbyWaitingList.put(nickname, socket);
         this.nicknames.add(nickname);
-        if(this.lobbyWaitingList.size() == 3){
+        if (this.lobbyWaitingList.size() == 3) {
             System.out.println("We are ready for a Game!\nPlayers online:");
             this.nicknames.forEach(System.out::println);
             List<Socket> values = new ArrayList<>(lobbyWaitingList.values());
@@ -62,31 +76,31 @@ public class Server {
         }
     }
 
-    public void sendChooseGodsMessage(Game game){
+    public void sendChooseGodsMessage(Game game) {
         AvailableGodsChoice availableGodsChoice = new AvailableGodsChoice(game.getAvailableGods());
         this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
     }
 
-    public void sendPlacingMessage(Game game){
+    public void sendPlacingMessage(Game game) {
         WorldDisplay display = new WorldDisplay(game);
         this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
     }
 
-    public void sendUpdateWorldMessage(Game game){
+    public void sendUpdateWorldMessage(Game game) {
         WorldDisplay display = new WorldDisplay(game);
         this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
-    public void sendStartTurnMessage(){
+    public void sendStartTurnMessage() {
         AvailableWorkersDisplay display = new AvailableWorkersDisplay();
         this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
     }
 
-    public List<String> getNicknames(){
+    public List<String> getNicknames() {
         return this.nicknames;
     }
 
-    public void addNicknames(String n){
+    public void addNicknames(String n) {
         this.nicknames.add(n);
     }
 }

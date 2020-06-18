@@ -4,6 +4,8 @@ import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.lobby.*;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
+import java.io.IOException;
+
 
 public interface LobbyController {
 
@@ -17,7 +19,7 @@ public interface LobbyController {
      * @return a private {@link UserToken} which uniquely identifies the user
      * @throws NotExecutedException If the desired username is already been used.
      */
-    UserToken joinLobby(String username, LobbyView view) throws NotExecutedException;
+    UserToken joinLobby(String username, LobbyView view) throws NotExecutedException, IOException;
 
     /**
      * Leave the lobby.
@@ -25,7 +27,7 @@ public interface LobbyController {
      * @param userToken The token of user who wants to leave the lobby.
      * @throws NotExecutedException If user cannot leave from the lobby.
      */
-    void leaveLobby(UserToken userToken) throws NotExecutedException;
+    void leaveLobby(UserToken userToken) throws NotExecutedException, IOException;
 
     /**
      * Create a room.
@@ -33,7 +35,7 @@ public interface LobbyController {
      * @param userToken The token of user who wants to create a room.
      * @throws NotExecutedException If user cannot create this room.
      */
-    void createRoom(UserToken userToken) throws NotExecutedException;
+    void createRoom(UserToken userToken) throws NotExecutedException, IOException;
 
     /**
      * Join a room.
@@ -42,7 +44,7 @@ public interface LobbyController {
      * @param roomName  The name of room which the user wants to join.
      * @throws NotExecutedException If user cannot join this room.
      */
-    void joinRoom(UserToken userToken, String roomName) throws NotExecutedException;
+    void joinRoom(UserToken userToken, String roomName) throws NotExecutedException, IOException;
 
     /**
      * Leave the room.
@@ -51,7 +53,7 @@ public interface LobbyController {
      * @param userToken The token of user who wants leave the room.
      * @throws NotExecutedException If the user cannot leave this room.
      */
-    void leaveRoom(UserToken userToken) throws NotExecutedException;
+    void leaveRoom(UserToken userToken) throws NotExecutedException, IOException;
 
     /**
      * Change the position of a player inside the player list.
@@ -63,7 +65,7 @@ public interface LobbyController {
      */
     void changePlayerPosition(UserToken hostToken,
                               String targetUserName,
-                              int offset) throws NotExecutedException;
+                              int offset) throws NotExecutedException, IOException;
 
     /**
      * Kick the target player from the room.
@@ -72,7 +74,7 @@ public interface LobbyController {
      * @param targetUserName The victim to be kicked.
      * @throws NotExecutedException If the target player cannot be kicked
      */
-    void kickUser(UserToken hostToken, String targetUserName) throws NotExecutedException;
+    void kickUser(UserToken hostToken, String targetUserName) throws NotExecutedException, IOException;
 
     /**
      * Start the game with players inside the room.
@@ -80,5 +82,5 @@ public interface LobbyController {
      * @param hostToken The token of host. Only host can start the game.
      * @throws NotExecutedException If game cannot be started from this room.
      */
-    void startGame(UserToken hostToken) throws NotExecutedException;
+    void startGame(UserToken hostToken) throws NotExecutedException, IOException;
 }

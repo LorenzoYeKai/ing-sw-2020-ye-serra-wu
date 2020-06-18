@@ -103,7 +103,7 @@ public class RemoteCallTests implements AutoCloseable {
     @Timeout(1)
     @AfterEach
     @Override
-    public synchronized void close() throws IOException {
+    public void close() throws IOException, InterruptedException {
         // release resources
         if (this.reimu != null) {
             this.reimu.close();
@@ -118,11 +118,17 @@ public class RemoteCallTests implements AutoCloseable {
     public void requestNoHandlerTest() throws ExecutionException, InterruptedException {
         // remote handler should not fail
         Future<Void> future = Helpers.assertNotThrowsAsync(() ->
-                this.reimu.handleNextIncomingRequest());
+                this.reimu.runEventLoop()
+        );
         // this remote request should fail because there aren't any handlers
         // on another side
-        Assertions.assertThrows(NotExecutedException.class, () ->
-                this.alice.makeRequest(null));
+        this.alice.invokeAsync(() -> {
+            Assertions.assertThrows(NotExecutedException.class, () ->
+                    this.alice.remoteInvoke("Hello")
+            );
+            this.alice.requestStop();
+        });
+        Assertions.assertDoesNotThrow(() -> this.alice.runEventLoop());
         future.get();
     }
 
@@ -131,55 +137,65 @@ public class RemoteCallTests implements AutoCloseable {
     public void messageNoHandlerTest() throws ExecutionException, InterruptedException {
         // remote handlers should not fail
         Future<Void> future = Helpers.assertNotThrowsAsync(() ->
-                this.reimu.handleNextIncomingRequest());
+                this.reimu.runEventLoop()
+        );
         // this should not fail because with sendMessage we don't care if it
         // succeeded on the remote side or not
-        Assertions.assertDoesNotThrow(() -> this.alice.sendMessage(null));
+        this.alice.invokeAsync(() -> Assertions.assertDoesNotThrow(() -> {
+            this.alice.remoteNotify(null);
+            this.alice.requestStop();
+        }));
+        Assertions.assertDoesNotThrow(() -> this.alice.runEventLoop());
         future.get();
     }
 
     @Test
     @DisplayName("Test a simple request handler")
     public void simpleHandlerTest() throws ExecutionException, InterruptedException {
-        Future<Void> future = Helpers.assertNotThrowsAsync(() -> {
-            // creates a remote handler which multiplies the input by 3
-            RemoteCommandHandler handler =
-                    Helpers.buildHandler(Integer.class, i -> i * 3);
-            this.reimu.addHandler(handler);
-            this.reimu.handleNextIncomingRequest();
-            this.reimu.removeHandler(handler);
-        });
-        Assertions.assertDoesNotThrow(() -> {
-            int result = (int) this.alice.makeRequest(10);
+        // creates a remote handler which multiplies the input by 3
+        RemoteCommandHandler handler =
+                Helpers.buildHandler(Integer.class, i -> i * 3);
+        this.reimu.invokeAsync(() -> this.reimu.addHandler(handler));
+        Future<Void> future = Helpers.assertNotThrowsAsync(() ->
+                this.reimu.runEventLoop()
+        );
+        this.alice.invokeAsync(() -> Assertions.assertDoesNotThrow(() -> {
+            int result = (int) this.alice.remoteInvoke(10);
             // assert 10 * 3 = 30
             Assertions.assertEquals(result, 30);
-        });
+            this.alice.requestStop();
+        }));
+        Assertions.assertDoesNotThrow(() -> this.alice.runEventLoop());
         future.get();
     }
 
     @Test
     @DisplayName("Test complex call chain")
-    public void callChainTest() throws NotExecutedException, IOException, ExecutionException, InterruptedException {
+    public void callChainTest() throws ExecutionException, InterruptedException {
         RemoteCommandHandler aliceHandler = RemoteCallTests.getQuickSorter(this.alice);
         RemoteCommandHandler reimuHandler = RemoteCallTests.getQuickSorter(this.reimu);
 
-        this.alice.addHandler(aliceHandler);
-        this.reimu.addHandler(reimuHandler);
+        this.alice.invokeAsync(() -> this.alice.addHandler(aliceHandler));
+        this.reimu.invokeAsync(() -> this.reimu.addHandler(reimuHandler));
 
         Future<Void> future = Helpers.assertNotThrowsAsync(() ->
-                this.reimu.handleNextIncomingRequest());
+                this.reimu.runEventLoop()
+        );
         ArrayList<Integer> list = new ArrayList<>(List.of(1, 9, 4, 8, 0, 2, 5, 7, 3, 6));
         ArrayList<Integer> controlList = new ArrayList<>(list);
         controlList.sort(Comparator.naturalOrder());
-        Serializable testList = this.alice.makeRequest(list);
+        CompletableFuture<Serializable> testList = new CompletableFuture<>();
+        this.alice.invokeAsync(() -> Assertions.assertDoesNotThrow(() -> {
+            testList.complete(this.alice.remoteInvoke(list));
+            this.alice.requestStop();
+        }));
 
-        Assertions.assertEquals(controlList, testList);
+        Assertions.assertDoesNotThrow(() -> this.alice.runEventLoop());
+
+        Assertions.assertEquals(controlList, testList.get());
         Assertions.assertNotEquals(controlList, list);
 
         future.get();
-
-        this.alice.removeHandler(aliceHandler);
-        this.reimu.addHandler(reimuHandler);
     }
 
     // a quicksort that involves two peers
@@ -204,12 +220,12 @@ public class RemoteCallTests implements AutoCloseable {
             // let the other peer do the quicksort
             ArrayList<Integer> x = Assertions.assertDoesNotThrow(() -> {
                 // noinspection unchecked
-                return (ArrayList<Integer>) processor.makeRequest(less);
+                return (ArrayList<Integer>) processor.remoteInvoke(less);
             });
             // let the other peer do the quicksort
             ArrayList<Integer> y = Assertions.assertDoesNotThrow(() -> {
                 // noinspection unchecked
-                return (ArrayList<Integer>) processor.makeRequest(notLess);
+                return (ArrayList<Integer>) processor.remoteInvoke(notLess);
             });
             x.add(pivot);
             x.addAll(y);

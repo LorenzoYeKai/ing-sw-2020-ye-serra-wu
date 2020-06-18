@@ -1,5 +1,6 @@
 package it.polimi.ingsw.rpc;
 
+import it.polimi.ingsw.controller.NotExecutedException;
 import it.polimi.ingsw.models.InternalError;
 
 import java.io.Serializable;
@@ -82,7 +83,7 @@ class Request implements Serializable {
      * @param exception the error occurred when processing the request.
      * @return the generated {@link Response}
      */
-    public Response replyError(Exception exception) {
+    public Response replyError(NotExecutedException exception) {
         if (!this.needReply()) {
             throw new InternalError("this request doesn't need to be replied");
         }

@@ -53,7 +53,10 @@ public class Lobby {
         this.addListeners(user,
                 users -> user.getView().displayUserList(users),
                 rooms -> user.getView().displayAvailableRooms(rooms));
+        // notify all users (including the new user) about the updated player list
         this.usersChangedNotifier.notify(Collections.unmodifiableCollection(this.users.keySet()));
+        // notify (only) the new user about the room list
+        user.getView().displayAvailableRooms(Collections.unmodifiableCollection(this.stagingRooms.keySet()));
         return token;
     }
 
@@ -63,6 +66,9 @@ public class Lobby {
         }
 
         User user = this.usersByToken.get(userToken);
+        // in exceptional situations, user might leave the lobby even when inside a room
+        // then let him leave the room as well.
+        user.getCurrentRoomName().flatMap(this::getRoom).ifPresent(room -> room.leave(user));
 
         user.getView().notifyMessage("SYSTEM", "You are leaving the lobby");
         this.users.remove(user.getName());

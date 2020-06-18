@@ -17,7 +17,8 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public UserToken joinLobby(String username, LobbyView view) throws NotExecutedException {
+    public synchronized UserToken joinLobby(String username, LobbyView view)
+            throws NotExecutedException {
         if (this.lobby.getUser(username).isPresent()) {
             throw new NotExecutedException("Username already taken");
         }
@@ -26,14 +27,16 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void leaveLobby(UserToken userToken) throws NotExecutedException {
+    public synchronized void leaveLobby(UserToken userToken)
+            throws NotExecutedException {
         this.ensureLobbyHasUser(userToken);
 
         this.lobby.removeUser(userToken);
     }
 
     @Override
-    public void createRoom(UserToken userToken) throws NotExecutedException {
+    public synchronized void createRoom(UserToken userToken)
+            throws NotExecutedException {
         User user = this.ensureLobbyHasUser(userToken);
         this.throwIfAlreadyInRoom(user);
 
@@ -41,7 +44,8 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void joinRoom(UserToken userToken, String roomName) throws NotExecutedException {
+    public synchronized void joinRoom(UserToken userToken, String roomName)
+            throws NotExecutedException {
         User user = this.ensureLobbyHasUser(userToken);
         Room room = this.ensureRoomInLobby(roomName);
         this.throwIfAlreadyInRoom(user);
@@ -50,7 +54,8 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void leaveRoom(UserToken token) throws NotExecutedException {
+    public synchronized void leaveRoom(UserToken token)
+            throws NotExecutedException {
         User user = this.ensureLobbyHasUser(token);
         Optional<String> currentRoomName = user.getCurrentRoomName();
         if (currentRoomName.isEmpty()) {
@@ -62,9 +67,10 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void changePlayerPosition(UserToken hostToken,
-                                     String targetUserName,
-                                     int offset) throws NotExecutedException {
+    public synchronized void changePlayerPosition(UserToken hostToken,
+                                                  String targetUserName,
+                                                  int offset)
+            throws NotExecutedException {
         User target = this.ensureLobbyHasUser(targetUserName);
         Room room = this.ensureTargetInHostRoom(hostToken, target);
 
@@ -72,7 +78,8 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void kickUser(UserToken hostToken, String targetUserName) throws NotExecutedException {
+    public synchronized void kickUser(UserToken hostToken, String targetUserName)
+            throws NotExecutedException {
         User host = this.ensureLobbyHasUser(hostToken);
         User target = this.ensureLobbyHasUser(targetUserName);
         if (host.equals(target)) {
@@ -84,7 +91,8 @@ public class LocalLobbyController implements LobbyController {
     }
 
     @Override
-    public void startGame(UserToken hostToken) throws NotExecutedException {
+    public synchronized void startGame(UserToken hostToken)
+            throws NotExecutedException {
         Room room = this.ensureUserHostedRoom(hostToken);
         List<String> nameList = room.getUsers().stream()
                 .map(User::getName)

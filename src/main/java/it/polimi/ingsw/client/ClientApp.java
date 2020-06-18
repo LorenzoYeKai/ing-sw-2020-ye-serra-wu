@@ -1,5 +1,7 @@
 package it.polimi.ingsw.client;
 
+import it.polimi.ingsw.controller.NotExecutedException;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -17,8 +19,8 @@ public class ClientApp {
         Client client = new Client(ip, 12345);
         try{
             client.run();
-        }catch (IOException e){
-            System.err.println(e.getMessage());
+        } catch (IOException | InterruptedException | NotExecutedException e) {
+            e.printStackTrace();
         }
     }
 }
