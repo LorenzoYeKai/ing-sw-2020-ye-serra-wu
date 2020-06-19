@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class RequestProcessor implements AutoCloseable {
@@ -62,12 +63,16 @@ public class RequestProcessor implements AutoCloseable {
      * (after event loop finishes)
      *
      * @throws IOException          if close fails
-     * @throws InterruptedException if interrupted when closing
      */
     @Override
-    public void close() throws IOException, InterruptedException {
+    public void close() throws IOException {
         this.socket.close();
-        this.receiverThread.join();
+        try {
+            this.receiverThread.join();
+        }
+        catch (InterruptedException e) {
+            throw new InternalError(e);
+        }
     }
 
     /**
@@ -174,6 +179,11 @@ public class RequestProcessor implements AutoCloseable {
         }
     }
 
+    /**
+     * Run the event loop until the end, it will block in order to wait for
+     * next events
+     * @throws IOException if any I/O error occurs
+     */
     public void runEventLoop() throws IOException {
         if (!this.eventThread.compareAndSet(null, Thread.currentThread())) {
             throw new InternalError("runEventLoop should only be called once");
