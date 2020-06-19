@@ -1,4 +1,4 @@
-package it.polimi.ingsw.controller.lobby.rpc;
+package it.polimi.ingsw.controller.lobby.remote;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.lobby.LobbyController;

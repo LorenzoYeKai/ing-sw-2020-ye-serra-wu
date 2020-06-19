@@ -1,4 +1,4 @@
-package it.polimi.ingsw.rpc;
+package it.polimi.ingsw.requests;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.InternalError;
@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.Socket;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class RequestProcessor implements AutoCloseable {
@@ -21,7 +20,7 @@ public class RequestProcessor implements AutoCloseable {
     private final Thread receiverThread;
     private final Socket socket;
     private final ObjectOutputStream out;
-    private final List<RemoteCommandHandler> handlers = new ArrayList<>();
+    private final List<RemoteRequestHandler> handlers = new ArrayList<>();
     private final AtomicReference<Thread> eventThread = new AtomicReference<>();
 
     private long sequenceNumber = 0;
@@ -97,21 +96,21 @@ public class RequestProcessor implements AutoCloseable {
     }
 
     /**
-     * Add a {@link RemoteCommandHandler} to the request processor.
+     * Add a {@link RemoteRequestHandler} to the request processor.
      * This method should only be called from the event loop thread
-     * (through {@link RemoteCommandHandler} or {@link #invokeAsync(Runnable)}).
+     * (through {@link RemoteRequestHandler} or {@link #invokeAsync(Runnable)}).
      */
-    public void addHandler(RemoteCommandHandler handler) {
+    public void addHandler(RemoteRequestHandler handler) {
         this.checkThread();
         this.handlers.add(handler);
     }
 
     /**
-     * Remove a {@link RemoteCommandHandler} from the request processor.
+     * Remove a {@link RemoteRequestHandler} from the request processor.
      * This method should only be called from the event loop thread
-     * (through {@link RemoteCommandHandler} or {@link #invokeAsync(Runnable)}).
+     * (through {@link RemoteRequestHandler} or {@link #invokeAsync(Runnable)}).
      */
-    public void removeHandler(RemoteCommandHandler handler) {
+    public void removeHandler(RemoteRequestHandler handler) {
         this.checkThread();
         this.handlers.remove(handler);
     }
@@ -119,7 +118,7 @@ public class RequestProcessor implements AutoCloseable {
     /**
      * Make a remote request and waits for its result.
      * This method should only be called from the event loop thread
-     * (through {@link RemoteCommandHandler} or {@link #invokeAsync(Runnable)}).
+     * (through {@link RemoteRequestHandler} or {@link #invokeAsync(Runnable)}).
      *
      * @param command The command to be processed remotely.
      * @return The result of this request.
@@ -226,20 +225,20 @@ public class RequestProcessor implements AutoCloseable {
 
         Request request = (Request) input;
         Serializable command = request.getCommand();
-        Optional<RemoteCommandHandler> handler = this.handlers.stream()
+        Optional<RemoteRequestHandler> handler = this.handlers.stream()
                 .filter(x -> x.isProcessable(command)).findFirst();
         if (handler.isPresent()) {
             if (request.needReply()) {
                 Response response;
                 try {
-                    response = request.replyResult(handler.get().processCommand(command));
+                    response = request.replyResult(handler.get().processRequest(command));
                 } catch (NotExecutedException e) {
                     response = request.replyError(e);
                 }
                 this.out.writeObject(response);
             } else {
                 try {
-                    Serializable result = handler.get().processCommand(command);
+                    Serializable result = handler.get().processRequest(command);
                     if (result != null) {
                         // this request does not need to be replied, yet it
                         // generated a meaningful response, which might be an

@@ -1,4 +1,4 @@
-package it.polimi.ingsw.rpc;
+package it.polimi.ingsw.requests;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.InternalError;

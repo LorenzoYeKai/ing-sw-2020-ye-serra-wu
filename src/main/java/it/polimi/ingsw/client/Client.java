@@ -2,9 +2,9 @@ package it.polimi.ingsw.client;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.lobby.rpc.RemoteLobbyController;
+import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.InternalError;
-import it.polimi.ingsw.rpc.RequestProcessor;
+import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.ConsoleLobbyView;
 
 import java.io.IOException;
@@ -71,7 +71,7 @@ public class Client implements AutoCloseable {
         Scanner input = new Scanner(System.in);
         System.out.println("Type your username: ");
         String userName = input.nextLine();
-        RemoteLobbyController controller = new RemoteLobbyController(processor);
+        ClientLobbyController controller = new ClientLobbyController(processor);
         CompletableFuture<GameController> futureGame = new CompletableFuture<>();
         ConsoleLobbyView view = this.dispatch(() ->
                 new ConsoleLobbyView(userName,

@@ -1,8 +1,8 @@
 package it.polimi.ingsw.RemoteCallTest;
 
 import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.rpc.RemoteCommandHandler;
-import it.polimi.ingsw.rpc.RequestProcessor;
+import it.polimi.ingsw.requests.RemoteRequestHandler;
+import it.polimi.ingsw.requests.RequestProcessor;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -47,17 +47,17 @@ public class RemoteCallTests implements AutoCloseable {
             });
         }
 
-        static <T> RemoteCommandHandler buildHandler(Class<T> type,
+        static <T> RemoteRequestHandler buildHandler(Class<T> type,
                                                      Function<T, Serializable> handler) {
-            return new RemoteCommandHandler() {
+            return new RemoteRequestHandler() {
                 @Override
-                public boolean isProcessable(Object command) {
-                    return type.isInstance(command);
+                public boolean isProcessable(Object input) {
+                    return type.isInstance(input);
                 }
 
                 @Override
-                public Serializable processCommand(Object command) {
-                    return handler.apply(type.cast(command));
+                public Serializable processRequest(Object request) {
+                    return handler.apply(type.cast(request));
                 }
             };
         }
@@ -153,7 +153,7 @@ public class RemoteCallTests implements AutoCloseable {
     @DisplayName("Test a simple request handler")
     public void simpleHandlerTest() throws ExecutionException, InterruptedException {
         // creates a remote handler which multiplies the input by 3
-        RemoteCommandHandler handler =
+        RemoteRequestHandler handler =
                 Helpers.buildHandler(Integer.class, i -> i * 3);
         this.reimu.invokeAsync(() -> this.reimu.addHandler(handler));
         Future<Void> future = Helpers.assertNotThrowsAsync(() ->
@@ -172,8 +172,8 @@ public class RemoteCallTests implements AutoCloseable {
     @Test
     @DisplayName("Test complex call chain")
     public void callChainTest() throws ExecutionException, InterruptedException {
-        RemoteCommandHandler aliceHandler = RemoteCallTests.getQuickSorter(this.alice);
-        RemoteCommandHandler reimuHandler = RemoteCallTests.getQuickSorter(this.reimu);
+        RemoteRequestHandler aliceHandler = RemoteCallTests.getQuickSorter(this.alice);
+        RemoteRequestHandler reimuHandler = RemoteCallTests.getQuickSorter(this.reimu);
 
         this.alice.invokeAsync(() -> this.alice.addHandler(aliceHandler));
         this.reimu.invokeAsync(() -> this.reimu.addHandler(reimuHandler));
@@ -199,7 +199,7 @@ public class RemoteCallTests implements AutoCloseable {
     }
 
     // a quicksort that involves two peers
-    private static RemoteCommandHandler getQuickSorter(RequestProcessor processor) {
+    private static RemoteRequestHandler getQuickSorter(RequestProcessor processor) {
         return Helpers.buildHandler(ArrayList.class, l -> {
             // noinspection unchecked
             ArrayList<Integer> list = (ArrayList<Integer>) l;

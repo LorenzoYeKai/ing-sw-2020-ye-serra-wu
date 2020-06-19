@@ -4,9 +4,9 @@ import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.controller.lobby.LocalLobbyController;
-import it.polimi.ingsw.controller.lobby.rpc.RemoteControlledLobby;
+import it.polimi.ingsw.controller.lobby.remote.ServerLobbyController;
 import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.rpc.RequestProcessor;
+import it.polimi.ingsw.requests.RequestProcessor;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -43,7 +43,7 @@ public class Server {
 
     private void handleClientConnection(Socket newSocket) {
         try (RequestProcessor processor = new RequestProcessor(newSocket);
-             RemoteControlledLobby lobby = new RemoteControlledLobby(processor, this.lobby)) {
+             ServerLobbyController lobby = new ServerLobbyController(processor, this.lobby)) {
             processor.invokeAsync(() -> processor.addHandler(lobby));
             processor.runEventLoop();
         } catch (Exception e) {

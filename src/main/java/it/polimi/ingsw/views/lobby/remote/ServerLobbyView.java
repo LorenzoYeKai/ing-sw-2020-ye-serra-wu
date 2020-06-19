@@ -1,18 +1,24 @@
-package it.polimi.ingsw.views.lobby.rpc;
+package it.polimi.ingsw.views.lobby.remote;
 
 import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.rpc.RequestProcessor;
+import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.io.IOException;
 import java.util.Collection;
 
-
-public class RemoteLobbyViewProvider implements LobbyView {
+/**
+ * Represents the server side of lobby connection. As the name suggests, it
+ * should be instantiated at the server side.
+ * On the server, it's used like a normal {@link LobbyView}, but it actually
+ * forwards all notifications to the actual client through the connected
+ * {@link ClientLobbyView}.
+ */
+public class ServerLobbyView implements LobbyView {
     private final RequestProcessor connection;
     private boolean valid = true;
 
-    public RemoteLobbyViewProvider(RequestProcessor connection) {
+    public ServerLobbyView(RequestProcessor connection) {
         this.connection = connection;
     }
 

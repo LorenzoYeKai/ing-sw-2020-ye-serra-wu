@@ -1,23 +1,29 @@
-package it.polimi.ingsw.controller.lobby.rpc;
+package it.polimi.ingsw.controller.lobby.remote;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.lobby.LobbyController;
 import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.lobby.UserToken;
-import it.polimi.ingsw.rpc.RequestProcessor;
+import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.LobbyView;
-import it.polimi.ingsw.views.lobby.rpc.RemoteLobbyView;
+import it.polimi.ingsw.views.lobby.remote.ClientLobbyView;
 
 import java.io.IOException;
 
-import static it.polimi.ingsw.controller.lobby.rpc.RemoteCommandType.*;
+import static it.polimi.ingsw.controller.lobby.remote.RemoteCommandType.*;
 
-
-public class RemoteLobbyController implements LobbyController {
+/**
+ * Represents the client-side endpoint of lobby connection.
+ * i.e. it should be instantiated at the client side and it should be used as
+ * a LobbyController.
+ * @see ServerLobbyController
+ * @see LobbyController
+ */
+public class ClientLobbyController implements LobbyController {
     private final RequestProcessor connection;
-    private RemoteLobbyView view;
+    private ClientLobbyView view;
 
-    public RemoteLobbyController(RequestProcessor connection) {
+    public ClientLobbyController(RequestProcessor connection) {
         this.connection = connection;
     }
 
@@ -28,7 +34,7 @@ public class RemoteLobbyController implements LobbyController {
         if (this.view != null) {
             throw new InternalError("RemoteLobbyController already being used");
         }
-        this.view = new RemoteLobbyView(view);
+        this.view = new ClientLobbyView(view);
         this.connection.addHandler(this.view);
         JoinCommand command = new JoinCommand(username);
         try {

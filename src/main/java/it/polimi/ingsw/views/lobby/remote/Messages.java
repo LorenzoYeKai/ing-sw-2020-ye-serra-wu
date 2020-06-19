@@ -1,4 +1,4 @@
-package it.polimi.ingsw.views.lobby.rpc;
+package it.polimi.ingsw.views.lobby.remote;
 
 import it.polimi.ingsw.views.lobby.LobbyView;
 
