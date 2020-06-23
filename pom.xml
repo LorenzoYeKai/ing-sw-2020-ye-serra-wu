@@ -37,6 +37,16 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>11.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>11.0.2</version>
+    </dependency>
   </dependencies>
 
   <!--
@@ -89,6 +99,7 @@
               </excludes>
             </configuration>
           </plugin>
+
           <!-- set the final name and the main class of client jar -->
           <plugin>
             <artifactId>maven-shade-plugin</artifactId>
@@ -186,6 +197,14 @@
           </filters>
           <!-- don't generate extra useless files -->
           <createDependencyReducedPom>false</createDependencyReducedPom>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.1</version>
+        <configuration>
+          <mainClass>it.polimi.ingsw.GUIApp</mainClass>
         </configuration>
       </plugin>
     </plugins>

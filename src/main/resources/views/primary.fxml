@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="primaryLayout" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@../style/primary.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.GUI.TestController">
+   <center>
+      <GridPane fx:id="boardGrid" BorderPane.alignment="CENTER">
+        <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Button mnemonicParsing="false" text="Button" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="4" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.rowIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.rowIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.rowIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.rowIndex="4" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <Button layoutX="10.0" layoutY="28.0" mnemonicParsing="false" text="Button" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+         </children>
+      </GridPane>
+   </center>
+   <top>
+      <HBox fx:id="topArea" prefHeight="52.0" prefWidth="600.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="lowResButton" mnemonicParsing="false" onAction="#setLowRes" text="640x480" />
+            <Button fx:id="hdButton" mnemonicParsing="false" onAction="#setHd" text="1280x720" />
+            <Button fx:id="fullHdButton" mnemonicParsing="false" onAction="#setFullHd" text="1920x1080" />
+            <Button fx:id="fullScreenButton" mnemonicParsing="false" onAction="#setFullScreen" text="Full Screen" />
+         </children>
+      </HBox>
+   </top>
+   <bottom>
+      <HBox fx:id="bottomArea" prefHeight="43.0" prefWidth="600.0" BorderPane.alignment="CENTER" />
+   </bottom>
+   <left>
+      <VBox fx:id="leftArea" prefHeight="305.0" prefWidth="170.0" BorderPane.alignment="CENTER" />
+   </left>
+   <right>
+      <VBox fx:id="rightArea" prefHeight="200.0" prefWidth="171.0" BorderPane.alignment="CENTER" />
+   </right>
+</BorderPane>
