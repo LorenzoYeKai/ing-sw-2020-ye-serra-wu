@@ -40,7 +40,7 @@ public class ControllerTest {
     }
 
     @Test
-    @DisplayName("Aggiuntapoteri alla partita")
+    @DisplayName("Aggiunta poteri alla partita")
     void removeAvailableGodsTest() {
         assertFalse(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
         controller.addAvailableGods(GodType.APOLLO);
