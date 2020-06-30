@@ -1,14 +1,21 @@
 package it.polimi.ingsw.GUI;
 
+import javafx.animation.PauseTransition;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -75,12 +82,29 @@ public class TestController implements Initializable{
         rightArea.setPrefWidth(540);
     }
 
+    private void chooseGod(){
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/chooseGod.fxml"));
+        try {
+            Parent chooseGodLoader = loader.load();
+            Scene chooseGodScene = new Scene(chooseGodLoader);
+            Stage chooseGodWindow = new Stage();
+            chooseGodWindow.initModality(Modality.APPLICATION_MODAL);
+            chooseGodWindow.setScene(chooseGodScene);
+            chooseGodWindow.show();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("ciao");
-        bottomArea.setPrefHeight(54);
-        topArea.setPrefHeight(54);
-        leftArea.setPrefWidth(175);
-        rightArea.setPrefWidth(175);
+        bottomArea.setPrefHeight(80);
+        topArea.setPrefHeight(80);
+        leftArea.setPrefWidth(350);
+        rightArea.setPrefWidth(350);
+        PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
+        delay.setOnFinished(e -> chooseGod());
+        delay.play();
     }
 }
