@@ -1,5 +1,6 @@
 package it.polimi.ingsw.GUI;
 
+import it.polimi.ingsw.NotExecutedException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,22 +34,9 @@ public class LoginController implements Initializable {
         GUIApp.setRoot("/views/serverChoiceScreen");
     }
 
-    public void enterName(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/views/lobby.fxml"));
-        Parent lobby = loader.load();
-
-        //access LobbyGUIController and passing the username
-
-        LobbyGUIController lobbyController = loader.getController();
-        lobbyController.initData(usernameTextField.getText());
-
-
-        Scene lobbyScene = new Scene(lobby);
-
+    public void enterName(ActionEvent event) throws IOException, NotExecutedException {
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        window.setScene(lobbyScene);
-        window.show();
+        GUIApp.getClient().run(usernameTextField.getText(), window);
     }
 
 }

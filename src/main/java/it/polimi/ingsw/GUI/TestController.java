@@ -1,6 +1,7 @@
 package it.polimi.ingsw.GUI;
 
 import javafx.animation.PauseTransition;
+import javafx.beans.InvalidationListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -21,6 +22,8 @@ import java.util.ResourceBundle;
 
 public class TestController implements Initializable{
 
+
+    private Stage stage;
 
     public Button lowResButton;
 
@@ -44,7 +47,6 @@ public class TestController implements Initializable{
 
 
     public void setLowRes(){
-        Stage stage = (Stage) lowResButton.getScene().getWindow();
         stage.setWidth(640);
         stage.setHeight(480);
         bottomArea.setPrefHeight(54);
@@ -54,7 +56,6 @@ public class TestController implements Initializable{
     }
 
     public void setHd(){
-        Stage stage = (Stage) hdButton.getScene().getWindow();
         stage.setWidth(1280);
         stage.setHeight(720);
         bottomArea.setPrefHeight(80);
@@ -64,9 +65,9 @@ public class TestController implements Initializable{
     }
 
     public void setFullHd(){
-        Stage stage = (Stage) fullHdButton.getScene().getWindow();
         stage.setWidth(1920);
         stage.setHeight(1080);
+
         bottomArea.setPrefHeight(120);
         topArea.setPrefHeight(120);
         leftArea.setPrefWidth(540);
@@ -74,7 +75,6 @@ public class TestController implements Initializable{
     }
 
     public void setFullScreen(){
-        Stage stage = (Stage) fullScreenButton.getScene().getWindow();
         stage.setFullScreen(true);
         bottomArea.setPrefHeight(120);
         topArea.setPrefHeight(120);
@@ -94,6 +94,11 @@ public class TestController implements Initializable{
         } catch (IOException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    public void init(Stage stage){
+        this.stage = stage;
+
     }
 
     @Override

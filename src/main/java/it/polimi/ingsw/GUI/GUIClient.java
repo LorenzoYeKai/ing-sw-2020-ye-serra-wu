@@ -7,6 +7,12 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.ConsoleLobbyView;
+import it.polimi.ingsw.views.lobby.GUILobbyView;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -67,25 +73,35 @@ public class GUIClient implements AutoCloseable {
         }
     }
 
-    public void run() throws IOException {
-        GUIApp.setRoot("/views/primary");
-        /*Scanner input = new Scanner(System.in);
-        System.out.println("Type your username: ");
-        String userName = input.nextLine();
+    public void run(String userName, Stage window) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/lobby.fxml"));
+        Parent lobby = loader.load();
+
+        //access LobbyGUIController and passing the username
+
+        LobbyGUIController lobbyController = loader.getController();
+        lobbyController.initData(userName, processor, eventThread);
+
+        Scene lobbyScene = new Scene(lobby);
+
+        window.setScene(lobbyScene);
+        window.show();
+
         ClientLobbyController controller = new ClientLobbyController(processor);
         CompletableFuture<GameController> futureGame = new CompletableFuture<>();
-        ConsoleLobbyView view = this.dispatch(() ->
-                new ConsoleLobbyView(userName,
-                        controller, System.out, futureGame::complete)
+
+        GUILobbyView view = this.dispatch(() ->
+                new GUILobbyView(userName,
+                        controller, lobbyController, futureGame::complete)
         );
-        while (!futureGame.isDone()) {
+        /*while (!futureGame.isDone()) {
             this.dispatch(() -> {
                 view.displaySummary();
-                view.displayInputHint();
                 return null;
             });
 
-            String line = input.nextLine().strip();
+            /*String line = input.nextLine().strip();
             if (line.isEmpty()) {
                 continue;
             }
@@ -103,8 +119,9 @@ public class GUIClient implements AutoCloseable {
                 }
                 return null;
             });
-        }
-        System.out.println("Got game controller (Not implemented yet");
+        //}
+
+        System.out.println("Got game controller (Not implemented yet)");
         this.processor.requestStop();
         try {
             this.eventThread.join();
