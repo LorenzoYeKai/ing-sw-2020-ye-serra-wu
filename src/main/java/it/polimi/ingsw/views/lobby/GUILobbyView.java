@@ -12,13 +12,15 @@ import java.util.function.Consumer;
 
 public class GUILobbyView implements LobbyView {
 
+
+
     private final Set<String> lobbyUsers;
     private final Set<String> lobbyRooms;
     private final List<String> playersInTheRoom;
     private final LobbyController controller;
     private final String userName;
     private final UserToken token;
-    private final LobbyGUIController lobbyGUIController;
+    private LobbyGUIController lobbyGUIController;
 
     private final Consumer<GameController> onGameStarted;
 
@@ -66,6 +68,19 @@ public class GUILobbyView implements LobbyView {
         return this.lobbyGUIController;
     }
 
+    public Set<String> getLobbyUsers() {
+        return lobbyUsers;
+    }
+
+    public Set<String> getLobbyRooms() {
+        return lobbyRooms;
+    }
+
+    public void setLobbyGUIController(LobbyGUIController lobbyGUIController){
+        this.lobbyGUIController = lobbyGUIController;
+    }
+
+
     @Override
     public void displayAvailableRooms(Collection<String> roomNames) {
         this.lobbyRooms.clear();
@@ -88,7 +103,8 @@ public class GUILobbyView implements LobbyView {
 
     @Override
     public void notifyMessage(String author, String message) {
-
+        System.out.println("[" + author + "]: " + message);
+        lobbyGUIController.receiveMessage("[" + author + "]: " + message);
     }
 
     @Override

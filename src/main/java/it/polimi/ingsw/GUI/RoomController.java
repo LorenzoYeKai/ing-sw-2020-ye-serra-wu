@@ -5,22 +5,19 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.CountDownLatch;
 
 public class RoomController {
@@ -51,7 +48,9 @@ public class RoomController {
 
     public AnchorPane roomScene;
 
-    private Label selectedLabel;
+    public Label usernameLabel;
+
+    private Label selectedPlayer;
 
 
     public void initData(String username, GUIClient client, GUILobbyView view, String hostName) {
@@ -61,6 +60,7 @@ public class RoomController {
         this.startGameButton.setDisable(true);
         this.kickButton.setDisable(true);
         this.isHost = username.equals(hostName);
+        this.usernameLabel.setText("Your username: " + username);
         if(this.isHost){
             welcomeMessage.setText("Welcome! You are the host of this room");
         }
@@ -69,42 +69,51 @@ public class RoomController {
             roomScene.getChildren().remove(kickButton);
             roomScene.getChildren().remove(startGameButton);
         }
-        this.selectedLabel = null;
+        this.selectedPlayer = null;
     }
 
 
     public void playerSelected(MouseEvent mouseEvent) {
         if(isHost) {
             Label source = (Label) mouseEvent.getSource();
-            if (selectedLabel != null) {//if a player is already selected
-                if (selectedLabel.equals(source)) { //if it's the same player, deselect's it
+            if (selectedPlayer != null) {//if a player is already selected
+                if (selectedPlayer.equals(source)) { //if it's the same player, deselect's it
                     source.setStyle("-fx-background-color: transparent;");
-                    selectedLabel = null;
+                    selectedPlayer = null;
                     kickButton.setDisable(true);
                 } else { //if is another player
                     source.setStyle("-fx-background-color: rgba(99, 99, 102, 0.5);");
-                    selectedLabel.setStyle("-fx-background-color: transparent;");
-                    selectedLabel = source;
-                    kickButton.setDisable(selectedLabel.getText().equals("Empty"));
+                    selectedPlayer.setStyle("-fx-background-color: transparent;");
+                    selectedPlayer = source;
+                    kickButton.setDisable(selectedPlayer.getText().equals("Empty") || selectedPlayer.getText().equals(username));
                 }
             } else {//if there is not a selected player yet
                 source.setStyle("-fx-background-color: rgba(99, 99, 102, 0.5);");
-                selectedLabel = source;
-                kickButton.setDisable(selectedLabel.getText().equals("Empty"));
+                selectedPlayer = source;
+                kickButton.setDisable(selectedPlayer.getText().equals("Empty") || selectedPlayer.getText().equals(username));
             }
         }
     }
 
     public void kickPlayer(ActionEvent event) {
-
+        this.client.viewInputExec(this.view, "kick", this.selectedPlayer.getText());
+        selectedPlayer.setStyle("-fx-background-color: transparent;");
+        selectedPlayer = null;
+        kickButton.setDisable(true);
+        if(view.getPlayersInTheRoom().size() < 2){
+            startGameButton.setDisable(true);
+        }
     }
 
     public void leaveRoom(ActionEvent event) throws IOException {
+        this.client.viewInputExec(this.view, "leave", "");
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/views/lobby.fxml"));
         Parent lobby = loader.load();
 
-        loader.setController(this.view.getLobbyGUIController());
+        //loader.setController(this.view.getLobbyGUIController());
+        LobbyGUIController controller = loader.getController();
+        controller.returnFromRoom(username, client, this.view);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
@@ -112,7 +121,6 @@ public class RoomController {
 
         window.setScene(lobbyScene);
         window.show();
-        this.client.viewInputExec(this.view, "leave", "");
     }
 
     public void startGame(ActionEvent event) throws IOException {
@@ -164,7 +172,7 @@ public class RoomController {
                                         startGameButton.setDisable(false);
                                     }
                                     else{
-                                        throw new IndexOutOfBoundsException("Something gone wrong...");
+                                        System.out.println("Something gone wrong...");
                                     }
                                 } catch (IndexOutOfBoundsException e) {
                                     e.printStackTrace();
@@ -182,4 +190,54 @@ public class RoomController {
         };
         service.start();
     }
+
+    public void kicked(String message)  {
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
+                                    alert.setTitle("Message");
+                                    alert.setHeaderText("You received a message!");
+                                    alert.showAndWait();
+                                    FXMLLoader loader = new FXMLLoader();
+                                    loader.setLocation(getClass().getResource("/views/lobby.fxml"));
+                                    Parent lobby = loader.load();
+
+                                    //loader.setController(this.view.getLobbyGUIController());
+                                    LobbyGUIController controller = loader.getController();
+                                    controller.returnFromRoom(username, client, view);
+
+                                    Stage window = (Stage) roomScene.getScene().getWindow();
+
+                                    Scene lobbyScene = new Scene(lobby);
+
+                                    window.setScene(lobbyScene);
+                                    window.show();
+                                    client.viewInputExec(view, "leave", "");
+                                } catch (IndexOutOfBoundsException | IOException e) {
+                                    e.printStackTrace();
+                                } finally{
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
+    }
+
 }

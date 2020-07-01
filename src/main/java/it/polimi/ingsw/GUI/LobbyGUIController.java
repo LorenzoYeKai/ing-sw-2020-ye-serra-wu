@@ -1,6 +1,7 @@
 package it.polimi.ingsw.GUI;
 
 import it.polimi.ingsw.views.lobby.GUILobbyView;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -14,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
@@ -245,10 +247,23 @@ public class LobbyGUIController {
         view.getPlayersInTheRoom().forEach(System.out::println);
     }
 
-    public void returnFromRoom(){
+    public void returnFromRoom(String username, GUIClient client, GUILobbyView view){ //reload the previous state of the lobby after leaving a room
+        this.initData(username, client);
+        this.setView(view);
+        this.view.setLobbyGUIController(this);
+        this.onlinePlayers = this.view.getLobbyUsers();
+        this.availableRooms = this.view.getLobbyRooms();
         updateOnlinePlayers();
         updateAvailableRooms();
+        System.out.println("online players: ");
+        this.onlinePlayers.forEach(System.out::println);
     }
 
+    public void receiveMessage(String message){
+        if(message.endsWith("kicked") || message.equals("[SYSTEM]: Host has left the room")){
+            this.roomController.kicked(message);
+            System.out.println("kick message received");
+        }
+    }
 }
 

@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -26,6 +27,8 @@ public class LoginController implements Initializable {
 
     public Button enterNameButton;
 
+    public Label welcomeMessage;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         
@@ -35,9 +38,14 @@ public class LoginController implements Initializable {
         GUIApp.setRoot("/views/serverChoiceScreen");
     }
 
-    public void enterName(ActionEvent event) throws IOException {
-        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        GUIApp.getClient().run(usernameTextField.getText(), window);
+    public void enterName(ActionEvent event) {
+        try {
+            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+            GUIApp.getClient().run(usernameTextField.getText(), window);
+        }catch (Exception e){
+            this.welcomeMessage.setText("This username is already taken!");
+            welcomeMessage.setStyle("-fx-text-fill: red");
+        }
 
     }
 

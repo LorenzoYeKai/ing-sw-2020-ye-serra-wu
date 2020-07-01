@@ -83,11 +83,6 @@ public class GUIClient implements AutoCloseable {
         LobbyGUIController lobbyController = loader.getController();
         lobbyController.initData(userName, this);
 
-        Scene lobbyScene = new Scene(lobby);
-
-        window.setScene(lobbyScene);
-        window.show();
-
         ClientLobbyController controller = new ClientLobbyController(processor);
         CompletableFuture<GameController> futureGame = new CompletableFuture<>();
 
@@ -95,6 +90,13 @@ public class GUIClient implements AutoCloseable {
                 new GUILobbyView(userName,
                         controller, lobbyController, futureGame::complete)
         );
+
+        Scene lobbyScene = new Scene(lobby);
+
+        window.setScene(lobbyScene);
+        window.show();
+
+
         /*while (!futureGame.isDone()) {
             this.dispatch(() -> {
                 view.displaySummary();

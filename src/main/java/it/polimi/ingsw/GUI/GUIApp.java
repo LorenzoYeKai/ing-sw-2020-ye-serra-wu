@@ -17,6 +17,7 @@ public class GUIApp extends Application {
     public void start(Stage stage) throws Exception {
         scene = new Scene(loadFXML("/views/serverChoiceScreen"));
         stage.setScene(scene);
+        stage.setTitle("Santorini");
         stage.setResizable(false);
         stage.setMinHeight(720);
         stage.setMinWidth(1280);
