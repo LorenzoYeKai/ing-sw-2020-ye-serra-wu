@@ -18,6 +18,7 @@
                </font>
             </Label>
             <VBox fx:id="playerListBox" layoutX="220.0" layoutY="40.0" prefHeight="310.0" prefWidth="540.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
+            <Button layoutX="474.0" layoutY="8.0" mnemonicParsing="false" text="Update" />
          </children>
       </AnchorPane>
       <AnchorPane fx:id="roomList" layoutX="866.0" layoutY="79.0" prefHeight="350.0" prefWidth="540.0" AnchorPane.rightAnchor="50.0" AnchorPane.topAnchor="100.0">
@@ -28,6 +29,7 @@
                </font>
             </Label>
             <VBox fx:id="roomListBox" layoutX="81.0" layoutY="65.0" prefHeight="310.0" prefWidth="540.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
+            <Button layoutX="480.0" layoutY="8.0" mnemonicParsing="false" onAction="#updateAvailableRooms" text="Update" />
          </children>
       </AnchorPane>
       <HBox prefHeight="40.0" prefWidth="1260.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
@@ -42,7 +44,6 @@
          </children>
       </HBox>
       <Button layoutX="507.0" layoutY="566.0" mnemonicParsing="false" onAction="#createRoom" text="Create room" />
-      <Button layoutX="690.0" layoutY="566.0" mnemonicParsing="false" onAction="#joinRoom" text="Join room" />
-      <Button layoutX="602.0" layoutY="635.0" mnemonicParsing="false" onAction="#startGame" text="Start Game" />
+      <Button fx:id="joinButton" layoutX="690.0" layoutY="566.0" mnemonicParsing="false" onAction="#joinRoom" text="Join room" />
    </children>
 </AnchorPane>

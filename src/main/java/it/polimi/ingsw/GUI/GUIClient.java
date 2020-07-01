@@ -81,7 +81,7 @@ public class GUIClient implements AutoCloseable {
         //access LobbyGUIController and passing the username
 
         LobbyGUIController lobbyController = loader.getController();
-        lobbyController.initData(userName, processor, eventThread);
+        lobbyController.initData(userName, this);
 
         Scene lobbyScene = new Scene(lobby);
 
@@ -128,5 +128,26 @@ public class GUIClient implements AutoCloseable {
         } catch (InterruptedException e) {
             throw new InternalError(e);
         }*/
+    }
+
+    public void stopProcessor(){
+        System.out.println("Got game controller (Not implemented yet)");
+        this.processor.requestStop();
+        try {
+            this.eventThread.join();
+        } catch (InterruptedException e) {
+            throw new InternalError(e);
+        }
+    }
+
+    public void viewInputExec(GUILobbyView view, String command, String data){
+        this.dispatch(() -> {
+            try {
+                view.executeInput(command, data);
+            } catch (NotExecutedException e) {
+                System.out.println(e.getMessage());
+            }
+            return null;
+        });
     }
 }

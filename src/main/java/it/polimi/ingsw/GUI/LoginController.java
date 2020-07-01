@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 public class LoginController implements Initializable {
 
@@ -34,9 +35,10 @@ public class LoginController implements Initializable {
         GUIApp.setRoot("/views/serverChoiceScreen");
     }
 
-    public void enterName(ActionEvent event) throws IOException, NotExecutedException {
+    public void enterName(ActionEvent event) throws IOException {
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
         GUIApp.getClient().run(usernameTextField.getText(), window);
+
     }
 
 }

@@ -24,6 +24,7 @@ public class TestController implements Initializable{
 
 
     private Stage stage;
+    private int numberOfPlayers;
 
     public Button lowResButton;
 
@@ -96,9 +97,9 @@ public class TestController implements Initializable{
         }
     }
 
-    public void init(Stage stage){
+    public void init(Stage stage, int numberOfPlayers){
         this.stage = stage;
-
+        this.numberOfPlayers = numberOfPlayers;
     }
 
     @Override

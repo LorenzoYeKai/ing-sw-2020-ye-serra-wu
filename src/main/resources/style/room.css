@@ -1,0 +1,9 @@
+.root{
+    -fx-background-image: url("../images/santoriniBGBlurred.png");
+    -fx-background-size: 100% 100%;
+}
+
+#players{
+    -fx-background-color: rgba(221, 221, 221, 0.7);
+}
+

@@ -1,39 +1,37 @@
 package it.polimi.ingsw.GUI;
 
-import it.polimi.ingsw.InternalError;
-import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.client.Client;
-import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.lobby.LobbyController;
-import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
-import it.polimi.ingsw.models.lobby.UserToken;
-import it.polimi.ingsw.requests.RequestProcessor;
-import it.polimi.ingsw.views.lobby.LobbyView;
+import it.polimi.ingsw.views.lobby.GUILobbyView;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class LobbyGUIController {
 
-    private LobbyController controller;
-
-    private  UserToken token;
+    private GUILobbyView view;
 
     private String username;
 
-    private RequestProcessor processor;
+    private GUIClient client;
 
-    private Thread eventThread;
+    private Set<String> onlinePlayers;
+
+    private Set<String> availableRooms;
+
+    private RoomController roomController;
 
     public VBox playerListBox;
 
@@ -41,55 +39,69 @@ public class LobbyGUIController {
 
     public Label usernameLabel;
 
+    public Button joinButton;
+
     private List<Label> onlinePlayersLabels;
 
-    private List<Label> availableRoomsButtons;
+    private List<Label> availableRoomsLabels;
+
+    private Label selectedRoom;
 
 
-    public void initData(String username, RequestProcessor processor, Thread eventThread) {
+    public void initData(String username, GUIClient client) {
         this.username = username;
         usernameLabel.setText("Your username: " + this.username);
         this.onlinePlayersLabels = new ArrayList<>();
-        this.availableRoomsButtons = new ArrayList<>();
-        this.processor = processor;
-        this.eventThread = eventThread;
+        this.onlinePlayers = new TreeSet<>();
+        this.availableRoomsLabels = new ArrayList<>();
+        this.availableRooms = new TreeSet<>();
+        this.client = client;
+        this.selectedRoom = null;
+        this.roomController = null;
+        this.joinButton.setDisable(true);
+        //updateOnlinePlayers();
+
     }
 
-    public void createRoom(ActionEvent actionEvent) {
-        addPlayer("newPlayer");
-        System.out.println("Create Room");
-    }
-
-    public void joinRoom(ActionEvent actionEvent){
-        /*if(getNumberOfOnlinePlayers() > 0) {
-            Button toBeRemovedButton = onlinePlayersButtons.get(0);
-            playerListBox.getChildren().remove(toBeRemovedButton);
-            onlinePlayersButtons.remove(toBeRemovedButton);
-        }
-        System.out.println("Number of players online: " + getNumberOfOnlinePlayers());*/
-        System.out.println("joinRoom");
-    }
-
-    public void startGame(ActionEvent actionEvent) throws IOException {
+    public void createRoom(ActionEvent actionEvent) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/views/primary.fxml"));
+        loader.setLocation(getClass().getResource("/views/room.fxml"));
         Parent lobby = loader.load();
 
+        //access LobbyGUIController and passing the username
+
+        this.roomController = loader.getController();
+        this.roomController.initData(username, client, view, username);
+
         Stage window = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
-        TestController controller = loader.getController();
-        controller.init(window);
 
         Scene lobbyScene = new Scene(lobby);
 
         window.setScene(lobbyScene);
         window.show();
-        System.out.println("Got game controller (Not implemented yet)");
-        this.processor.requestStop();
-        try {
-            this.eventThread.join();
-        } catch (InterruptedException e) {
-            throw new InternalError(e);
-        }
+
+        this.client.viewInputExec(this.view, "host", "");
+    }
+
+    public void joinRoom(ActionEvent actionEvent) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/room.fxml"));
+        Parent lobby = loader.load();
+
+        //access LobbyGUIController and passing the username
+
+        this.roomController = loader.getController();
+        this.roomController.initData(username, client, view, selectedRoom.getText());
+
+        Stage window = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
+
+        Scene lobbyScene = new Scene(lobby);
+
+        window.setScene(lobbyScene);
+        window.show();
+
+        this.client.viewInputExec(this.view, "join", selectedRoom.getText());
+        System.out.println("joinRoom");
     }
 
     public String getUsername(){
@@ -101,55 +113,142 @@ public class LobbyGUIController {
     }
 
     public int getNumberOfAvailableRooms (){
-        return availableRoomsButtons.size();
+        return availableRoomsLabels.size();
     }
 
-    public void addPlayer(String username){
-        Label label = new Label(username); //the text on the button will be the player's name that will be acquired from the server in the real method
-        label.setPrefWidth(540);
-        label.setId(label.getText());
-        onlinePlayersLabels.add(label);
-        playerListBox.getChildren().add(label);
-        System.out.println("Number of players online: " + getNumberOfOnlinePlayers());
+    public void updateOnlinePlayers()  {
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    if(!onlinePlayersLabels.isEmpty()) {
+                                        playerListBox.getChildren().clear();
+                                        onlinePlayersLabels.clear();
+                                    }
+                                    onlinePlayers.forEach(this::addPlayer);
+                                }finally{
+                                    latch.countDown();
+                                }
+                            }
+
+                            private void addPlayer(String username){
+                                Label label = new Label(username); //the text on the button will be the player's name that will be acquired from the server in the real method
+                                label.setPrefWidth(540);
+                                label.setId(label.getText());
+                                onlinePlayersLabels.add(label);
+                                playerListBox.getChildren().add(label);
+                                System.out.println("Number of players online: " + getNumberOfOnlinePlayers());
+                            }
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
     }
 
-    /*public void updateOnlinePlayers(Collection<String> userNames){
-        if(!onlinePlayersLabels.isEmpty()) {
-            playerListBox.getChildren().clear();
-            onlinePlayersLabels.clear();
+    public void updateAvailableRooms(){
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    if(!availableRoomsLabels.isEmpty()) {
+                                        roomListBox.getChildren().clear();
+                                        availableRoomsLabels.clear();
+                                    }
+                                    availableRooms.forEach(this::addRoom);
+                                }finally{
+                                    latch.countDown();
+                                }
+                            }
+
+                            private void addRoom(String roomName){
+                                Label label = new Label(roomName); //the text on the button will be the player's name that will be acquired from the server in the real method
+                                label.setPrefWidth(540);
+                                label.setId(roomName + "Room");
+                                label.setOnMouseClicked(this::roomSelected);
+                                availableRoomsLabels.add(label);
+                                roomListBox.getChildren().add(label);
+                                System.out.println("Number rooms available: " + getNumberOfAvailableRooms());
+                            }
+
+                            private void roomSelected(MouseEvent mouseEvent){
+                                Label source = (Label) mouseEvent.getSource();
+                                if(selectedRoom != null){
+                                    if(selectedRoom.equals(source)){
+                                        source.setStyle("-fx-background-color: transparent;");
+                                        selectedRoom = null;
+                                        joinButton.setDisable(true);
+                                    }
+                                    else{
+                                        source.setStyle("-fx-background-color: rgba(99, 99, 102, 0.5);");
+                                        selectedRoom.setStyle("-fx-background-color: transparent;");
+                                        selectedRoom = source;
+                                        joinButton.setDisable(false);
+                                    }
+                                }
+                                else{
+                                    source.setStyle("-fx-background-color: rgba(99, 99, 102, 0.5);");
+                                    selectedRoom = source;
+                                    joinButton.setDisable(false);
+                                }
+                            }
+
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
+    }
+
+    public void setOnlinePlayers(Set<String> usernames){
+        this.onlinePlayers = usernames;
+    }
+
+    public void setAvailableRooms(Set<String> availableRooms){
+        this.availableRooms = availableRooms;
+    }
+
+    public void setView(GUILobbyView view){
+        this.view = view;
+
+    }
+
+    public void updatePlayersInTheRoom() {
+        if(this.roomController != null){
+            this.roomController.updatePlayersInTheRoom();
         }
-        userNames.forEach(this::addPlayer);
-    }*/
-
-    /*@Override
-    public void displayAvailableRooms(Collection<String> roomNames) {
-        System.out.println("displayAvailableRoom");
+        System.out.println("Players in the room:");
+        view.getPlayersInTheRoom().forEach(System.out::println);
     }
 
-    @Override
-    public void displayUserList(Collection<String> userNames) {
-        playerListBox.getChildren().clear();
-        onlinePlayersLabels.clear();
-        userNames.forEach(this::addPlayer);
+    public void returnFromRoom(){
+        updateOnlinePlayers();
+        updateAvailableRooms();
     }
 
-    @Override
-    public void notifyMessage(String author, String message) {
-        System.out.println("notifyMessage");
-    }
-
-    @Override
-    public void notifyRoomChanged(String newRoomName) {
-        System.out.println("notifyRoomChanged");
-    }
-
-    @Override
-    public void displayRoomPlayerList(Collection<String> playerList) {
-        System.out.println("displayRoomPlayerList");
-    }
-
-    @Override
-    public void notifyGameStarted(GameController gameController) {
-        System.out.println("notifyGameStarted");
-    }*/
 }
+
