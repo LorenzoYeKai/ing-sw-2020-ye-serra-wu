@@ -17,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class UndoTest {
 
     private Game game;
-    private GameController controller;
+    private TestGameController controller;
     private Player player1;
     private Player player2;
 
     @BeforeEach
     public void init() {
         List<String> names = List.of("player 1", "player 2");
-        controller = new GameController(names);
+        controller = new TestGameController(names);
         game = controller.getGame();
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();

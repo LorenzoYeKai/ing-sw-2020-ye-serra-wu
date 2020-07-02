@@ -1,7 +1,9 @@
 package it.polimi.ingsw.ControllerTest;
 
 import it.polimi.ingsw.NotExecutedException;
+import it.polimi.ingsw.TestGameController;
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.game.LocalGameController;
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodType;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +15,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ControllerTest {
-    GameController controller;
+    TestGameController controller;
 
     @BeforeEach
     void init() {
         List<String> nickname = List.of("player1", "player2", "player3");
-        controller = new GameController(nickname);
+        controller = new TestGameController(nickname);
         controller.getGame().setCurrentPlayer(0);
     }
 
@@ -113,8 +115,8 @@ public class ControllerTest {
 
     @Test
     @DisplayName("fasi test")
-    void setPlayerGodTest(){
-        controller.setPlayerGod(controller.getGame().getListOfPlayers().get(0),GodType.APOLLO);
+    void setPlayerGodTest() throws NotExecutedException {
+        controller.setPlayerGod(controller.getGame().getListOfPlayers().get(0).getName(),GodType.APOLLO);
     }
 
     @Test

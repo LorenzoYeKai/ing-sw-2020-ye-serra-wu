@@ -2,6 +2,7 @@ package it.polimi.ingsw.controller.lobby;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.game.LocalGameController;
 import it.polimi.ingsw.models.lobby.*;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
@@ -101,7 +102,7 @@ public class LocalLobbyController implements LobbyController {
             throw new NotExecutedException("Need at least 2 players");
         }
 
-        GameController gameController = new GameController(nameList);
+        GameController gameController = new LocalGameController(nameList);
         room.startGame(gameController);
     }
 

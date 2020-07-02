@@ -12462,7 +12462,7 @@
 											"top": 210,
 											"width": 335.64501953125,
 											"height": 13,
-											"text": "+getUser(String username): User",
+											"text": "+getUser(String nickname): User",
 											"horizontalAlignment": 0
 										},
 										{
@@ -13270,7 +13270,7 @@
 											"top": 454,
 											"width": 206.984375,
 											"height": 13,
-											"text": "-username: String",
+											"text": "-nickname: String",
 											"horizontalAlignment": 0
 										},
 										{
@@ -14276,7 +14276,7 @@
 											"top": 173,
 											"width": 499.4208984375,
 											"height": 13,
-											"text": "+joinLobby(String username, LobbyView view)",
+											"text": "+joinLobby(String nickname, LobbyView view)",
 											"horizontalAlignment": 0
 										},
 										{
@@ -27587,7 +27587,7 @@
 											"_parent": {
 												"$ref": "AAAAAAFxk5pA7A9rwrQ="
 											},
-											"name": "String username",
+											"name": "String nickname",
 											"type": ""
 										},
 										{
@@ -28103,7 +28103,7 @@
 									"_parent": {
 										"$ref": "AAAAAAFxk6koNVIdYsE="
 									},
-									"name": "username",
+									"name": "nickname",
 									"visibility": "private",
 									"type": "String"
 								},
@@ -28301,7 +28301,7 @@
 											"_parent": {
 												"$ref": "AAAAAAFxk67T2XLteTk="
 											},
-											"name": "String username",
+											"name": "String nickname",
 											"type": ""
 										},
 										{

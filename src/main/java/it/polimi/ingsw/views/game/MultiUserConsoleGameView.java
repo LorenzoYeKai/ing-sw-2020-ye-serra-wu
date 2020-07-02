@@ -5,8 +5,10 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.*;
@@ -18,19 +20,24 @@ import java.util.*;
  * NOTE: CURRENTLY, ONLY 2 PLAYERS ARE SUPPORTED
  * AND NO GODS ARE SUPPORTED
  */
-public class MultiUserConsoleGameView extends GameView {
+public class MultiUserConsoleGameView implements GameView {
+    private final GameController controller;
     private final PrintStream output;
     private final Scanner input;
     private final Space[][] spaces;
     private final List<String> players;
+    private final Set<GodType> availableGods;
+    private final Map<String, GodType> playerGods;
     private boolean gameStarted;
 
     public MultiUserConsoleGameView(GameController controller) {
-        super(controller);
+        this.controller = controller;
         this.output = System.out;
         this.input = new Scanner(System.in);
         this.spaces = new Space[5][5];
         this.players = new ArrayList<>();
+        this.availableGods = new HashSet<>();
+        this.playerGods = new HashMap<>();
         for (int y = 0; y < this.spaces.length; ++y) {
             for (int x = 0; x < this.spaces.length; ++x) {
                 this.spaces[y][x] = new Space(x, y);
@@ -40,31 +47,39 @@ public class MultiUserConsoleGameView extends GameView {
         this.gameStarted = false;
     }
 
-    public void join(String nickname) {
+    public void join(String nickname) throws NotExecutedException, IOException {
         this.controller.joinGame(nickname, this);
         this.players.add(nickname);
     }
 
-    public void play() {
-        this.controller.playGame();
+    public void play() throws NotExecutedException, IOException {
+        this.controller.setGameStatus(GameStatus.PLAYING);
     }
 
     @Override
     public void notifyGameStatus(GameStatus status) {
         switch (status) {
-            case SETUP:
-                this.output.println("Setup phase");
-                break;
-            case PLAYING:
+            case SETUP -> this.output.println("Setup phase");
+            case CHOOSING_GODS -> this.output.println("Choosing gods");
+            case PLACING -> this.output.println("Placing workers");
+            case PLAYING -> {
                 this.output.println("Game started");
                 this.gameStarted = true;
-                break;
-            case ENDED:
-                this.output.println("Game ended");
-                break;
-            default:
-                throw new InternalError("Not implemented yet");
+            }
+            case ENDED -> this.output.println("Game ended");
+            default -> throw new InternalError("Not implemented yet");
         }
+    }
+
+    @Override
+    public void notifyAvailableGods(Collection<GodType> availableGods) {
+        this.availableGods.clear();
+        this.availableGods.addAll(availableGods);
+    }
+
+    @Override
+    public void notifyPlayerHasGod(String player, GodType playerGod) {
+        this.playerGods.put(player, playerGod);
     }
 
     @Override
@@ -109,7 +124,7 @@ public class MultiUserConsoleGameView extends GameView {
 
             try {
                 controller.workerAction(worker, type, x, y);
-            } catch (NotExecutedException e) {
+            } catch (NotExecutedException | IOException e) {
                 this.output.println("Command failed: " + e);
             }
         }
@@ -124,15 +139,15 @@ public class MultiUserConsoleGameView extends GameView {
         String[] levels = new String[]{" ", "1", "2", "3"};
         String dome = "^";
 
-        Map<WorkerData, String> workerSymbols = new HashMap<>();
+        Map<String, String> workerSymbols = new HashMap<>();
         String[] symbols = new String[]{"A", "B", "C", "D"};
         int symbolIndex = 0;
-        /*for (PlayerData player : this.players) {
-            for (WorkerData worker : player.getAllWorkers()) {
-                workerSymbols.put(worker, symbols[symbolIndex]);
+        for (String player : this.players) {
+            for(int i = 0; i < 2; ++i) {
+                workerSymbols.put(player + i, symbols[symbolIndex]);
                 symbolIndex += 1;
             }
-        }*/
+        }
 
         ConsoleMatrix matrix = ConsoleMatrix.newMatrix(64, 12, false);
         ConsoleMatrix[] columns = matrix.splitHorizontal(new int[]{1, 16, 1, 46});
@@ -155,9 +170,9 @@ public class MultiUserConsoleGameView extends GameView {
             info.println("Move / build with your workers");
         }
 
-        /*info.println("Player " + currentPlayer.getName() + ", your workers: ");
-        info.println("0 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(0)));
-        info.println("1 -> " + workerSymbols.get(currentPlayer.getAllWorkers().get(1)));*/
+        info.println("Player " + currentPlayer + ", your workers: ");
+        info.println("0 -> " + workerSymbols.get(currentPlayer + "0"));
+        info.println("1 -> " + workerSymbols.get(currentPlayer + "1"));
         if (!this.gameStarted) {
             info.println("Command: `[worker index] place [X] [Y]`");
             info.println("Example: `0 place 0 3`");
@@ -196,7 +211,8 @@ public class MultiUserConsoleGameView extends GameView {
                     if (space.isOccupiedByDome()) {
                         world.setCharacter(x + 1, y, dome);
                     } else {
-                        world.setCharacter(x + 1, y, workerSymbols.get(space.getWorkerData()));
+                        WorkerData worker = space.getWorkerData();
+                        world.setCharacter(x + 1, y, workerSymbols.get(worker.getPlayer() + worker.getIndex()));
                     }
                 }
             }
