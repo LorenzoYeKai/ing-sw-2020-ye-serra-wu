@@ -1,0 +1,8 @@
+.root{
+    -fx-background-image: url("../images/SantoriniBoard.png");
+    -fx-background-size: 100% 100%;
+}
+
+#space:hover{
+    -fx-background-color: rgba(253, 98, 94, 0.7);
+}

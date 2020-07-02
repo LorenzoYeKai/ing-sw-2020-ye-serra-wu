@@ -1,0 +1,12 @@
+.root{
+    -fx-background-image: url("../images/santoriniBGBlurred.png");
+    -fx-background-size: 100% 100%;
+}
+
+#playerList{
+    -fx-background-color: rgba(221, 221, 221, 0.6);
+}
+
+#roomList{
+    -fx-background-color: rgba(221, 221, 221, 0.6);
+}
