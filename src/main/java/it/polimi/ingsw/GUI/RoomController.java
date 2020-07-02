@@ -130,7 +130,7 @@ public class RoomController {
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
         TestController controller = loader.getController();
-        controller.init(window, this.view.getPlayersInTheRoom().size());
+        controller.init(window, this.view.getPlayersInTheRoom().size(), this.view.getPlayersInTheRoom());
 
         Scene lobbyScene = new Scene(lobby);
 
@@ -171,7 +171,13 @@ public class RoomController {
                                         playerLabelThree.setText(view.getPlayersInTheRoom().get(2));
                                         startGameButton.setDisable(false);
                                     }
-                                    else{
+                                    else if(view.getPlayersInTheRoom().size() > 3){
+                                        if(isHost){
+                                            for(int i = 3; i < view.getPlayersInTheRoom().size(); i++){
+                                                client.viewInputExec(view, "kick", view.getPlayersInTheRoom().get(i));
+                                            }
+
+                                        }
                                         System.out.println("Something gone wrong...");
                                     }
                                 } catch (IndexOutOfBoundsException e) {
@@ -204,7 +210,9 @@ public class RoomController {
                             @Override
                             public void run() {
                                 try{
+
                                     Alert alert = new Alert(Alert.AlertType.INFORMATION, message, ButtonType.CLOSE);
+
                                     alert.setTitle("Message");
                                     alert.setHeaderText("You received a message!");
                                     alert.showAndWait();
@@ -238,6 +246,10 @@ public class RoomController {
             }
         };
         service.start();
+    }
+
+    public boolean isFull(){
+        return this.view.getPlayersInTheRoom().size() > 3;
     }
 
 }

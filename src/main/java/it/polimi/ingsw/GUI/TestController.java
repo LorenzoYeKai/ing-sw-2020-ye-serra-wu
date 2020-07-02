@@ -29,7 +29,11 @@ public class TestController implements Initializable{
 
     private int numberOfPlayers;
 
+    private List<String> listOfPlayers;
+
     private List<GodType> chosenGods;
+
+    private String firstPlayerName;
 
     public Button lowResButton;
 
@@ -92,7 +96,7 @@ public class TestController implements Initializable{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/chooseGod.fxml"));
         try {
             Parent chooseGodLoader = loader.load();
-            ChooseGodAndFirstPlayerController chooseGodController = loader.getController();
+            ChooseGodController chooseGodController = loader.getController();
             chooseGodController.initData(numberOfPlayers, this);
             Scene chooseGodScene = new Scene(chooseGodLoader);
             Stage chooseGodWindow = new Stage();
@@ -108,10 +112,15 @@ public class TestController implements Initializable{
         this.chosenGods = chosenGods;
     }
 
-    public void init(Stage stage, int numberOfPlayers){
+    public void setFirstPlayerName(String firstPlayerName){
+        this.firstPlayerName = firstPlayerName;
+    }
+
+    public void init(Stage stage, int numberOfPlayers, List<String> listOfPlayers){
         this.stage = stage;
         this.numberOfPlayers = numberOfPlayers;
         this.chosenGods = new ArrayList<>();
+        this.listOfPlayers = listOfPlayers;
         System.out.println("Number of players: " + numberOfPlayers);
     }
 
@@ -131,5 +140,14 @@ public class TestController implements Initializable{
     public void showChosenGods(ActionEvent event) {
         System.out.println("Chosen Gods:");
         this.chosenGods.forEach(System.out::println);
+    }
+
+    public void showFirstPlayer(ActionEvent event) {
+        System.out.println("Chosen Gods:");
+        System.out.println(firstPlayerName);
+    }
+
+    public List<String> getListOfPlayers(){
+        return this.listOfPlayers;
     }
 }

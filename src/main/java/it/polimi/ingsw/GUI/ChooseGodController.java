@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-public class ChooseGodAndFirstPlayerController implements Initializable {
+public class ChooseGodController implements Initializable {
 
     private List<GodType> listOfGods = GodType.getListOfGods();
 
@@ -47,7 +47,7 @@ public class ChooseGodAndFirstPlayerController implements Initializable {
 
     public AnchorPane bottomArea;
 
-    
+
 
     public void initData(int numberOfPlayers, TestController primaryScene){
         this.numberOfPlayers = numberOfPlayers;
@@ -127,6 +127,7 @@ public class ChooseGodAndFirstPlayerController implements Initializable {
                 chosenGods.replace(chosenGodThree, getCurrentShowingGod());
             }
         }
+        discardButton.setDisable(false);
         confirmButton.setDisable(chosenGodsSize() != numberOfPlayers);
     }
 
@@ -137,6 +138,7 @@ public class ChooseGodAndFirstPlayerController implements Initializable {
             source.setImage(image);
             chosenGods.replace(source, null);
         }
+        discardButton.setDisable(chosenGodsSize() == 0);
         confirmButton.setDisable(chosenGodsSize() != numberOfPlayers);
     }
 
@@ -157,12 +159,14 @@ public class ChooseGodAndFirstPlayerController implements Initializable {
         loader.setLocation(getClass().getResource("/views/chooseFirstPlayer.fxml"));
         Parent chooseFirstPlayer = loader.load();
 
-
+        ChooseFirstPlayerController firstPlayerController = loader.getController();
+        firstPlayerController.initData(this.primaryScene);
 
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         Scene chooseFirstPlayerScene = new Scene(chooseFirstPlayer);
         stage.setScene(chooseFirstPlayerScene);
         stage.show();
+
         System.out.println(chosenGodsSize());
     }
 
@@ -171,10 +175,14 @@ public class ChooseGodAndFirstPlayerController implements Initializable {
     }
 
     public void discardChoice(ActionEvent event) {
-    }
-
-
-
-    public void confirmPlayer(ActionEvent event) {
+        chosenGods.forEach((c, v) -> chosenGods.replace(c, null));
+        Image image = new Image((getClass().getResource("/images/blankGodCard.png")).toString());
+        chosenGodOne.setImage(image);
+        if(numberOfPlayers == 3){
+            chosenGodTwo.setImage(image);
+        }
+        chosenGodThree.setImage(image);
+        confirmButton.setDisable(true);
+        discardButton.setDisable(true);
     }
 }

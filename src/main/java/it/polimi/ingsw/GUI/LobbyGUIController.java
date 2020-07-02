@@ -11,7 +11,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -98,14 +100,12 @@ public class LobbyGUIController {
         this.roomController.initData(username, client, view, selectedRoom.getText());
 
         Stage window = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
-
         Scene lobbyScene = new Scene(lobby);
-
         window.setScene(lobbyScene);
         window.show();
-
         this.client.viewInputExec(this.view, "join", selectedRoom.getText());
         System.out.println("joinRoom");
+
     }
 
     public String getUsername(){
@@ -269,8 +269,12 @@ public class LobbyGUIController {
 
     public void receiveMessage(String message){
         if(message.endsWith("kicked") || message.equals("[SYSTEM]: Host has left the room")){
-            this.roomController.kicked(message);
-            System.out.println("kick message received");
+            if(roomController.isFull()){
+                this.roomController.kicked("[SYSTEM]: The room is full!");
+            }
+            else {
+                this.roomController.kicked(message);
+            }
         }
     }
 }

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class buildDomeTest {
 
@@ -32,7 +32,7 @@ public class buildDomeTest {
     }
 
     @Test
-    @DisplayName("Test costruzione della dome")
+    @DisplayName("Simple BuildDome Test")
     void buildDomeTest() {
         assertFalse(game.getWorld().getSpaces(2, 1).isOccupiedByDome());
         player1.getAllWorkers().get(0).buildDome(game.getWorld().getSpaces(2, 1));
@@ -53,13 +53,13 @@ public class buildDomeTest {
     void getInitialSpaceTest() {
         Space firstWorkerPosition = game.getWorld().getSpaces(1, 1);
         player1.getAllWorkers().get(0).move(game.getWorld().getSpaces(0, 0));
-        assertTrue(player1.getAllWorkers().get(0).getInitialSpace().equals(firstWorkerPosition));
+        assertEquals(player1.getAllWorkers().get(0).getInitialSpace(), firstWorkerPosition);
 
     }
 
     @Test
     @DisplayName("rimozione pedina dopo sconfitta")
-    void removeWOrkerWhenDefeat() {
+    void removeWorkerWhenDefeat() {
         assertTrue(game.getWorld().getSpaces(1, 1).isOccupiedByWorker());
         assertTrue(game.getWorld().getSpaces(2, 2).isOccupiedByWorker());
         player1.getAllWorkers().get(1).removeWorkerWhenDefeated();

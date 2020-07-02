@@ -5,8 +5,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.GUI.ChooseFirstPlayerController">
+<AnchorPane fx:id="backgroundArea" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.polimi.ingsw.GUI.ChooseFirstPlayerController">
    <children>
       <Label fx:id="firstPlayerLabel" alignment="CENTER" layoutX="155.0" layoutY="130.0" onMouseClicked="#playerSelected" prefWidth="200.0" text="Label" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="400.0" AnchorPane.topAnchor="130.0">
          <font>

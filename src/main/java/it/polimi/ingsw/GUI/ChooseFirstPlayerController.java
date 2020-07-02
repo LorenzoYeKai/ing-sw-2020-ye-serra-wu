@@ -1,15 +1,42 @@
 package it.polimi.ingsw.GUI;
 
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 public class ChooseFirstPlayerController {
 
     public Button confirmPlayerButton;
 
+    public Label firstPlayerLabel;
+
+    public Label secondPlayerLabel;
+
+    public Label thirdPlayerLabel;
+
+    public AnchorPane backgroundArea;
+
     private Label selectedPlayer;
+
+    private TestController primaryScene;
+
+    public void initData(TestController primaryScene){
+        this.primaryScene = primaryScene;
+        if(primaryScene.getListOfPlayers().size() == 3){
+            firstPlayerLabel.setText(primaryScene.getListOfPlayers().get(0));
+            secondPlayerLabel.setText(primaryScene.getListOfPlayers().get(1));
+            thirdPlayerLabel.setText(primaryScene.getListOfPlayers().get(2));
+        }
+        else{
+            backgroundArea.getChildren().remove(secondPlayerLabel);
+            firstPlayerLabel.setText(primaryScene.getListOfPlayers().get(0));
+            thirdPlayerLabel.setText(primaryScene.getListOfPlayers().get(1));
+        }
+    }
 
     public void playerSelected(MouseEvent mouseEvent) {
         Label source = (Label) mouseEvent.getSource();
@@ -32,5 +59,10 @@ public class ChooseFirstPlayerController {
     }
 
     public void confirmPlayer(ActionEvent event) {
+        this.primaryScene.setFirstPlayerName(selectedPlayer.getText());
+        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+        stage.close();
     }
+
+
 }
