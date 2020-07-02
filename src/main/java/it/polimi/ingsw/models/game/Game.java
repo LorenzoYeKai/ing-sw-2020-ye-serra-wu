@@ -10,28 +10,25 @@ import it.polimi.ingsw.models.game.rules.ActualRule;
 
 import it.polimi.ingsw.views.game.GameView;
 
-
-import java.io.Serializable;
 import java.util.*;
 
-public class Game implements Serializable {
-    //private final Notifier<GameStatus> gameStatusNotifier;
+public class Game {
+
+    private final Notifier<GameStatus> gameStatusNotifier;
+    private final Notifier<Collection<GodType>> availableGodsNotifier;
+    private final Notifier<Map<String, GodType>> playerGodsNotifier;
     private final Notifier<Space> spaceChangedNotifier;
     private final Notifier<String> turnChangedNotifier;
     private final Notifier<String> playerLostNotifier;
-    private final Notifier<String> playerWonNotifier;
-
 
     private final GodFactory factory;
-    private Set<GodType> availableGods;
+    private final Set<GodType> availableGods;
     private final World world;
     private final ActualRule rules;
-
 
     private final List<Player> listOfPlayers;
     private final Map<String, GameView> gameViews;
 
-    private GameStatus currentStatus;
     private int currentPlayer;
     private GameStatus status;
 
@@ -41,11 +38,12 @@ public class Game implements Serializable {
      * @param nicknames the nicknames of the players
      */
     public Game(List<String> nicknames) {
-        //this.gameStatusNotifier = new Notifier<>();
+        this.gameStatusNotifier = new Notifier<>();
+        this.availableGodsNotifier = new Notifier<>();
+        this.playerGodsNotifier = new Notifier<>();
         this.spaceChangedNotifier = new Notifier<>();
         this.turnChangedNotifier = new Notifier<>();
         this.playerLostNotifier = new Notifier<>();
-        this.playerWonNotifier = new Notifier<>();
 
         this.factory = new GodFactory();
         this.availableGods = new HashSet<GodType>();
@@ -57,36 +55,30 @@ public class Game implements Serializable {
         this.gameViews = new HashMap<>();
 
         this.currentPlayer = -1;
-        this.currentStatus = GameStatus.PLAYER_JOINING;
         this.status = GameStatus.PLAYER_JOINING;
     }
 
     public void oldAttachView(String name, GameView view) {
-        if(this.gameViews.containsKey(name)) {
+        if (this.gameViews.containsKey(name)) {
             throw new InternalError("Player already exist");
         }
 
-        //this.gameStatusNotifier.addListener(view, view::notifyGameStatus);
+        this.gameStatusNotifier.addListener(view, view::notifyGameStatus);
+        this.availableGodsNotifier.addListener(view, view::notifyAvailableGods);
+        this.playerGodsNotifier.addListener(view, view::notifyPlayerGods);
         this.spaceChangedNotifier.addListener(view, view::notifySpaceChange);
         this.turnChangedNotifier.addListener(view, view::notifyPlayerTurn);
-        //this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
+        this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
     }
 
-    /*public void attachView(String name, GameRemoteView view){
-        if(this.gameViews.containsKey(name)) {
-            throw new InternalError("Player already exist");
-        }
-        this.gameRemoteViews.put(name, view);
-        this.playerLostNotifier.addListener(view, view::playerDefeatMessage);
-        this.playerWonNotifier.addListener(view, view::playerVictoryMessage);
-    }*/
-
     public void detachView(String name, GameView view) {
-        if(!this.gameViews.containsKey(name)) {
+        if (!this.gameViews.containsKey(name)) {
             throw new InternalError("Invalid player name");
         }
 
-        //this.gameStatusNotifier.removeListener(view);
+        this.gameStatusNotifier.removeListener(view);
+        this.availableGodsNotifier.removeListener(view);
+        this.playerGodsNotifier.removeListener(view);
         this.spaceChangedNotifier.removeListener(view);
         this.turnChangedNotifier.removeListener(view);
         this.playerLostNotifier.removeListener(view);
@@ -96,7 +88,7 @@ public class Game implements Serializable {
         // If there isn't any view related to a player
         // It means this player has been disconnected
         Player player = this.findPlayerByName(name);
-        if(player != null) {
+        if (player != null) {
             // TODO: implement disconnect
             throw new InternalError("Not implemented yet");
         }
@@ -104,9 +96,11 @@ public class Game implements Serializable {
 
     /**
      * Challenger should call this method to set available gods.
-     *
      */
     public void addAvailableGods(GodType type) {
+        if (this.status != GameStatus.SETUP) {
+            throw new InternalError("Cannot set available gods now");
+        }
         if (this.availableGods.size() == getNumberOfActivePlayers()) {
             throw new InternalError("Available gods already set");
         }
@@ -114,43 +108,46 @@ public class Game implements Serializable {
             throw new InternalError("Challenger may have selected duplicated god types");
         }
         this.availableGods.add(type);
+        this.availableGodsNotifier.notify(this.availableGods);
 
     }
 
-    public void removeAvailableGod(GodType type){
-        if(this.availableGods.contains(type)){
-            this.availableGods.remove(type);
+    public void removeAvailableGod(GodType type) {
+        if (this.status != GameStatus.SETUP) {
+            throw new InternalError("Cannot set available gods now");
         }
-        else{
-            throw new IllegalArgumentException("The god is not available");
+        if (!this.availableGods.contains(type)) {
+            throw new InternalError("The god is not available");
         }
+        this.availableGods.remove(type);
+        this.availableGodsNotifier.notify(this.availableGods);
     }
 
     public boolean isGodAvailable(GodType type) {
         return this.availableGods.contains(type);
     }
 
-    public God chooseGod(GodType type, Player player) {
+    public God chooseGod(GodType type) {
+        if (this.status != GameStatus.CHOOSING_GODS) {
+            throw new InternalError("Cannot choose available gods now");
+        }
         if (availableGods == null) {
             throw new InternalError("The Challenger has not chosen the Gods available for this game yet");
-        }
-        if (!listOfPlayers.contains(player)) {
-            throw new InternalError("Intruder!"); //Per sicurezza, anche se non dovrebbe capitare
         }
         if (!this.isGodAvailable(type)) {
             throw new InternalError("God" + type + " is not available");
         }
         this.availableGods.remove(type);
+        this.availableGodsNotifier.notify(this.availableGods);
         return factory.getGod(type);
     }
 
     public void announceVictory(Player winner) {
-        /*for (Player player : this.listOfPlayers) {
+        for (Player player : this.listOfPlayers) {
             if (player != winner) {
                 this.announceDefeat(player);
             }
-        }*/
-        this.playerWonNotifier.notify(winner.getName());
+        }
     }
 
     public void announceDefeat(Player player) {
@@ -158,18 +155,13 @@ public class Game implements Serializable {
         this.playerLostNotifier.notify(player.getName());
     }
 
-    private void waitUntilTurnFinished() {
-        // Currently it's empty
-        // Because we don't implement threading yet.
-    }
-
     public Player getCurrentPlayer() {
         return this.listOfPlayers.get(this.currentPlayer);
     }
 
     public Player findPlayerByName(String name) {
-        for(Player player : this.listOfPlayers) {
-            if(player.getName().equals(name)) {
+        for (Player player : this.listOfPlayers) {
+            if (player.getName().equals(name)) {
                 return player;
             }
         }
@@ -186,12 +178,11 @@ public class Game implements Serializable {
      * Go to the next turn, and notify every attached view that turn has changed
      */
     public void goToNextTurn() {
-        this.currentPlayer = ((this.currentPlayer + 1) % this.listOfPlayers.size());
-        this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
+        this.setCurrentPlayer((this.currentPlayer + 1) % this.listOfPlayers.size());
     }
 
     // solo per i test //
-    public int getCurrentPlayerIndex(){
+    public int getCurrentPlayerIndex() {
         return currentPlayer;
     }
 
@@ -207,30 +198,15 @@ public class Game implements Serializable {
         return availableGods.size();
     }
 
-    public GameStatus getCurrentStatus() {
-        return this.currentStatus;
-    }
-
-    public void setCurrentStatus(GameStatus status) {
-        this.currentStatus = status;
-        //this.gameStatusNotifier.notify(this.currentStatus);
-    }
-
-    @Deprecated
-    public void savePreviousWorld(){
-        throw new UnsupportedOperationException("Not needed anymore");
-
-    }
-
-    public int getTurnPhase(){
+    public int getTurnPhase() {
         return this.world.getNumberOfSavedPreviousWorlds();
     }
 
-    public void clearPreviousWorlds(){
+    public void clearPreviousWorlds() {
         this.world.clearPreviousWorlds();
     }
 
-    public WorldData getPreviousWorld(){
+    public WorldData getPreviousWorld() {
         return this.world.peekPrevious().orElseThrow(() -> {
             //TODO: handle empty previousWorlds
             return new UnsupportedOperationException("Empty World error non implemented yet!");
@@ -239,31 +215,20 @@ public class Game implements Serializable {
 
     public void gameUndo() {
         this.world.revertWorld();
-        for (Space space: this.world.getData()) {
-            if(space.isOccupiedByWorker()) {
+        for (Space space : this.world.getData()) {
+            if (space.isOccupiedByWorker()) {
                 this.getWorker(space.getWorkerData()).reset(space);
             }
         }
     }
 
-    public boolean availableGodsContains(GodType type){
-        return availableGods.contains(type);
-    }
-
-    public Set<GodType> getAvailableGods(){
+    public Set<GodType> getAvailableGods() {
         return this.availableGods;
     }
 
-    public void setCurrentPlayer(int i){
+    public void setCurrentPlayer(int i) {
         this.currentPlayer = i;
-    }
-
-    public void nextPlayer(){
-        switch (currentPlayer){
-            case 2 : setCurrentPlayer(0);
-            case 1 : setCurrentPlayer(2);
-            case 0 : setCurrentPlayer(1);
-        }
+        this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
     }
 
     public Worker getWorker(WorkerData identity) {
@@ -278,53 +243,51 @@ public class Game implements Serializable {
         return listOfPlayers;
     }
 
-    public void setStatus(GameStatus status){
+    public void setStatus(GameStatus status) {
         this.status = status;
+        this.gameStatusNotifier.notify(this.status);
     }
 
-    public GameStatus getStatus(){
+    public GameStatus getStatus() {
         return this.status;
     }
 
-    public Map<WorkerActionType, List<Vector2>> workerActionTypeListMap(){
+    public Map<WorkerActionType, List<Vector2>> workerActionTypeListMap() {
         Map<WorkerActionType, List<Vector2>> actions = new HashMap<>();
         Worker selectedWorker = this.getCurrentPlayer().getSelectedWorker();
         List<WorkerActionType> possibleActions = this.getRules().possibleActions(this.getTurnPhase(), selectedWorker);
-        for(WorkerActionType w : possibleActions){
-            if(w == WorkerActionType.MOVE) {
+        for (WorkerActionType w : possibleActions) {
+            if (w == WorkerActionType.MOVE) {
                 List<Vector2> availableSpacesCoordinates = new ArrayList<>();
                 List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
                 availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, availableSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.BUILD) {
+            } else if (w == WorkerActionType.BUILD) {
                 List<Vector2> buildableSpacesCoordinates = new ArrayList<>();
                 List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
                 buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, buildableSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.BUILD_DOME) {
+            } else if (w == WorkerActionType.BUILD_DOME) {
                 List<Vector2> buildDomeSpacesCoordinates = new ArrayList<>();
                 List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
                 buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, buildDomeSpacesCoordinates);
-            }
-            else if(w == WorkerActionType.END_TURN){
+            } else if (w == WorkerActionType.END_TURN) {
                 actions.put(w, null);
             }
         }
-        if(!(actions.keySet().size() == 1 && actions.containsKey(WorkerActionType.END_TURN))){
-            if(this.checkDefeat(actions)){
+        if (!(actions.keySet().size() == 1 && actions.containsKey(WorkerActionType.END_TURN))) {
+            if (this.checkDefeat(actions)) {
                 this.announceDefeat(this.getCurrentPlayer());
             }
         }
         return actions;
     }
 
-    private boolean checkDefeat(Map<WorkerActionType, List<Vector2>> actions){
-        for(WorkerActionType w : actions.keySet()){
-            if(w != WorkerActionType.END_TURN){
-                if(!actions.get(w).isEmpty()){
+    private boolean checkDefeat(Map<WorkerActionType, List<Vector2>> actions) {
+        for (WorkerActionType w : actions.keySet()) {
+            if (w != WorkerActionType.END_TURN) {
+                if (!actions.get(w).isEmpty()) {
                     return false;
                 }
             }

@@ -7,6 +7,7 @@ import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.game.GameView;
 
 import java.util.Collection;
+import java.util.Map;
 
 public class ServerGameView implements GameView {
     private final RequestProcessor connection;
@@ -26,8 +27,8 @@ public class ServerGameView implements GameView {
     }
 
     @Override
-    public void notifyPlayerHasGod(String player, GodType playerGod) {
-        this.connection.remoteNotify(new PlayerHasGodMessage(player, playerGod));
+    public void notifyPlayerGods(Map<String, GodType> playerAndGods) {
+        this.connection.remoteNotify(new PlayerGodsMessage(playerAndGods));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package it.polimi.ingsw.tests.game;
 
 import it.polimi.ingsw.models.game.Game;
+import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ public class AddAvailableGodsTest {
     @Test
     @DisplayName("Test adding and removing gods")
     public void addAvailableGodsTest() {
+        game.setStatus(GameStatus.SETUP);
         game.addAvailableGods(GodType.APOLLO);
         assertTrue(game.getAvailableGods().contains(GodType.APOLLO));
         game.removeAvailableGod(GodType.APOLLO);

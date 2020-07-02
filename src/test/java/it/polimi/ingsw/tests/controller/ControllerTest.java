@@ -25,6 +25,7 @@ public class ControllerTest {
     @Test
     @DisplayName("Aggiuntapoteri alla partita")
     public void addAvailableGodsTest() {
+        controller.setupGame();
         controller.addAvailableGods(GodType.APOLLO);
         controller.addAvailableGods(GodType.ARTEMIS);
         controller.addAvailableGods(GodType.ATHENA);
@@ -40,8 +41,9 @@ public class ControllerTest {
     }
 
     @Test
-    @DisplayName("Aggiuntapoteri alla partita")
+    @DisplayName("Add gods to the match")
     public void removeAvailableGodsTest() {
+        controller.setupGame();
         assertFalse(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
         controller.addAvailableGods(GodType.APOLLO);
         assertTrue(controller.getGame().getAvailableGods().contains(GodType.APOLLO));

@@ -24,7 +24,7 @@ public class NextPlayerTest {
     @DisplayName("Test turn change")
     public void nextPlayerTest() {
 
-        game.nextPlayer();
+        game.goToNextTurn();
         assertEquals(1, game.getCurrentPlayerIndex());
         assertNotEquals(2, game.getCurrentPlayerIndex());
         assertNotEquals(0, game.getCurrentPlayerIndex());

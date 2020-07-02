@@ -1,6 +1,7 @@
 package it.polimi.ingsw.tests.game;
 
 import it.polimi.ingsw.models.game.Game;
+import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.gods.GodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +20,7 @@ public class IsGodAvailableTest {
     public void init() {
         List<String> names = List.of("player 1", "player 2", "player 3");
         game = new Game(names);
+        game.setStatus(GameStatus.SETUP);
         game.addAvailableGods(GodType.APOLLO);
         game.addAvailableGods(GodType.ARTEMIS);
         game.addAvailableGods(GodType.ATHENA);
@@ -27,7 +29,6 @@ public class IsGodAvailableTest {
     @Test
     @DisplayName("Check list of available gods")
     public void isGodAvailableTest() {
-
         assertTrue(game.getAvailableGods().contains(GodType.APOLLO));
         assertTrue(game.getAvailableGods().contains(GodType.ARTEMIS));
         assertTrue(game.getAvailableGods().contains(GodType.ATHENA));

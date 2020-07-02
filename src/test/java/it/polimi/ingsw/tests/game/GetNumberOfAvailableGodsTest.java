@@ -1,6 +1,7 @@
 package it.polimi.ingsw.tests.game;
 
 import it.polimi.ingsw.models.game.Game;
+import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.gods.GodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class getNumberOfAvailableGodsTest {
+public class GetNumberOfAvailableGodsTest {
 
     private Game game;
 
@@ -24,6 +25,7 @@ public class getNumberOfAvailableGodsTest {
     @Test
     @DisplayName("Test number of available gods")
     public void getNumberOfAvailableGodTest() {
+        game.setStatus(GameStatus.SETUP);
         game.addAvailableGods(GodType.APOLLO);
         game.addAvailableGods(GodType.DEMETER);
         game.addAvailableGods(GodType.ATLAS);

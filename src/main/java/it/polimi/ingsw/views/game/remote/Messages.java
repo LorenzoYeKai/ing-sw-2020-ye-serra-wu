@@ -8,6 +8,8 @@ import it.polimi.ingsw.views.game.GameView;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 interface Message extends Serializable {
     void apply(GameView view);
@@ -39,18 +41,16 @@ class AvailableGodsMessage implements Message {
     }
 }
 
-class PlayerHasGodMessage implements Message {
-    private final String player;
-    private final GodType god;
+class PlayerGodsMessage implements Message {
+    private final HashMap<String, GodType> playerGods;
 
-    public PlayerHasGodMessage(String player, GodType god) {
-        this.player = player;
-        this.god = god;
+    public PlayerGodsMessage(Map<String, GodType> playerGods) {
+        this.playerGods = new HashMap<>(playerGods);
     }
 
     @Override
     public void apply(GameView view) {
-        view.notifyPlayerHasGod(player, god);
+        view.notifyPlayerGods(playerGods);
     }
 }
 

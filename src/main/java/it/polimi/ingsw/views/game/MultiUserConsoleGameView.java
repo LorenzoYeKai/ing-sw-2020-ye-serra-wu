@@ -78,8 +78,9 @@ public class MultiUserConsoleGameView implements GameView {
     }
 
     @Override
-    public void notifyPlayerHasGod(String player, GodType playerGod) {
-        this.playerGods.put(player, playerGod);
+    public void notifyPlayerGods(Map<String, GodType> playerAndGods) {
+        this.playerGods.clear();
+        this.playerGods.putAll(playerAndGods);
     }
 
     @Override
