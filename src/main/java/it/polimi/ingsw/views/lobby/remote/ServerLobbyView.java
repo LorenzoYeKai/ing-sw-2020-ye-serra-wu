@@ -1,6 +1,7 @@
 package it.polimi.ingsw.views.lobby.remote;
 
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.game.remote.ServerGameController;
 import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
@@ -52,6 +53,14 @@ public class ServerLobbyView implements LobbyView {
 
     @Override
     public void notifyGameStarted(GameController gameController) {
+        // Create the Server-side wrapper of GameController for this user
+        ServerGameController serverGameController =
+                new ServerGameController(this.connection, gameController);
+        // Add the ServerGameController to the RequestProcessor so it will be
+        // able to receive client messages.
+        this.connection.addHandler(serverGameController);
+        // After receiving the GameStartedMessage, the client can create a
+        // ClientGameController which will connect to the ServerGameController.
         this.connection.remoteNotify(new GameStartedMessage());
     }
 
