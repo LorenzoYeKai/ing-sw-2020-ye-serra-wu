@@ -5,6 +5,7 @@ import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +39,7 @@ public class MinotaurPowerTest {
         Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(GodType.MINOTAUR);
+        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.MINOTAUR));
     }
 
     @Test

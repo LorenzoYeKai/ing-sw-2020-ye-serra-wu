@@ -2,6 +2,7 @@ package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +36,7 @@ public class PanPowerTest {
         Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(GodType.PAN);
+        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.PAN));
     }
 
     @Test

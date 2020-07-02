@@ -118,6 +118,9 @@ public class ControllerTest {
     @Test
     @DisplayName("Set Player God test")
     public void setPlayerGodTest() throws NotExecutedException {
+        controller.getGame().setStatus(GameStatus.SETUP);
+        controller.getGame().addAvailableGods(GodType.APOLLO);
+        controller.getGame().setStatus(GameStatus.CHOOSING_GODS);
         controller.setPlayerGod(controller.getGame().getListOfPlayers().get(0).getName(), GodType.APOLLO);
     }
 
