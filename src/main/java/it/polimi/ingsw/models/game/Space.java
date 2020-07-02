@@ -1,117 +1,34 @@
 package it.polimi.ingsw.models.game;
 
-import it.polimi.ingsw.Notifiable;
 import it.polimi.ingsw.InternalError;
-import it.polimi.ingsw.views.utils.Coordinates;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-public class Space implements SpaceData, Serializable {
-    private final Notifiable<SpaceData> onSpaceChanged;
+public class Space implements Serializable {
+    private final Vector2 position;
+    private final int level;
+    private final WorkerData worker;
+    private final boolean occupiedByDome;
 
-    private int x;
-
-    private int y;
-
-    private Worker worker;
-
-    private boolean occupiedByDome;
-
-    //public boolean border;
-
-    private int level;
-
-    public Space(Notifiable<SpaceData> onSpaceChanged, int y, int x) {
-        this.onSpaceChanged = onSpaceChanged;
-        this.x = x;
-        this.y = y;
-        this.worker = null;
-        this.occupiedByDome = false;
-        this.level = 0;
+    public Space(int x, int y) {
+        this(new Vector2(x, y), 0, null, false);
     }
 
-    public Space(Space copy){
-        this.onSpaceChanged = copy.onSpaceChanged;
-        this.x = copy.x;
-        this.y = copy.y;
-        this.worker = null;
-        this.occupiedByDome = copy.occupiedByDome;
-        this.level = copy.level;
-    }
-
-    @Override
-    public int getLevel() {
-        return level;
-    }
-
-    /**
-     * Adds a level to the space when a worker builds on it
-     * Cannot be taller than 3
-     */
-    public void addLevel() {
-        if (this.level < 3) { //Prevent level > 3
-            level++;
-        } else {
-            throw new InternalError("You cannot build any further!");
-        }
-        onSpaceChanged.notify(this);
-    }
-
-    public boolean isOccupiedByWorker() {
-        return this.worker != null;
-    }
-
-    @Override
-    public WorkerData getWorkerData() {
-        return this.worker;
-    }
-
-    public Worker getWorker(){
-        return this.worker;
-    }
-
-    @Override
-    public boolean isOccupiedByDome() {
-        return occupiedByDome;
-    }
-
-    @Override
-    public int getX() {
-        return this.x;
-    }
-
-    @Override
-    public int getY() {
-        return this.y;
-    }
-
-    public boolean isOccupied() {
-        return (occupiedByDome || this.worker != null);
-    }
-
-    /**
-     * If a dome is set, the space is occupied by a dome
-     */
-    public void setDome() {
-        this.occupiedByDome = true;
-        onSpaceChanged.notify(this);
-    }
-
-    public void setWorker(Worker worker) {
+    private Space(Vector2 position, int level, WorkerData worker, boolean occupiedByDome) {
+        this.position = position;
+        this.level = level;
         this.worker = worker;
-        onSpaceChanged.notify(this);
+        this.occupiedByDome = occupiedByDome;
     }
 
-    public void removeWorker() {
-        this.worker = null;
-        onSpaceChanged.notify(this);
+    public Vector2 getPosition() {
+        return this.position;
     }
 
-    /**
-     * Checks if the given coordinates are of a space within the world
-     */
-    public boolean isInWorld() {
-        return this.y > -1 && this.y < 5 && this.x > -1 && this.x < 5;
+    @Deprecated
+    public Vector2 getCoordinates() {
+        return this.getPosition();
     }
 
     /**
@@ -119,26 +36,81 @@ public class Space implements SpaceData, Serializable {
      * Returns negative if moving up
      * Returns positive if moving down
      * Returns 0 if moving in same level
+     * TODO: CHECK AGAIN
      */
-    public int levelDifference(Space space) {
-        return this.level - space.getLevel();
+    public int levelDifference(Space other) {
+        return this.level - other.getLevel();
+    }
+
+    public int getLevel() {
+        return this.level;
+    }
+
+    public WorkerData getWorkerData() {
+        return this.worker;
+    }
+
+    public boolean isOccupiedByWorker() { return this.worker != null; }
+
+    public boolean isOccupiedByDome() {
+        return this.occupiedByDome;
+    }
+
+    public boolean isOccupied() {
+        return this.isOccupiedByWorker() || this.isOccupiedByDome();
     }
 
     /**
-     * Checks if a space is a neighbor of another space
+     * Create a new {@link Space} that is same with current
+     * {@link Space} but with one more level.
+     * @return the new {@link Space} with one more level.
      */
-    public boolean isNeighbor(Space space) {
-        return (space.x == this.x && (space.y == this.y - 1 || space.y == this.y + 1)) ||
-                (space.y == this.y && (space.x == this.x - 1 || space.x == this.x + 1)) ||
-                (space.x == this.x + 1 && (space.y == this.y - 1 || space.y == this.y + 1))||
-                (space.x == this.x - 1 && (space.y == this.y - 1 || space.y == this.y + 1));
-
-
+    public Space addLevel() {
+        // TODO: CONVERT LITERAL 3 TO CLASS CONSTANT
+        if(this.level > 3) {
+            throw new InternalError("You cannot build any further!");
+        }
+        if(this.isOccupied()) {
+            throw new InternalError("Cannot build on occupied space");
+        }
+        return new Space(this.position, this.level + 1, this.worker, this.occupiedByDome);
     }
 
-    public Coordinates getCoordinates(){
-        return new Coordinates(this.x, this.y);
+    /**
+     * Create a new {@link Space} that is same with current
+     * {@link Space} but which is being occupied by dome.
+     * @return the new {@link Space} occupied by dome.
+     */
+    public Space setDome() {
+        if(this.isOccupied()) {
+            throw new InternalError("Cannot build on occupied space");
+        }
+        return new Space(this.position, this.level, this.worker, true);
     }
 
+    /**
+     * Create a new {@link Space} that is same with current
+     * {@link Space} but with a different optional worker.
+     * @param worker the new worker (may be null).
+     * @return the new {@link Space} with the new worker or without worker.
+     */
+    public Space setWorker(WorkerData worker) {
+        return new Space(this.position, this.level, worker, this.occupiedByDome);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Space space = (Space) o;
+        return level == space.level &&
+                occupiedByDome == space.occupiedByDome &&
+                position.equals(space.position) &&
+                Objects.equals(worker, space.worker);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position, level, worker, occupiedByDome);
+    }
 }
-

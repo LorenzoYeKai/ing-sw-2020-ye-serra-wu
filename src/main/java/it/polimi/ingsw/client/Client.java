@@ -5,6 +5,8 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.requests.RequestProcessor;
+import it.polimi.ingsw.views.game.ConsoleGameView;
+import it.polimi.ingsw.views.game.GameView;
 import it.polimi.ingsw.views.lobby.ConsoleLobbyView;
 
 import java.io.IOException;
@@ -104,11 +106,36 @@ public class Client implements AutoCloseable {
             });
         }
         System.out.println("Got game controller (Not implemented yet");
-        this.processor.requestStop();
+
+        ConsoleGameView gameView;
+        try {
+             gameView = futureGame.thenApply(gameController ->
+                    this.dispatch(() ->
+                            new ConsoleGameView(view.getUserName(), view.getRoomPlayers(),
+                                    gameController, System.out)
+                    )
+            ).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new InternalError(e);
+        }
+        while (true) {
+            String line = input.nextLine();
+            this.dispatch(() -> {
+                try {
+                    gameView.executeAction(line);
+                } catch (NotExecutedException e) {
+                    System.out.println(e.getMessage());
+                }
+                return null;
+            });
+
+        }
+
+        /*this.processor.requestStop();
         try {
             this.eventThread.join();
         } catch (InterruptedException e) {
             throw new InternalError(e);
-        }
+        }*/
     }
 }

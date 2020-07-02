@@ -1,178 +1,144 @@
 package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.Notifiable;
-import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class World implements Serializable, WorldData {
-    Space[][] spaces = new Space[5][5];
+public class World {
+    /**
+     * @see World#beginBatchUpdate()
+     */
+    public interface BatchUpdateController extends AutoCloseable {
+        @Override
+        void close();
+    }
+
+    public static final int SIZE = 5;
+    private final Notifiable<Space> onSpaceChanged;
+    private List<Space> pendingChanges; // see beginBatchUpdate
+    private WorldData data; // current world
+    private final Deque<WorldData> previousWorlds;
+
+    public static boolean isInWorld(int x, int y) {
+        return y >= 0 && y < World.SIZE && x >= 0 && x < World.SIZE;
+    }
+
+    public static boolean isInWorld(Vector2 coordinates) {
+        return World.isInWorld(coordinates.getX(), coordinates.getY());
+    }
 
     /**
      * Creates an empty world
      */
-    public World(Notifiable<SpaceData> onSpaceChanged) {
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                spaces[i][j] = new Space(onSpaceChanged, i, j);
+    public World(Notifiable<Space> onSpaceChanged) {
+        this.onSpaceChanged = onSpaceChanged;
+        this.previousWorlds = new LinkedList<>();
+        List<Space> spaces = new ArrayList<>(World.SIZE * World.SIZE);
+        for (int y = 0; y < World.SIZE; ++y) {
+            for (int x = 0; x < World.SIZE; ++x) {
+                spaces.add(new Space(x, y));
             }
         }
+        this.data = new WorldData(spaces);
     }
 
-    public World(World copy){
-        this.spaces = new Space[5][5];
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                this.spaces[i][j] = new Space(copy.spaces[i][j]);
-            }
-        }
+    public Space get(int x, int y) {
+        return this.getData().get(x, y);
     }
 
-    public List<Worker> getWorkersInWorld(){
-        List<Worker> listOfWorkers = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                if(this.spaces[i][j].isOccupiedByWorker()){
-                    listOfWorkers.add(this.spaces[i][j].getWorker());
-                }
-            }
-        }
-        return listOfWorkers;
-    }
-
-    @Override
-    public Space getSpaces(int x, int y) {
-        return spaces[y][x];
-    }
-
-    @Override
-    public SpaceData[][] getSpaceData(){
-        return this.spaces;
-    }
-
-    public boolean isInWorld(int x, int y){
-        return y > -1 && y < 5 && x > -1 && x < 5;
+    public Space get(Vector2 coordinates) {
+        return this.getData().get(coordinates);
     }
 
     /**
-     * returns null if not in the world
+     * Starts the batch update mode. After calling this function,
+     * subsequent calls to {@link this#update(Space...)} will not trigger
+     * notifications or save World as "previous world", instead all changes
+     * will be cached until the returned object's
+     * {@link BatchUpdateController#close()} has been called, then everything
+     * will be flushed.
+     * <p>
+     * Used mainly by {@link Worker#push(WorkerData)} and
+     * {@link Worker#swap(WorkerData)}.
+     *
+     * @return an {@link BatchUpdateController} which will flush changes when closed.
      */
-    public Space pushSpace(Space firstSpace, Space secondSpace){
-        int x = -1;
-        int y = -1;
-        if(firstSpace.getX() == secondSpace.getX()){
-            x = firstSpace.getX();
-            if(firstSpace.getY() < secondSpace.getY()){
-                y = firstSpace.getY() + 2;
-            }
-            if(firstSpace.getY() > secondSpace.getY()){
-                y = firstSpace.getY() - 2;
-            }
+    public BatchUpdateController beginBatchUpdate() {
+        if(this.pendingChanges != null) {
+            throw new InternalError("Already in batch update mode");
         }
-        if(firstSpace.getY() == secondSpace.getY()){
-            y = firstSpace.getY();
-            if(firstSpace.getX() < secondSpace.getX()){
-                x = firstSpace.getX() + 2;
-            }
-            if(firstSpace.getX() > secondSpace.getX()){
-                x = firstSpace.getX() - 2;
-            }
-        }
-        if(firstSpace.getX() < secondSpace.getX() && firstSpace.getY() < secondSpace.getY()){
-            x = firstSpace.getX() + 2;
-            y = firstSpace.getY() + 2;
-        }
-        if(firstSpace.getX() > secondSpace.getX() && firstSpace.getY() > secondSpace.getY()){
-            x = firstSpace.getX() - 2;
-            y = firstSpace.getY() - 2;
-        }
-        if(firstSpace.getX() < secondSpace.getX() && firstSpace.getY() > secondSpace.getY()){
-            x = firstSpace.getX() + 2;
-            y = firstSpace.getY() - 2;
-        }
-        if(firstSpace.getX() > secondSpace.getX() && firstSpace.getY() < secondSpace.getY()){
-            x = firstSpace.getX() - 2;
-            y = firstSpace.getY() + 2;
-        }
-        if(y > -1 && y < 5 && x > -1 && x < 5){
-            return this.spaces[x][y];
-        }
-
-        return null;
+        this.pendingChanges = new ArrayList<>();
+        return () -> {
+            this.update(this.pendingChanges);
+            this.pendingChanges = null;
+        };
     }
 
-    public String printWorld(List<Player> listOfPlayers){
-        String[] levels = new String[]{" ", "1", "2", "3"};
-        String dome = "^";
-
-        Map<WorkerData, String> workerSymbols = new HashMap<>();
-        String[] symbols = new String[]{"A", "B", "C", "D", "E", "F"};
-        int symbolIndex = 0;
-        for (PlayerData player : listOfPlayers) {
-            for (WorkerData worker : player.getAllWorkers()) {
-                workerSymbols.put(worker, symbols[symbolIndex]);
-                symbolIndex += 1;
-            }
+    /**
+     * Update the {@link World} with new {@link Space}.
+     * If multiple spaces with the same coordinates are passed to this
+     * function, only the last of them will be used.
+     * Will automatically save history and notify views, except when in batch
+     * update mode (see {@link this#beginBatchUpdate()})
+     *
+     * @param newSpaces the new spaces to be updated.
+     */
+    public void update(Space... newSpaces) {
+        List<Space> newSpaceList = Arrays.asList(newSpaces);
+        if(this.pendingChanges != null) {
+            this.pendingChanges.addAll(newSpaceList);
         }
-
-        ConsoleMatrix matrix = ConsoleMatrix.newMatrix(64, 12, false);
-        ConsoleMatrix[] columns = matrix.splitHorizontal(new int[]{1, 16, 1, 46});
-        ConsoleMatrix[] worldRows = columns[1].splitVertical(new int[]{1, 11});
-        ConsoleMatrix world = worldRows[1];
-
-        PrintWriter info = columns[3].getPrintWriter();
-        columns[3].setAutoLineBreak(true);
-
-        PrintWriter xCoordinates = worldRows[0].getPrintWriter();
-        PrintWriter yCoordinates = columns[0].getPrintWriter();
-        columns[0].setAutoLineBreak(true);
-
-        xCoordinates.print("|0 |1 |2 |3 |4 |");
-        yCoordinates.print(" ─0─1─2─3─4─");
-
-        // Print row separators
-        for (int j = 0; j < 11; j += 2) {
-            for (int i = 0; i < 16; ++i) {
-                world.setCharacter(i, j, '─');
-            }
+        else {
+            this.update(newSpaceList);
         }
-
-        // Print column separators
-        for (int i = 0; i < 16; i += 3) {
-            for (int j = 0; j < 11; ++j) {
-                if (j % 2 == 0) {
-                    world.setCharacter(i, j, '┼');
-                } else {
-                    world.setCharacter(i, j, '│');
-                }
-
-            }
-        }
-
-        // Print map
-        for (SpaceData[] row : this.spaces) {
-            for (SpaceData space : row) {
-                int x = space.getX() * 3 + 1;
-                int y = space.getY() * 2 + 1;
-                world.setCharacter(x, y, levels[space.getLevel()]);
-                if (space.isOccupied()) {
-                    if (space.isOccupiedByDome()) {
-                        world.setCharacter(x + 1, y, dome);
-                    } else {
-                        world.setCharacter(x + 1, y, workerSymbols.get(space.getWorkerData()));
-                    }
-                }
-            }
-        }
-
-        return matrix.toString();
     }
 
+    public WorldData getData() {
+        return this.data;
+    }
+
+    /**
+     * Get the previous world, if it exists.
+     * @return The most recent previous world, or {@link Optional#empty()} if
+     * it doesn't exist.
+     */
+    public Optional<WorldData> peekPrevious() {
+        if(this.previousWorlds.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.previousWorlds.peekFirst());
+    }
+
+    /**
+     * Reset the world to the previous world, if a previous world exists.
+     * Note: {@link Worker} contains {@link Space} which aren't controlled
+     * by the world, so they need to be updated separately.
+     */
+    public void revertWorld() {
+        if(this.previousWorlds.isEmpty()) {
+            throw new InternalError("Cannot revert world because history is empty");
+        }
+        this.data = this.previousWorlds.removeFirst();
+        for(Space space : this.data) {
+            this.onSpaceChanged.notify(space);
+        }
+    }
+
+    public int getNumberOfSavedPreviousWorlds() {
+        return this.previousWorlds.size();
+    }
+
+    public void clearPreviousWorlds() {
+        this.previousWorlds.clear();
+    }
+
+    private void update(List<Space> newSpaces) {
+        this.previousWorlds.addFirst(this.data);
+        this.data = this.data.update(newSpaces);
+        for(Space space : newSpaces) {
+            this.onSpaceChanged.notify(space);
+        }
+    }
 }
 
 

@@ -22,26 +22,26 @@ public class clearPreviousWorldsTest {
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().getSpaces(1, 1);
-        Space secondWorkerPosition = game.getWorld().getSpaces(2, 4);
+        Space firstWorkerPosition = game.getWorld().get(1, 1);
+        Space secondWorkerPosition = game.getWorld().get(2, 4);
         player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
         player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
     }
     @Test
     @DisplayName("test pulizia stati precedenti")
     void clearPreviousWorldsTest(){
-        game.savePreviousWorld();
-        game.getWorld().getSpaces(2,2).setDome();
+        game.getWorld().get(2,2).setDome();
         assertFalse(worldsComparison());
         game.clearPreviousWorlds();
         assertThrows(UnsupportedOperationException.class, () -> game.getPreviousWorld());
 
     }
     boolean worldsComparison(){
+
         for(int i=0 ; i<5;  i = i+1)  {
             for (int j=0; j<5; j=j+1)
             {
-               if(!game.getPreviousWorld().getSpaces(i,j).equals(game.getWorld().getSpaces(i,j)))
+               if(!game.getPreviousWorld().get(i,j).equals(game.getWorld().get(i,j)))
                {
                    return false;
                }
@@ -53,10 +53,10 @@ public class clearPreviousWorldsTest {
 
     void spaceSetup(){
         World world = game.getWorld();
-        world.getSpaces(1, 1).addLevel();//[1][1] level 1
-        for(int i = 0; i < 3; i++) world.getSpaces(2, 1).addLevel(); //[2][1] level 3
-        for(int i = 0; i < 2; i++) world.getSpaces(2, 2).addLevel(); //[2][2] level 2
-        for(int i = 0; i < 3; i++) world.getSpaces(1, 2).addLevel(); //[1][2] level 3 with dome
-        world.getSpaces(1, 2).setDome();
+        world.get(1, 1).addLevel();//[1][1] level 1
+        for(int i = 0; i < 3; i++) world.get(2, 1).addLevel(); //[2][1] level 3
+        for(int i = 0; i < 2; i++) world.get(2, 2).addLevel(); //[2][2] level 2
+        for(int i = 0; i < 3; i++) world.get(1, 2).addLevel(); //[1][2] level 3 with dome
+        world.get(1, 2).setDome();
     }
 }

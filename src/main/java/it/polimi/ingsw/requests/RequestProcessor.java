@@ -75,12 +75,22 @@ public class RequestProcessor implements AutoCloseable {
     }
 
     /**
+     * Checks whether the current thread is the event thread
+     * i.e. if the current function is invoked by a
+     * {@link RemoteRequestHandler}.
+     * @return true if current thread is event thread.
+     */
+    public boolean isOnEventThread() {
+        return Thread.currentThread().equals(eventThread.get());
+    }
+
+    /**
      * Executes the specified action asynchronously.
      *
      * @param action The action to be executed
      */
     public void invokeAsync(Runnable action) {
-        if (Thread.currentThread().equals(eventThread.get())) {
+        if (this.isOnEventThread()) {
             String errorMessage = "Already on the event loop thread, " +
                     "you shouldn't need to call invokeAsync()";
             throw new InternalError(errorMessage);
@@ -131,7 +141,7 @@ public class RequestProcessor implements AutoCloseable {
         this.checkThread();
         long sequenceNumber = this.sequenceNumber;
         this.sequenceNumber += 1;
-        this.out.writeObject(new Request(sequenceNumber, command));
+        this.writeAndFlush(new Request(sequenceNumber, command));
 
         while (true) {
             Object input = this.takeNext();
@@ -164,14 +174,14 @@ public class RequestProcessor implements AutoCloseable {
     public void remoteNotify(Serializable command) {
         Runnable action = () -> {
             try {
-                this.out.writeObject(new Request(command));
+                this.writeAndFlush(new Request(command));
             } catch (IOException ignored) {
                 // request to stop the connection (by adding the poison)
                 // if fails
                 this.requestStop();
             }
         };
-        if (Thread.currentThread().equals(this.eventThread.get())) {
+        if (this.isOnEventThread()) {
             action.run();
         } else {
             this.received.add(action);
@@ -192,7 +202,7 @@ public class RequestProcessor implements AutoCloseable {
             Object next = this.takeNext();
             if (next instanceof Poison) {
                 // try to gracefully stop the connection if possible
-                this.out.writeObject(next);
+                this.writeAndFlush((Poison)next);
                 break;
             }
             this.processRequest(next);
@@ -200,7 +210,7 @@ public class RequestProcessor implements AutoCloseable {
     }
 
     private void checkThread() {
-        if (!Thread.currentThread().equals(this.eventThread.get())) {
+        if (!this.isOnEventThread()) {
             String errorMessage = "Called from non-event-loop thread. " +
                     "Use invokeAsync() instead.";
             throw new InternalError(errorMessage);
@@ -215,6 +225,11 @@ public class RequestProcessor implements AutoCloseable {
             // unrecoverable InternalError
             throw new InternalError(e);
         }
+    }
+    
+    private void writeAndFlush(Serializable object) throws IOException {
+        this.out.writeObject(object);
+        this.out.flush();
     }
 
     private void processRequest(Object input) throws IOException {
@@ -235,7 +250,7 @@ public class RequestProcessor implements AutoCloseable {
                 } catch (NotExecutedException e) {
                     response = request.replyError(e);
                 }
-                this.out.writeObject(response);
+                this.writeAndFlush(response);
             } else {
                 try {
                     Serializable result = handler.get().processRequest(command);
@@ -255,7 +270,7 @@ public class RequestProcessor implements AutoCloseable {
             if (request.needReply()) {
                 NotExecutedException error =
                         new NotExecutedException("No suitable handlers");
-                this.out.writeObject(request.replyError(error));
+                this.writeAndFlush(request.replyError(error));
             }
         }
     }

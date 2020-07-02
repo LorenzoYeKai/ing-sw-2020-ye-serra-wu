@@ -22,11 +22,11 @@ public class Server {
     private ExecutorService executor = Executors.newFixedThreadPool(128);
     private List<String> nicknames = new ArrayList<>();
     private Map<String, Socket> lobbyWaitingList = new HashMap<>();
-    private Set<GameServer> gameServers;
+    //private Set<GameServer> gameServers;
 
     public Server() throws IOException {
         this.serverSocket = new ServerSocket(PORT);
-        this.gameServers = new HashSet<>();
+        //this.gameServers = new HashSet<>();
     }
 
     public void run() {
@@ -52,48 +52,24 @@ public class Server {
         }
     }
 
-    public void lobby(Socket socket, String nickname) throws NotExecutedException, IOException {
-        this.lobbyWaitingList.put(nickname, socket);
-        this.nicknames.add(nickname);
-        if (this.lobbyWaitingList.size() == 3) {
-            System.out.println("We are ready for a Game!\nPlayers online:");
-            this.nicknames.forEach(System.out::println);
-            List<Socket> values = new ArrayList<>(lobbyWaitingList.values());
-            List<String> keys = new ArrayList<>(lobbyWaitingList.keySet());
-            GameController gameController = new GameController(this.nicknames);
-            gameController.setupGame();
-            GameServer gameServer1 = new GameServer(gameController, values.get(0), gameController.getGame(), keys.get(0), this);
-            GameServer gameServer2 = new GameServer(gameController, values.get(1), gameController.getGame(), keys.get(1), this);
-            GameServer gameServer3 = new GameServer(gameController, values.get(2), gameController.getGame(), keys.get(2), this);
-            this.gameServers.add(gameServer1);
-            this.gameServers.add(gameServer2);
-            this.gameServers.add(gameServer3);
-            executor.submit(gameServer1);
-            executor.submit(gameServer2);
-            executor.submit(gameServer3);
-
-
-        }
-    }
-
     public void sendChooseGodsMessage(Game game) {
         AvailableGodsChoice availableGodsChoice = new AvailableGodsChoice(game.getAvailableGods());
-        this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
+        //this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
     }
 
     public void sendPlacingMessage(Game game) {
         WorldDisplay display = new WorldDisplay(game);
-        this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
+        //this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
     }
 
     public void sendUpdateWorldMessage(Game game) {
         WorldDisplay display = new WorldDisplay(game);
-        this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
+        //this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
     }
 
     public void sendStartTurnMessage() {
         AvailableWorkersDisplay display = new AvailableWorkersDisplay();
-        this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
+        //this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
     }
 
     public List<String> getNicknames() {

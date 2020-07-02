@@ -1,7 +1,7 @@
 package it.polimi.ingsw.server;
 
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.views.utils.Coordinates;
+import it.polimi.ingsw.models.game.Vector2;
 
 import java.io.Serializable;
 import java.util.List;
@@ -10,10 +10,10 @@ import java.util.Map;
 public class ActionDisplay extends ServerMessage implements Serializable {
 
 
-    private Map<WorkerActionType, List<Coordinates>> actions;
+    private Map<WorkerActionType, List<Vector2>> actions;
 
 
-    public ActionDisplay(Map<WorkerActionType, List<Coordinates>> actions){
+    public ActionDisplay(Map<WorkerActionType, List<Vector2>> actions){
         this.actions = actions;
     }
 
@@ -29,7 +29,7 @@ public class ActionDisplay extends ServerMessage implements Serializable {
                     System.out.println("There's no available spaces...");
                 }
                 else{
-                    this.actions.get(action).forEach(coordinates -> System.out.println("x: [" + coordinates.getX() + "] y: [" + coordinates.getY() + "]"));
+                    this.actions.get(action).forEach(vector2 -> System.out.println("x: [" + vector2.getX() + "] y: [" + vector2.getY() + "]"));
                 }
             }
             else if(action == WorkerActionType.BUILD) {
@@ -39,7 +39,7 @@ public class ActionDisplay extends ServerMessage implements Serializable {
                     System.out.println("There's no available spaces...");
                 }
                 else{
-                    this.actions.get(action).forEach(coordinates -> System.out.println("x: [" + coordinates.getX() + "] y: [" + coordinates.getY() + "]"));
+                    this.actions.get(action).forEach(vector2 -> System.out.println("x: [" + vector2.getX() + "] y: [" + vector2.getY() + "]"));
                 }
             }
             else if(action == WorkerActionType.BUILD_DOME) {
@@ -49,7 +49,7 @@ public class ActionDisplay extends ServerMessage implements Serializable {
                     System.out.println("There's no available spaces...");
                 }
                 else{
-                    this.actions.get(action).forEach(coordinates -> System.out.println("x: [" + coordinates.getX() + "] y: [" + coordinates.getY() + "]"));
+                    this.actions.get(action).forEach(vector2 -> System.out.println("x: [" + vector2.getX() + "] y: [" + vector2.getY() + "]"));
                 }
             }
             else if(action == WorkerActionType.END_TURN){

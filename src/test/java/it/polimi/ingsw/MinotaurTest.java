@@ -1,8 +1,9 @@
 package it.polimi.ingsw;
 
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.rules.DefaultRule;
-import it.polimi.ingsw.models.game.rules.GodPower;
+import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodFactory;
+import it.polimi.ingsw.models.game.gods.GodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,90 +15,67 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MinotaurTest {
 
-    Game game;
-    Player player1;
-    Player player2;
+    private Game game;
+    private Player player1;
+    private Player player2;
 
     @BeforeEach
-    void init(){
+    public void init() {
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space player1FirstWorkerPosition = game.getWorld().getSpaces(1, 1);
-        Space player1SecondWorkerPosition = game.getWorld().getSpaces(2, 2);
+        Space player1FirstWorkerPosition = game.getWorld().get(1, 1);
+        Space player1SecondWorkerPosition = game.getWorld().get(2, 2);
         player1.getAllWorkers().get(0).setStartPosition(player1FirstWorkerPosition);
         player1.getAllWorkers().get(1).setStartPosition(player1SecondWorkerPosition);
-        Space player2FirstWorkerPosition = game.getWorld().getSpaces(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().getSpaces(3, 2);
+        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
+        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
     }
 
     @Test
     @DisplayName("availableSpaces without god powers")
-    void computeAvailableSpacesTest(){
-        ArrayList<Space> expected1 = manualAvailableSpaces1();
-        ArrayList<Space> expected2 = manualAvailableSpaces2();
-        ArrayList<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        ArrayList<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        printing(expected1, expected2, actual1, actual2);
+    public void computeAvailableSpacesTest() {
+        List<Space> expected1 = manualAvailableSpaces1();
+        List<Space> expected2 = manualAvailableSpaces2();
+        List<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
+        List<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
         asserting(expected1, expected2, actual1, actual2);
     }
 
     @Test
     @DisplayName("availableSpaces with Minotaur")
-    void minotaurPowerTest(){
-        game.getRules().addMovementRules("minotaurPower", GodPower::minotaurPower);
-        game.getRules().getMovementRules().remove("defaultIsFreeFromWorker");
-        ArrayList<Space> expected1 = manualMinotaurAvailableSpaces1();
-        ArrayList<Space> expected2 = manualMinotaurAvailableSpaces2();
-        ArrayList<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        ArrayList<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        printing(expected1, expected2, actual1, actual2);
+    public void minotaurPowerTest() {
+        God minotaur = new GodFactory().getGod(GodType.MINOTAUR);
+        minotaur.activateGodPower(game.getRules());
+        var expected1 = manualMinotaurAvailableSpaces1();
+        var expected2 = manualMinotaurAvailableSpaces2();
+        var actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
+        var actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
         asserting(expected1, expected2, actual1, actual2);
-        game.getRules().getMovementRules().remove("minotaurPower");
-        game.getRules().addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
+        minotaur.deactivateGodPower(game.getRules());
     }
 
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test
-    @DisplayName("Push")
-    void pushTest(){
+    @DisplayName("push")
+    public void pushTest() {
         Worker zero = player1.getAllWorkers().get(1);
         Worker opponent = player2.getAllWorkers().get(1);
-        game.savePreviousWorld();
-        zero.push(opponent, opponent.getCurrentSpace());
-        assertEquals(zero.getCurrentSpace(), opponent.previousSpace());
-        assertEquals(opponent.getCurrentSpace(), game.getWorld().pushSpace(zero.previousSpace(), opponent.previousSpace()));
-        System.out.println("Worker 1, player 1 previous space:");
-        System.out.println("[" + zero.previousSpace().getX() + "] [" + zero.previousSpace().getY() + "]\n");
-        System.out.println("Worker 1, player 1 current space:");
-        System.out.println("[" + zero.getX() + "] [" + zero.getY() + "]\n");
-        System.out.println("Worker 1, player 2 previous space:");
-        System.out.println("[" + opponent.previousSpace().getX() + "] [" + opponent.previousSpace().getY() + "]\n");
-        System.out.println("Worker 1, player 2 current space:");
-        System.out.println("[" + opponent.getX() + "] [" + opponent.getY() + "]");
+        zero.push(opponent.getIdentity());
+        assertEquals(zero.getCurrentSpace().getPosition(),
+                opponent.getPreviousSpace().get().getPosition());
+
+        assertEquals(opponent.getCurrentSpace().getPosition(),
+                zero.getPreviousSpace().get().getPosition().getAfter(opponent.getPreviousSpace().get().getPosition()));
     }
 
-
-    void printing(ArrayList<Space> expected1, ArrayList<Space> expected2, ArrayList<Space> actual1, ArrayList<Space> actual2){
-        System.out.println("Worker1:");
-        actual1
-                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
-        System.out.println("Worker1 expected:");
-        expected1
-                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
-        System.out.println("\nWorker2:");
-        actual2
-                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
-        System.out.println("Worker2 expected");
-        expected2
-                .forEach(space -> System.out.println("x: [" + space.getX() + "] y: [" + space.getY() + "] "));
-    }
-
-    void asserting(ArrayList<Space> expected1, ArrayList<Space> expected2, ArrayList<Space> actual1, ArrayList<Space> actual2){
+    private void asserting(List<Space> expected1, List<Space> expected2,
+                           List<Space> actual1, List<Space> actual2) {
         expected1.forEach(space -> assertTrue(actual1.contains(space)));
         actual1.forEach((space -> assertTrue(expected1.contains(space))));
         expected2.forEach(space -> assertTrue(actual2.contains(space)));
@@ -105,58 +83,58 @@ public class MinotaurTest {
 
     }
 
-    void spaceSetup(){
+    private void spaceSetup() {
         World world = game.getWorld();
-        world.getSpaces(1, 1).addLevel();//[1][1] level 1
-        for(int i = 0; i < 3; i++) world.getSpaces(2, 1).addLevel(); //[2][1] level 3
-        for(int i = 0; i < 2; i++) world.getSpaces(2, 2).addLevel(); //[2][2] level 2
-        for(int i = 0; i < 3; i++) world.getSpaces(1, 2).addLevel(); //[1][2] level 3 with dome
-        world.getSpaces(1, 2).setDome();
+        world.update(world.get(1, 1).addLevel()); // [1][1] level 1
+        for (int i = 0; i < 3; i++) world.update(world.get(2, 1).addLevel()); // [2][1] level 3
+        for (int i = 0; i < 2; i++) world.update(world.get(2, 2).addLevel()); // [2][2] level 2
+        for (int i = 0; i < 3; i++) world.update(world.get(1, 2).addLevel()); // [1][2] level 3 with dome
+        world.update(world.get(1, 2).setDome());
     }
 
-    ArrayList<Space> manualAvailableSpaces1(){
+    private List<Space> manualAvailableSpaces1() {
         World world = game.getWorld();
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        availableSpaces.add(world.getSpaces(0, 0));
-        availableSpaces.add(world.getSpaces(0, 1));
-        availableSpaces.add(world.getSpaces(0, 2));
-        availableSpaces.add(world.getSpaces(1, 0));
+        List<Space> availableSpaces = new ArrayList<>();
+        availableSpaces.add(world.get(0, 0));
+        availableSpaces.add(world.get(0, 1));
+        availableSpaces.add(world.get(0, 2));
+        availableSpaces.add(world.get(1, 0));
 
         return availableSpaces;
     }
 
-    ArrayList<Space> manualAvailableSpaces2(){
+    private List<Space> manualAvailableSpaces2() {
         World world = game.getWorld();
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        availableSpaces.add(world.getSpaces(3, 3));
+        List<Space> availableSpaces = new ArrayList<>();
+        availableSpaces.add(world.get(3, 3));
 
-        availableSpaces.add(world.getSpaces(3, 1));
-        availableSpaces.add(world.getSpaces(1, 3));
-        availableSpaces.add(world.getSpaces(2, 3));
-        availableSpaces.add(world.getSpaces(2, 1));
+        availableSpaces.add(world.get(3, 1));
+        availableSpaces.add(world.get(1, 3));
+        availableSpaces.add(world.get(2, 3));
+        availableSpaces.add(world.get(2, 1));
         return availableSpaces;
     }
 
-    ArrayList<Space> manualMinotaurAvailableSpaces1(){
+    private List<Space> manualMinotaurAvailableSpaces1() {
         World world = game.getWorld();
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        availableSpaces.add(world.getSpaces(0, 0));
-        availableSpaces.add(world.getSpaces(0, 1));
-        availableSpaces.add(world.getSpaces(0, 2));
-        availableSpaces.add(world.getSpaces(1, 0));
+        List<Space> availableSpaces = new ArrayList<>();
+        availableSpaces.add(world.get(0, 0));
+        availableSpaces.add(world.get(0, 1));
+        availableSpaces.add(world.get(0, 2));
+        availableSpaces.add(world.get(1, 0));
 
         return availableSpaces;
     }
 
-    ArrayList<Space> manualMinotaurAvailableSpaces2(){
+    private List<Space> manualMinotaurAvailableSpaces2() {
         World world = game.getWorld();
-        ArrayList<Space> availableSpaces = new ArrayList<Space>();
-        availableSpaces.add(world.getSpaces(3, 3));
-        availableSpaces.add(world.getSpaces(3, 2));
-        availableSpaces.add(world.getSpaces(3, 1));
-        availableSpaces.add(world.getSpaces(1, 3));
-        availableSpaces.add(world.getSpaces(2, 3));
-        availableSpaces.add(world.getSpaces(2, 1));
+        List<Space> availableSpaces = new ArrayList<>();
+        availableSpaces.add(world.get(3, 3));
+        availableSpaces.add(world.get(3, 2));
+        availableSpaces.add(world.get(3, 1));
+        availableSpaces.add(world.get(1, 3));
+        availableSpaces.add(world.get(2, 3));
+        availableSpaces.add(world.get(2, 1));
         return availableSpaces;
     }
 }

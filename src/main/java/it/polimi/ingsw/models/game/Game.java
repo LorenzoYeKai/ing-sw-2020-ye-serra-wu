@@ -8,9 +8,7 @@ import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
-import it.polimi.ingsw.server.GameRemoteView;
 import it.polimi.ingsw.views.game.GameView;
-import it.polimi.ingsw.views.utils.Coordinates;
 
 
 import java.io.Serializable;
@@ -18,26 +16,20 @@ import java.util.*;
 
 public class Game implements Serializable {
     //private final Notifier<GameStatus> gameStatusNotifier;
-    private final Notifier<SpaceData> spaceChangedNotifier;
-    private final Notifier<PlayerData> turnChangedNotifier;
-    private final Notifier<PlayerData> playerLostNotifier;
-    private final Notifier<PlayerData> playerWonNotifier;
+    private final Notifier<Space> spaceChangedNotifier;
+    private final Notifier<String> turnChangedNotifier;
+    private final Notifier<String> playerLostNotifier;
+    private final Notifier<String> playerWonNotifier;
 
 
     private final GodFactory factory;
     private Set<GodType> availableGods;
-    private World world;
-    private World previousWorld; //TODO: delete this.previousWorld
-    private List<World> previousWorlds;
-    private ActualRule rules;
-
-
-
+    private final World world;
+    private final ActualRule rules;
 
 
     private final List<Player> listOfPlayers;
     private final Map<String, GameView> gameViews;
-    private final Map<String, GameRemoteView> gameRemoteViews;
 
     private GameStatus currentStatus;
     private int currentPlayer;
@@ -58,15 +50,11 @@ public class Game implements Serializable {
         this.factory = new GodFactory();
         this.availableGods = new HashSet<GodType>();
         this.world = new World(this.spaceChangedNotifier);
-        this.previousWorld = null;
-        this.previousWorlds = new ArrayList<>();
         this.rules = new ActualRule(this.world);
-
 
         this.listOfPlayers = new ArrayList<Player>();
         nicknames.forEach(n -> listOfPlayers.add(new Player(this, n)));
         this.gameViews = new HashMap<>();
-        this.gameRemoteViews = new HashMap<>();
 
         this.currentPlayer = -1;
         this.currentStatus = GameStatus.PLAYER_JOINING;
@@ -84,14 +72,14 @@ public class Game implements Serializable {
         //this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
     }
 
-    public void attachView(String name, GameRemoteView view){
+    /*public void attachView(String name, GameRemoteView view){
         if(this.gameViews.containsKey(name)) {
             throw new InternalError("Player already exist");
         }
         this.gameRemoteViews.put(name, view);
         this.playerLostNotifier.addListener(view, view::playerDefeatMessage);
         this.playerWonNotifier.addListener(view, view::playerVictoryMessage);
-    }
+    }*/
 
     public void detachView(String name, GameView view) {
         if(!this.gameViews.containsKey(name)) {
@@ -162,12 +150,12 @@ public class Game implements Serializable {
                 this.announceDefeat(player);
             }
         }*/
-        this.playerWonNotifier.notify(winner);
+        this.playerWonNotifier.notify(winner.getName());
     }
 
     public void announceDefeat(Player player) {
         player.setDefeated();
-        this.playerLostNotifier.notify(player);
+        this.playerLostNotifier.notify(player.getName());
     }
 
     private void waitUntilTurnFinished() {
@@ -199,7 +187,7 @@ public class Game implements Serializable {
      */
     public void goToNextTurn() {
         this.currentPlayer = ((this.currentPlayer + 1) % this.listOfPlayers.size());
-        this.turnChangedNotifier.notify(this.getCurrentPlayer());
+        this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
     }
 
     // solo per i test //
@@ -228,44 +216,34 @@ public class Game implements Serializable {
         //this.gameStatusNotifier.notify(this.currentStatus);
     }
 
+    @Deprecated
     public void savePreviousWorld(){
-        this.previousWorld = new World(this.world);
-        this.previousWorlds.add(this.previousWorld);
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                Worker w = this.world.getSpaces(i, j).getWorker();
-                if(w != null){
-                    this.previousWorld.getSpaces(i, j).setWorker(new Worker(w));
-                }
-            }
-        }
+        throw new UnsupportedOperationException("Not needed anymore");
 
     }
 
     public int getTurnPhase(){
-        return this.previousWorlds.size();
+        return this.world.getNumberOfSavedPreviousWorlds();
     }
 
     public void clearPreviousWorlds(){
-        this.previousWorld = null;
-        this.previousWorlds.clear();
+        this.world.clearPreviousWorlds();
     }
 
-    public World getPreviousWorld(){
-        if(this.previousWorlds.isEmpty()){
-            throw new UnsupportedOperationException("Empty World error non implemented yet!"); //TODO: handle empty previousWorlds
+    public WorldData getPreviousWorld(){
+        return this.world.peekPrevious().orElseThrow(() -> {
+            //TODO: handle empty previousWorlds
+            return new UnsupportedOperationException("Empty World error non implemented yet!");
+        });
+    }
+
+    public void gameUndo() {
+        this.world.revertWorld();
+        for (Space space: this.world.getData()) {
+            if(space.isOccupiedByWorker()) {
+                this.getWorker(space.getWorkerData()).reset(space);
+            }
         }
-        return this.previousWorlds.get(this.previousWorlds.size() - 1);
-    }
-
-    public void gameUndo(){
-        World previousWorld = this.getPreviousWorld();
-        this.previousWorlds.remove(previousWorld);
-        this.world = previousWorld;
-    }
-
-    public List<PlayerData> getPlayerData(){
-        return new ArrayList<>(this.listOfPlayers);
     }
 
     public boolean availableGodsContains(GodType type){
@@ -288,6 +266,14 @@ public class Game implements Serializable {
         }
     }
 
+    public Worker getWorker(WorkerData identity) {
+        return this.getListOfPlayers().stream()
+                .filter(player -> player.getName().equals(identity.getPlayer()))
+                .findAny()
+                .map(player -> player.getWorker(identity))
+                .orElseThrow(() -> new InternalError("Invalid worker data"));
+    }
+
     public List<Player> getListOfPlayers() {
         return listOfPlayers;
     }
@@ -300,25 +286,25 @@ public class Game implements Serializable {
         return this.status;
     }
 
-    public Map<WorkerActionType, List<Coordinates>> workerActionTypeListMap(){
-        Map<WorkerActionType, List<Coordinates>> actions = new HashMap<>();
+    public Map<WorkerActionType, List<Vector2>> workerActionTypeListMap(){
+        Map<WorkerActionType, List<Vector2>> actions = new HashMap<>();
         Worker selectedWorker = this.getCurrentPlayer().getSelectedWorker();
         List<WorkerActionType> possibleActions = this.getRules().possibleActions(this.getTurnPhase(), selectedWorker);
         for(WorkerActionType w : possibleActions){
             if(w == WorkerActionType.MOVE) {
-                List<Coordinates> availableSpacesCoordinates = new ArrayList<>();
+                List<Vector2> availableSpacesCoordinates = new ArrayList<>();
                 List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
                 availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, availableSpacesCoordinates);
             }
             else if(w == WorkerActionType.BUILD) {
-                List<Coordinates> buildableSpacesCoordinates = new ArrayList<>();
+                List<Vector2> buildableSpacesCoordinates = new ArrayList<>();
                 List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
                 buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, buildableSpacesCoordinates);
             }
             else if(w == WorkerActionType.BUILD_DOME) {
-                List<Coordinates> buildDomeSpacesCoordinates = new ArrayList<>();
+                List<Vector2> buildDomeSpacesCoordinates = new ArrayList<>();
                 List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
                 buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getCoordinates()));
                 actions.put(w, buildDomeSpacesCoordinates);
@@ -335,7 +321,7 @@ public class Game implements Serializable {
         return actions;
     }
 
-    private boolean checkDefeat(Map<WorkerActionType, List<Coordinates>> actions){
+    private boolean checkDefeat(Map<WorkerActionType, List<Vector2>> actions){
         for(WorkerActionType w : actions.keySet()){
             if(w != WorkerActionType.END_TURN){
                 if(!actions.get(w).isEmpty()){

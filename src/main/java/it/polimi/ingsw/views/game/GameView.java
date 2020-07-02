@@ -1,21 +1,16 @@
 package it.polimi.ingsw.views.game;
 
-import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.models.game.GameStatus;
-import it.polimi.ingsw.models.game.PlayerData;
-import it.polimi.ingsw.models.game.SpaceData;
+import it.polimi.ingsw.models.game.Space;
+import it.polimi.ingsw.models.game.gods.GodType;
 
-public abstract class GameView {
+import java.util.Collection;
 
-    protected final GameController controller;
-
-    protected GameView(GameController controller) {
-        this.controller = controller;
-    }
-
-    public abstract void notifyGameStatus(GameStatus status);
-    public abstract void notifySpaceChange(SpaceData spaceData);
-    public abstract void notifyPlayerTurn(PlayerData player);
-    public abstract void notifyPlayerDefeat(PlayerData player);
-
+public interface GameView {
+    void notifyGameStatus(GameStatus status);
+    void notifyAvailableGods(Collection<GodType> availableGods);
+    void notifyPlayerHasGod(String player, GodType playerGod);
+    void notifySpaceChange(Space space);
+    void notifyPlayerTurn(String player);
+    void notifyPlayerDefeat(String player);
 }

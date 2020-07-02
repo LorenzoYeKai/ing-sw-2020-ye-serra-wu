@@ -1,9 +1,8 @@
 package it.polimi.ingsw.models.game.gods;
 
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Worker;
-import it.polimi.ingsw.models.game.rules.GodPower;
+import it.polimi.ingsw.models.game.rules.ActualRule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +14,10 @@ public class Demeter extends God {
 
     @Override
     public List<WorkerActionType> workerActionOrder(int phase, Worker worker){
+        ActualRule rules = worker.getRules();
         List<WorkerActionType> actionOrder = new ArrayList<>();
         if(phase == 0){
-            this.activateGodPower(worker);
+            this.activateGodPower(rules);
             actionOrder.add(WorkerActionType.MOVE);
         }
         if(phase == 1){
@@ -25,7 +25,7 @@ public class Demeter extends God {
             actionOrder.add(WorkerActionType.BUILD_DOME);
         }
         if(phase == 2){
-            this.activateGodPower(worker); //for undo
+            this.activateGodPower(rules); //for undo
             if(worker.computeBuildableSpaces().size() > 0){
                 actionOrder.add(WorkerActionType.BUILD);
                 actionOrder.add(WorkerActionType.BUILD_DOME);
@@ -34,25 +34,26 @@ public class Demeter extends God {
             actionOrder.add(WorkerActionType.END_TURN);
         }
         if(phase == 3){
-            this.deactivateGodPower(worker);
+            this.deactivateGodPower(rules);
             actionOrder.add(WorkerActionType.END_TURN);
         }
         return actionOrder;
     }
 
     @Override
-    public void activateGodPower(Worker worker) {
-        worker.getRules().addBuildRules("demeterPower", GodPower::demeterPower);
-        worker.getRules().getBuildRules().remove("hephaestusPower");
+    public void activateGodPower(ActualRule rules) {
+        rules.addBuildRules("demeterPower", (worker, target) ->
+                worker.getPreviousBuild().map(space ->
+                        !space.getPosition().equals(target.getPosition())
+                ).orElse(true)
+        );
+        // TODO: WHAT?
+        rules.getBuildRules().remove("hephaestusPower");
     }
 
     @Override
-    public void deactivateGodPower(Worker worker) {
-        worker.getRules().getBuildRules().remove("demeterPower");
+    public void deactivateGodPower(ActualRule rules) {
+        rules.getBuildRules().remove("demeterPower");
     }
 
-    @Override
-    public void forcePower(Worker worker, Space targetSpace) {
-        throw new UnsupportedOperationException("Should be a fatal error");
-    }
 }

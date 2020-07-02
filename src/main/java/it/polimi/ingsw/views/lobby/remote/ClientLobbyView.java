@@ -1,7 +1,10 @@
 package it.polimi.ingsw.views.lobby.remote;
 
 import it.polimi.ingsw.NotExecutedException;
+import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.game.remote.ClientGameController;
 import it.polimi.ingsw.requests.RemoteRequestHandler;
+import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.io.Serializable;
@@ -14,9 +17,11 @@ import java.io.Serializable;
  * @see ServerLobbyView
  */
 public class ClientLobbyView implements RemoteRequestHandler {
+    private final RequestProcessor processor;
     private final LobbyView view;
 
-    public ClientLobbyView(LobbyView underlyingView) {
+    public ClientLobbyView(RequestProcessor processor, LobbyView underlyingView) {
+        this.processor = processor;
         view = underlyingView;
     }
 
@@ -29,9 +34,12 @@ public class ClientLobbyView implements RemoteRequestHandler {
     public Serializable processRequest(Object request) throws NotExecutedException {
         assert isProcessable(request);
         if (request instanceof GameStartedMessage) {
-            throw new UnsupportedOperationException("Not implemented yet");
+            GameController controller = new ClientGameController(processor);
+            view.notifyGameStarted(controller);
         }
-        ((Message) request).apply(this.view);
+        else {
+            ((Message) request).apply(this.view);
+        }
         return null;
     }
 }

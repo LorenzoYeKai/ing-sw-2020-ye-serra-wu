@@ -1,0 +1,13 @@
+.root{
+    -fx-background-image: url("../images/SantoriniBoard_BG.png");
+    -fx-background-size: 100% 100%;
+}
+
+#boardGrid{
+    -fx-background-image: url("../images/Santorini_island.png");
+    -fx-background-size: 100% 100%;
+}
+
+#space:hover{
+    -fx-background-color: rgba(253, 98, 94, 0.7);
+}

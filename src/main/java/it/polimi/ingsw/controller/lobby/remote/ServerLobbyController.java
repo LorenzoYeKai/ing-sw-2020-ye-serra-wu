@@ -57,6 +57,10 @@ public class ServerLobbyController implements RemoteRequestHandler, AutoCloseabl
                 this.token = this.controller.joinLobby(userName, view);
                 return this.token;
             } catch (IOException e) {
+                // network errors will only happen in these following situations:
+                // - the underlying LobbyController is another ClientLobbyController
+                //   (LocalLobbyController will not throw IOException)
+                // So for now we can just assume IOException will never occur here.
                 throw new InternalError("IOException when processing command");
             }
         }
@@ -69,6 +73,10 @@ public class ServerLobbyController implements RemoteRequestHandler, AutoCloseabl
                 this.token = null;
             }
         } catch (IOException e) {
+            // network errors will only happen in these following situations:
+            // - the underlying LobbyController is another ClientLobbyController
+            //   (LocalLobbyController will not throw IOException)
+            // So for now we can just assume IOException will never occur here.
             throw new InternalError("IOException when processing command");
         }
         return null;

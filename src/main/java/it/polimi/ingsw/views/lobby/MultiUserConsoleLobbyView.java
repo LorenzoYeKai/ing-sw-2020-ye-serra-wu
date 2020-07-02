@@ -52,7 +52,7 @@ public class MultiUserConsoleLobbyView {
         }
     }
 
-    public MultiUserConsoleGameView getUserInputUntilGameStarts() {
+    public MultiUserConsoleGameView getUserInputUntilGameStarts() throws NotExecutedException, IOException {
         while (this.gameController == null) {
             for (ConsoleLobbyView view : this.views) {
                 this.getUserInput(view);

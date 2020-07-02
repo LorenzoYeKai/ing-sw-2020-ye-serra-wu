@@ -1,0 +1,113 @@
+package it.polimi.ingsw.models.game;
+
+import it.polimi.ingsw.Notifiable;
+import it.polimi.ingsw.InternalError;
+
+public class Space {
+    private final Notifiable<SpaceData> onSpaceChanged;
+    private SpaceData data;
+    private Worker worker;
+
+    public Space(Notifiable<SpaceData> onSpaceChanged, int y, int x) {
+        this.onSpaceChanged = onSpaceChanged;
+        this.data = new SpaceData(x, y);
+        this.worker = null;
+    }
+
+    public Space(Space copy){
+        this.onSpaceChanged = copy.onSpaceChanged;
+        this.data = copy.data;
+        this.worker = null;
+    }
+
+    public Space(SpaceData data) {
+        this.onSpaceChanged = null;
+        this.data = data;
+        this.worker = (Worker)data.getWorkerData();
+    }
+
+    public SpaceData getData() {
+        return this.data;
+    }
+
+    /*public int getLevel() {
+        return level;
+    }*/
+
+    /**
+     * Adds a level to the space when a worker builds on it
+     * Cannot be taller than 3
+     */
+    public void addLevel() {
+        this.data = this.data.addLevel();
+        onSpaceChanged.notify(this.data);
+    }
+
+    public boolean isOccupiedByWorker() {
+        return this.worker != null;
+    }
+
+    public WorkerData getWorkerData() {
+        return this.worker;
+    }
+
+    public Worker getWorker(){
+        return this.worker;
+    }
+
+    /**
+     * If a dome is set, the space is occupied by a dome
+     */
+    public void setDome() {
+        this.data = this.data.setDome();
+        onSpaceChanged.notify(this.data);
+    }
+
+    public void setWorker(Worker worker) {
+        this.worker = worker;
+        onSpaceChanged.notify(this.data);
+    }
+
+    public void removeWorker() {
+        this.worker = null;
+        onSpaceChanged.notify(this.data);
+    }
+
+    /**
+     * Checks if the given coordinates are of a space within the world
+     */
+    public boolean isInWorld() {
+        throw new UnsupportedOperationException("Not implemented yet");
+        //return this.y > -1 && this.y < 5 && this.x > -1 && this.x < 5;
+    }
+
+    /**
+     * Calculates the level difference between 2 spaced
+     * Returns negative if moving up
+     * Returns positive if moving down
+     * Returns 0 if moving in same level
+     */
+    public int levelDifference(Space space) {
+        throw new UnsupportedOperationException("Not implemented yet");
+        //return this.level - space.getLevel();
+    }
+
+    /**
+     * Checks if a space is a neighbor of another space
+     */
+    public boolean isNeighbor(Space space) {
+        throw new UnsupportedOperationException("Not implemented yet");
+        /*return (space.x == this.x && (space.y == this.y - 1 || space.y == this.y + 1)) ||
+                (space.y == this.y && (space.x == this.x - 1 || space.x == this.x + 1)) ||
+                (space.x == this.x + 1 && (space.y == this.y - 1 || space.y == this.y + 1))||
+                (space.x == this.x - 1 && (space.y == this.y - 1 || space.y == this.y + 1));*/
+
+
+    }
+
+    public Vector2 getCoordinates(){
+        return this.data.getPosition();
+    }
+
+}
+

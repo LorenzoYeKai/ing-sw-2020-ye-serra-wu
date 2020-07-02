@@ -1,0 +1,9 @@
+.root{
+    -fx-background-image: url("../images/SantoriniBoard_BG.png");
+    -fx-background-size: 100% 100%;
+}
+
+#world{
+    -fx-background-image: url("../images/Santorini_island.png");
+    -fx-background-size: 100% 100%;
+}

@@ -19,7 +19,7 @@ public class GameSetup extends ServerMessage implements Serializable {
 
     public GameSetup(List<GodType> allAvailableGods, World emptyWorld, List<Player> listOfPlayers){
         this.allAvailableGods= allAvailableGods;
-        this.worldInfo = emptyWorld.printWorld(listOfPlayers);
+        //this.worldInfo = emptyWorld.printWorld(listOfPlayers);
         this.listOfPlayers = new ArrayList<>();
         listOfPlayers.forEach(p -> this.listOfPlayers.add(p.getName()));
 

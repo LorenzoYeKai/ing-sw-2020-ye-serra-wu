@@ -32,9 +32,9 @@ public class ClientLobbyController implements LobbyController {
     public UserToken joinLobby(String username, LobbyView view)
             throws NotExecutedException, IOException {
         if (this.view != null) {
-            throw new InternalError("RemoteLobbyController already being used");
+            throw new InternalError("ClientLobbyController already being used");
         }
-        this.view = new ClientLobbyView(view);
+        this.view = new ClientLobbyView(connection, view);
         this.connection.addHandler(this.view);
         JoinCommand command = new JoinCommand(username);
         try {

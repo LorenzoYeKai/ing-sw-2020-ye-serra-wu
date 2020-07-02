@@ -7,11 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 
-public class getTurnPhaseTest {
+public class GetTurnPhaseTest {
 
     Game game;
     @BeforeEach
@@ -22,17 +21,15 @@ public class getTurnPhaseTest {
     }
 
     @Test
-    @DisplayName("getter del fase")
+    @DisplayName("Test get turn phase")
     void getTurnPhaseTest(){
-        assertTrue(game.getTurnPhase()==0);
-        game.savePreviousWorld();
-        assertTrue(game.getTurnPhase()==1);
-        game.savePreviousWorld();
-        assertTrue(game.getTurnPhase()==2);
+        assertEquals(0, game.getTurnPhase());
+        game.getWorld().update();
+        assertEquals(1, game.getTurnPhase());
+        game.getWorld().update();
+        assertEquals(2, game.getTurnPhase());
         game.clearPreviousWorlds();
-        assertTrue(game.getTurnPhase()==0);
-
-
+        assertEquals(0, game.getTurnPhase());
     }
 
 }
