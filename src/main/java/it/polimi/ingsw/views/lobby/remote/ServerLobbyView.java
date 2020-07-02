@@ -7,6 +7,8 @@ import it.polimi.ingsw.views.lobby.LobbyView;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Represents the server side of lobby connection. As the name suggests, it
@@ -56,12 +58,34 @@ public class ServerLobbyView implements LobbyView {
         // Create the Server-side wrapper of GameController for this user
         ServerGameController serverGameController =
                 new ServerGameController(this.connection, gameController);
-        // Add the ServerGameController to the RequestProcessor so it will be
-        // able to receive client messages.
-        this.connection.addHandler(serverGameController);
-        // After receiving the GameStartedMessage, the client can create a
-        // ClientGameController which will connect to the ServerGameController.
-        this.connection.remoteNotify(new GameStartedMessage());
+
+        Runnable action = () -> {
+            // Add the ServerGameController to the RequestProcessor so it will be
+            // able to receive client messages.
+            this.connection.addHandler(serverGameController);
+            // After receiving the GameStartedMessage, the client can create a
+            // ClientGameController which will connect to the ServerGameController.
+            this.connection.remoteNotify(new GameStartedMessage());
+        };
+
+        if(this.connection.isOnEventThread()) {
+            action.run();
+        }
+        else {
+            CompletableFuture<Void> task = new CompletableFuture<>();
+            // ensure thread safety, because notifyGameStarted
+            // might be called from another RequestProcessor (of host)
+            this.connection.invokeAsync(() -> {
+                action.run();
+                task.complete(null);
+            });
+            // wait until task finishes
+            try {
+                task.get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new InternalError(e);
+            }
+        }
     }
 
     private void onIOException(IOException e) {

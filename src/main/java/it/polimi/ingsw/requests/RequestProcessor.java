@@ -75,12 +75,22 @@ public class RequestProcessor implements AutoCloseable {
     }
 
     /**
+     * Checks whether the current thread is the event thread
+     * i.e. if the current function is invoked by a
+     * {@link RemoteRequestHandler}.
+     * @return true if current thread is event thread.
+     */
+    public boolean isOnEventThread() {
+        return Thread.currentThread().equals(eventThread.get());
+    }
+
+    /**
      * Executes the specified action asynchronously.
      *
      * @param action The action to be executed
      */
     public void invokeAsync(Runnable action) {
-        if (Thread.currentThread().equals(eventThread.get())) {
+        if (this.isOnEventThread()) {
             String errorMessage = "Already on the event loop thread, " +
                     "you shouldn't need to call invokeAsync()";
             throw new InternalError(errorMessage);
@@ -171,7 +181,7 @@ public class RequestProcessor implements AutoCloseable {
                 this.requestStop();
             }
         };
-        if (Thread.currentThread().equals(this.eventThread.get())) {
+        if (this.isOnEventThread()) {
             action.run();
         } else {
             this.received.add(action);
@@ -200,7 +210,7 @@ public class RequestProcessor implements AutoCloseable {
     }
 
     private void checkThread() {
-        if (!Thread.currentThread().equals(this.eventThread.get())) {
+        if (!this.isOnEventThread()) {
             String errorMessage = "Called from non-event-loop thread. " +
                     "Use invokeAsync() instead.";
             throw new InternalError(errorMessage);

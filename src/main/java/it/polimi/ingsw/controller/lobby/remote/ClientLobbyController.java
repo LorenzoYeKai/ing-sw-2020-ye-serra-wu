@@ -34,7 +34,7 @@ public class ClientLobbyController implements LobbyController {
         if (this.view != null) {
             throw new InternalError("ClientLobbyController already being used");
         }
-        this.view = new ClientLobbyView(view);
+        this.view = new ClientLobbyView(connection, view);
         this.connection.addHandler(this.view);
         JoinCommand command = new JoinCommand(username);
         try {
