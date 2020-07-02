@@ -12,8 +12,6 @@ import java.util.List;
  * Contains all the Gods available in the game
  */
 public enum GodType implements Serializable {
-
-
     APOLLO,
     ARTEMIS,
     ATHENA,
@@ -23,15 +21,6 @@ public enum GodType implements Serializable {
     MINOTAUR,
     PAN,
     PROMETHEUS;
-
-    private static final long serialVersionUID = 2L;
-
-    /**
-     * Parse the input
-     */
-    public static GodType parse(String s) {
-        return GodType.valueOf(s.toUpperCase());
-    }
 
     public static GodType parseFromGod(God god){
         if(god instanceof Apollo){
@@ -61,7 +50,7 @@ public enum GodType implements Serializable {
         if(god instanceof Prometheus){
             return GodType.PROMETHEUS;
         }
-        throw new IllegalArgumentException("ERROR");
+        throw new InternalError("Invalid god");
     }
 
     public static List<GodType> getListOfGods(){

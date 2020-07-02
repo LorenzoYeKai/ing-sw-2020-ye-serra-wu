@@ -20,19 +20,14 @@ public class LocalGameController implements GameController {
     }
 
     public void joinGame(String nickname, GameView view) { //Old method for the local game view
-        this.game.oldAttachView(nickname, view);
+        this.game.attachView(nickname, view);
         //return this.game.findPlayerByName(nickname);
     }
-
-    /*public void bindGameRemoteView(String nickname, GameRemoteView view){
-        this.game.attachView(nickname, view);
-    }*/
 
     public void selectWorker(int index) {
         game.getCurrentPlayer().selectWorker(index);
     }
 
-    // TODO: call worker.startTurn() somewhere
     public void workerAction(String player,
                              WorkerActionType action,
                              int x, int y) throws NotExecutedException {

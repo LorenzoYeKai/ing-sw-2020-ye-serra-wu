@@ -58,7 +58,7 @@ public class Game {
         this.status = GameStatus.PLAYER_JOINING;
     }
 
-    public void oldAttachView(String name, GameView view) {
+    public void attachView(String name, GameView view) {
         if (this.gameViews.containsKey(name)) {
             throw new InternalError("Player already exist");
         }

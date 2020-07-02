@@ -61,12 +61,8 @@ public class Player {
      * Sets the God that will be used by this player
      */
     public void setGod(GodType type) {
-        try {
-            GodFactory factory = new GodFactory();
-            this.god = factory.getGod(type);
-        } catch (Exception e) { //It should never happen, if it happens the game crushes
-            System.out.println("Fatal Error");
-        }
+        GodFactory factory = new GodFactory();
+        this.god = factory.getGod(type);
     }
 
     public Worker getWorker(WorkerData data) {

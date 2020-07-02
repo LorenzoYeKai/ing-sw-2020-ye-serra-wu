@@ -8,36 +8,16 @@ import java.io.Serializable;
 public class GodFactory implements Serializable {
 
     public God getGod(GodType god){
-        God w = null;
-        switch (god){
-            case APOLLO:
-                w = new Apollo();
-                break;
-            case ARTEMIS:
-                w = new Artemis();
-                break;
-            case ATHENA:
-                w = new Athena();
-                break;
-            case ATLAS:
-                w = new Atlas();
-                break;
-            case DEMETER:
-                w = new Demeter();
-                break;
-            case HEPHAESTUS:
-                w = new Hephaestus();
-                break;
-            case MINOTAUR:
-                w = new Minotaur();
-                break;
-            case PAN:
-                w = new Pan();
-                break;
-            case PROMETHEUS:
-                w = new Prometheus();
-                break;
-        }
-        return w;
+        return switch (god) {
+            case APOLLO -> new Apollo();
+            case ARTEMIS -> new Artemis();
+            case ATHENA -> new Athena();
+            case ATLAS -> new Atlas();
+            case DEMETER -> new Demeter();
+            case HEPHAESTUS -> new Hephaestus();
+            case MINOTAUR -> new Minotaur();
+            case PAN -> new Pan();
+            case PROMETHEUS -> new Prometheus();
+        };
     }
 }
