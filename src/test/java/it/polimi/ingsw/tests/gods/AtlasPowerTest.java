@@ -1,22 +1,19 @@
-package it.polimi.ingsw.GodTest;
+package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.TestGameController;
-import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
+import it.polimi.ingsw.tests.TestGameController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AtlasPowerTest {
     Game game;
@@ -25,7 +22,7 @@ public class AtlasPowerTest {
     Player player2;
 
     @BeforeEach
-    void init(){
+    public void init() {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
@@ -46,26 +43,24 @@ public class AtlasPowerTest {
 
     @Test
     @DisplayName("atlas power test")
-    void atlasPowerTest() throws NotExecutedException {
+    public void atlasPowerTest() throws NotExecutedException {
 
-        controller.move(game.getCurrentPlayer().getAllWorkers().get(0),game.getWorld().get(0,1));
-        assertTrue(!game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0,0)));
+        controller.move(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 1));
+        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
         game.getCurrentPlayer().getGod().activateGodPower(game.getRules());
-        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0,0)));
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
         game.getCurrentPlayer().getGod().deactivateGodPower(game.getRules());
-        assertTrue(!game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0,0)));
-
-
+        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
 
     }
 
 
     void spaceSetup() {
-            World world = game.getWorld();
-            world.update(world.get(1, 1).addLevel());//[1][1] level 1
-            for(int i = 0; i < 3; i++) world.update(world.get(2,1).addLevel()); //[2][1] level 3
-            for(int i = 0; i < 2; i++) world.update(world.get(2,2).addLevel()); //[2][2] level 2
-            for(int i = 0; i < 3; i++) world.update(world.get(1,2).addLevel()); //[1][2] level 3 with dome
-            world.update(world.get(1, 2).setDome());
+        World world = game.getWorld();
+        world.update(world.get(1, 1).addLevel());//[1][1] level 1
+        for (int i = 0; i < 3; i++) world.update(world.get(2, 1).addLevel()); //[2][1] level 3
+        for (int i = 0; i < 2; i++) world.update(world.get(2, 2).addLevel()); //[2][2] level 2
+        for (int i = 0; i < 3; i++) world.update(world.get(1, 2).addLevel()); //[1][2] level 3 with dome
+        world.update(world.get(1, 2).setDome());
     }
 }

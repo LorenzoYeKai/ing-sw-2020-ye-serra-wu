@@ -1,14 +1,12 @@
-package it.polimi.ingsw.GodTest;
+package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.TestGameController;
-import it.polimi.ingsw.controller.game.GameController;
-import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.Game;
 import it.polimi.ingsw.models.game.Player;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
+import it.polimi.ingsw.tests.TestGameController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,7 +22,7 @@ public class MinotaurPowerTest {
     Player player2;
 
     @BeforeEach
-    void init(){
+    public void init(){
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
@@ -45,7 +43,7 @@ public class MinotaurPowerTest {
 
     @Test
     @DisplayName("minotaur power test")
-    void minotaurPowerTest() throws NotExecutedException {
+    public void minotaurPowerTest() throws NotExecutedException {
 
         game.getCurrentPlayer().getGod().activateGodPower(game.getRules());
         assertTrue(game.getCurrentPlayer().getAvailableWorkers().get(1).computeAvailableSpaces().contains(game.getWorld().get(3,2)));
