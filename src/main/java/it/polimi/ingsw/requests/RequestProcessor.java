@@ -237,7 +237,9 @@ public class RequestProcessor implements AutoCloseable {
             ((Runnable) input).run();
             return;
         }
-
+        if(input instanceof Response){
+            System.out.println("response");
+        }
         Request request = (Request) input;
         Serializable command = request.getCommand();
         Optional<RemoteRequestHandler> handler = this.handlers.stream()

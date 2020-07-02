@@ -5,6 +5,7 @@ import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.requests.RequestProcessor;
+import it.polimi.ingsw.views.game.GUIGameView;
 import it.polimi.ingsw.views.lobby.GUILobbyView;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -76,11 +77,13 @@ public class GUIClient implements AutoCloseable {
 
         //access LobbyGUIController and passing the username
 
+        CompletableFuture<GameController> futureGame = new CompletableFuture<>();
+
         LobbyGUIController lobbyController = loader.getController();
-        lobbyController.initData(userName, this);
+        lobbyController.initData(userName, this, futureGame);
 
         ClientLobbyController controller = new ClientLobbyController(processor);
-        CompletableFuture<GameController> futureGame = new CompletableFuture<>();
+
 
         GUILobbyView view = this.dispatch(() ->
                 new GUILobbyView(userName,
@@ -113,4 +116,16 @@ public class GUIClient implements AutoCloseable {
             return null;
         });
     }
+
+    public void gameViewInputExec(GUIGameView gameView, String line){
+        this.dispatch(() -> {
+            try {
+                gameView.executeAction(line);
+            } catch (NotExecutedException e) {
+                System.out.println(e.getMessage());
+            }
+            return null;
+        });
+    }
+
 }

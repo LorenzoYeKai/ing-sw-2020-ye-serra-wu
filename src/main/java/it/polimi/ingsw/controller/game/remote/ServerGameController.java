@@ -39,9 +39,11 @@ public class ServerGameController implements RemoteRequestHandler, AutoCloseable
 
     @Override
     public Serializable processRequest(Object request) throws NotExecutedException {
+        System.out.println("I'm in processRequest: " + request);
         assert this.isProcessable(request);
 
         if (request instanceof JoinGameCommand) {
+            System.out.println("I'm in the if: ");
             String nickname = ((JoinGameCommand) request).getNickname();
             GameView view = new ServerGameView(this.requestProcessor);
             try {

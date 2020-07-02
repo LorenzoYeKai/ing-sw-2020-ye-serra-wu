@@ -52,31 +52,5 @@ public class Server {
         }
     }
 
-    public void sendChooseGodsMessage(Game game) {
-        AvailableGodsChoice availableGodsChoice = new AvailableGodsChoice(game.getAvailableGods());
-        //this.gameServers.forEach(g -> g.getRemoteView().chooseGodsMessage(availableGodsChoice));
-    }
 
-    public void sendPlacingMessage(Game game) {
-        WorldDisplay display = new WorldDisplay(game);
-        //this.gameServers.forEach(g -> g.getRemoteView().placingMessage(display));
-    }
-
-    public void sendUpdateWorldMessage(Game game) {
-        WorldDisplay display = new WorldDisplay(game);
-        //this.gameServers.forEach(g -> g.getRemoteView().updateWorldMessage(display));
-    }
-
-    public void sendStartTurnMessage() {
-        AvailableWorkersDisplay display = new AvailableWorkersDisplay();
-        //this.gameServers.forEach(g -> g.getRemoteView().startTurnMessage(display));
-    }
-
-    public List<String> getNicknames() {
-        return this.nicknames;
-    }
-
-    public void addNicknames(String n) {
-        this.nicknames.add(n);
-    }
 }

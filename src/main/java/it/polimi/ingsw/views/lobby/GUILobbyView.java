@@ -17,6 +17,7 @@ public class GUILobbyView implements LobbyView {
     private final Set<String> lobbyUsers;
     private final Set<String> lobbyRooms;
     private final List<String> playersInTheRoom;
+    private boolean gameStarted;
     private final LobbyController controller;
     private final String userName;
     private final UserToken token;
@@ -37,6 +38,7 @@ public class GUILobbyView implements LobbyView {
         this.lobbyGUIController = lobbyGUIController;
         this.lobbyGUIController.setView(this);
         this.playersInTheRoom = new ArrayList<>();
+        this.gameStarted = false;
         this.controller = controller;
         this.userName = userName;
         this.token = this.controller.joinLobby(this.userName, this);
@@ -81,6 +83,7 @@ public class GUILobbyView implements LobbyView {
     }
 
 
+
     @Override
     public void displayAvailableRooms(Collection<String> roomNames) {
         this.lobbyRooms.clear();
@@ -103,30 +106,34 @@ public class GUILobbyView implements LobbyView {
 
     @Override
     public void notifyMessage(String author, String message) {
-        System.out.println("[" + author + "]: " + message);
-        lobbyGUIController.receiveMessage("[" + author + "]: " + message);
+        if(!gameStarted) {
+            lobbyGUIController.receiveMessage("[" + author + "]: " + message);
+        }
     }
 
     @Override
     public void notifyRoomChanged(String newRoomName) {
-        this.lastRoomName = this.currentRoomName;
-        this.currentRoomName = newRoomName;
-        this.playersInTheRoom.clear();
-        System.out.println("Current room: " + currentRoomName);
+        if(!gameStarted) { //If game started all players will leave the room but we still need the player list so we don't modify it anymore
+            this.lastRoomName = this.currentRoomName;
+            this.currentRoomName = newRoomName;
+            this.playersInTheRoom.clear();
+            System.out.println("Current room: " + currentRoomName);
+        }
     }
 
     @Override
     public void displayRoomPlayerList(Collection<String> playerList) {
-        this.playersInTheRoom.clear();
-        this.playersInTheRoom.addAll(playerList);
-        this.lobbyGUIController.updatePlayersInTheRoom();
-
+        if(!gameStarted) { //If game started all players will leave the room but we still need the player list so we don't modify it anymore
+            this.playersInTheRoom.clear();
+            this.playersInTheRoom.addAll(playerList);
+            this.lobbyGUIController.updatePlayersInTheRoom();
+        }
     }
 
     @Override
     public void notifyGameStarted(GameController gameController) {
-
+        this.gameStarted = true;
+        lobbyGUIController.receiveController(gameController);
+        //onGameStarted.accept(gameController);
     }
-
-
 }

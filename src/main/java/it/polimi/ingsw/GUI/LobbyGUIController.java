@@ -1,5 +1,6 @@
 package it.polimi.ingsw.GUI;
 
+import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.views.lobby.GUILobbyView;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
@@ -23,7 +24,9 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 public class LobbyGUIController {
 
@@ -38,6 +41,8 @@ public class LobbyGUIController {
     private Set<String> availableRooms;
 
     private RoomController roomController;
+
+    private CompletableFuture<GameController> futureGame;
 
     public VBox playerListBox;
 
@@ -54,7 +59,7 @@ public class LobbyGUIController {
     private Label selectedRoom;
 
 
-    public void initData(String username, GUIClient client) {
+    public void initData(String username, GUIClient client, CompletableFuture<GameController> futureGame) {
         this.username = username;
         usernameLabel.setText("Your username: " + this.username);
         this.onlinePlayersLabels = new ArrayList<>();
@@ -64,6 +69,7 @@ public class LobbyGUIController {
         this.client = client;
         this.selectedRoom = null;
         this.roomController = null;
+        this.futureGame = futureGame;
         this.joinButton.setDisable(true);
         //updateOnlinePlayers();
 
@@ -77,7 +83,7 @@ public class LobbyGUIController {
         //access LobbyGUIController and passing the username
 
         this.roomController = loader.getController();
-        this.roomController.initData(username, client, view, username);
+        this.roomController.initData(username, client, view, username, futureGame);
 
         Stage window = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
 
@@ -97,14 +103,13 @@ public class LobbyGUIController {
         //access LobbyGUIController and passing the username
 
         this.roomController = loader.getController();
-        this.roomController.initData(username, client, view, selectedRoom.getText());
+        this.roomController.initData(username, client, view, selectedRoom.getText(), futureGame);
 
         Stage window = (Stage) ((Node)actionEvent.getSource()).getScene().getWindow();
         Scene lobbyScene = new Scene(lobby);
         window.setScene(lobbyScene);
         window.show();
         this.client.viewInputExec(this.view, "join", selectedRoom.getText());
-        System.out.println("joinRoom");
 
     }
 
@@ -152,7 +157,6 @@ public class LobbyGUIController {
                                 label.setAlignment(Pos.CENTER);
                                 onlinePlayersLabels.add(label);
                                 playerListBox.getChildren().add(label);
-                                System.out.println("Number of players online: " + getNumberOfOnlinePlayers());
                             }
                         });
                         latch.await();
@@ -198,7 +202,6 @@ public class LobbyGUIController {
                                 label.setOnMouseClicked(this::roomSelected);
                                 availableRoomsLabels.add(label);
                                 roomListBox.getChildren().add(label);
-                                System.out.println("Number rooms available: " + getNumberOfAvailableRooms());
                             }
 
                             private void roomSelected(MouseEvent mouseEvent){
@@ -251,20 +254,17 @@ public class LobbyGUIController {
         if(this.roomController != null){
             this.roomController.updatePlayersInTheRoom();
         }
-        System.out.println("Players in the room:");
-        view.getPlayersInTheRoom().forEach(System.out::println);
     }
 
-    public void returnFromRoom(String username, GUIClient client, GUILobbyView view){ //reload the previous state of the lobby after leaving a room
-        this.initData(username, client);
+    public void returnFromRoom(String username, GUIClient client, GUILobbyView view, CompletableFuture<GameController> futureGame){ //reload the previous state of the lobby after leaving a room
+        this.initData(username, client, futureGame);
         this.setView(view);
         this.view.setLobbyGUIController(this);
         this.onlinePlayers = this.view.getLobbyUsers();
         this.availableRooms = this.view.getLobbyRooms();
         updateOnlinePlayers();
         updateAvailableRooms();
-        System.out.println("online players: ");
-        this.onlinePlayers.forEach(System.out::println);
+
     }
 
     public void receiveMessage(String message){
@@ -276,6 +276,10 @@ public class LobbyGUIController {
                 this.roomController.kicked(message);
             }
         }
+    }
+
+    public void receiveController(GameController controller){
+        roomController.loadGame(controller);
     }
 }
 

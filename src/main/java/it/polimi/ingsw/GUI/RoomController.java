@@ -1,5 +1,8 @@
 package it.polimi.ingsw.GUI;
 
+import it.polimi.ingsw.NotExecutedException;
+import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.views.game.GUIGameView;
 import it.polimi.ingsw.views.lobby.GUILobbyView;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -18,7 +21,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 public class RoomController {
 
@@ -29,6 +34,8 @@ public class RoomController {
     private GUIClient client;
 
     private boolean isHost;
+
+    private CompletableFuture<GameController> futureGame;
 
     public AnchorPane players;
 
@@ -53,13 +60,14 @@ public class RoomController {
     private Label selectedPlayer;
 
 
-    public void initData(String username, GUIClient client, GUILobbyView view, String hostName) {
+    public void initData(String username, GUIClient client, GUILobbyView view, String hostName, CompletableFuture<GameController> futureGame) {
         this.client = client;
         this.username = username;
         this.view = view;
         this.startGameButton.setDisable(true);
         this.kickButton.setDisable(true);
         this.isHost = username.equals(hostName);
+        this.futureGame = futureGame;
         this.usernameLabel.setText("Your username: " + username);
         if(this.isHost){
             welcomeMessage.setText("Welcome! You are the host of this room");
@@ -113,7 +121,7 @@ public class RoomController {
 
         //loader.setController(this.view.getLobbyGUIController());
         LobbyGUIController controller = loader.getController();
-        controller.returnFromRoom(username, client, this.view);
+        controller.returnFromRoom(username, client, this.view, futureGame);
 
         Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
@@ -123,21 +131,8 @@ public class RoomController {
         window.show();
     }
 
-    public void startGame(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/views/primary.fxml"));
-        Parent lobby = loader.load();
-
-        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        TestController controller = loader.getController();
-        controller.init(window, this.view.getPlayersInTheRoom().size(), this.view.getPlayersInTheRoom());
-
-        Scene lobbyScene = new Scene(lobby);
-
-        window.setScene(lobbyScene);
-        window.show();
-
-        //client.stopProcessor();
+    public void startGame(ActionEvent event) {
+        this.client.viewInputExec(this.view, "start", "");
     }
 
     public void updatePlayersInTheRoom() {
@@ -222,7 +217,7 @@ public class RoomController {
 
                                     //loader.setController(this.view.getLobbyGUIController());
                                     LobbyGUIController controller = loader.getController();
-                                    controller.returnFromRoom(username, client, view);
+                                    controller.returnFromRoom(username, client, view, futureGame);
 
                                     Stage window = (Stage) roomScene.getScene().getWindow();
 
@@ -232,6 +227,49 @@ public class RoomController {
                                     window.show();
                                     client.viewInputExec(view, "leave", "");
                                 } catch (IndexOutOfBoundsException | IOException e) {
+                                    e.printStackTrace();
+                                } finally{
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
+    }
+
+    public void loadGame(GameController controller){
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+
+                                    FXMLLoader loader = new FXMLLoader();
+                                    loader.setLocation(getClass().getResource("/views/primary.fxml"));
+                                    Parent lobby = loader.load();
+
+                                    Stage window = (Stage) players.getScene().getWindow();
+                                    GameGUIController gameController = loader.getController();
+                                    gameController.init(window, view.getPlayersInTheRoom().size(), view.getPlayersInTheRoom(), controller, isHost, username, client);
+
+                                    Scene lobbyScene = new Scene(lobby);
+
+                                    window.setScene(lobbyScene);
+                                    window.show();
+                                } catch (IndexOutOfBoundsException | IOException | NotExecutedException e) {
                                     e.printStackTrace();
                                 } finally{
                                     latch.countDown();

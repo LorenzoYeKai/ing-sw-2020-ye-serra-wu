@@ -1,5 +1,6 @@
 package it.polimi.ingsw.GUI;
 
+import it.polimi.ingsw.NotExecutedException;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -7,6 +8,8 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class ChooseFirstPlayerController {
 
@@ -22,9 +25,9 @@ public class ChooseFirstPlayerController {
 
     private Label selectedPlayer;
 
-    private TestController primaryScene;
+    private GameGUIController primaryScene;
 
-    public void initData(TestController primaryScene){
+    public void initData(GameGUIController primaryScene){
         this.primaryScene = primaryScene;
         if(primaryScene.getListOfPlayers().size() == 3){
             firstPlayerLabel.setText(primaryScene.getListOfPlayers().get(0));
@@ -58,8 +61,9 @@ public class ChooseFirstPlayerController {
         }
     }
 
-    public void confirmPlayer(ActionEvent event) {
+    public void confirmPlayer(ActionEvent event) throws NotExecutedException, IOException {
         this.primaryScene.setFirstPlayerName(selectedPlayer.getText());
+        this.primaryScene.sendChallengerChoices();
         Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
         stage.close();
     }
