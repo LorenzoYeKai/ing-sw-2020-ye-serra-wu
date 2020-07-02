@@ -50,6 +50,10 @@ public class ConsoleLobbyView implements LobbyView {
         return this.userName;
     }
 
+    public List<String> getRoomPlayers() {
+        return this.playersInTheRoom;
+    }
+
     public void displaySummary() {
         ConsoleMatrix matrix = ConsoleMatrix.newMatrix(72, 16, false);
         ConsoleMatrix[] columns = matrix.splitHorizontal(new int[]{22, 22, 28});

@@ -123,7 +123,7 @@ public class MultiUserConsoleGameView implements GameView {
             }
 
             try {
-                controller.workerAction(worker, type, x, y);
+                controller.workerAction(player, type, x, y);
             } catch (NotExecutedException | IOException e) {
                 this.output.println("Command failed: " + e);
             }

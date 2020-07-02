@@ -28,19 +28,27 @@ public class LocalGameController implements GameController {
         this.game.attachView(nickname, view);
     }*/
 
+    public void selectWorker(int index) {
+        game.getCurrentPlayer().selectWorker(index);
+    }
+
     // TODO: call worker.startTurn() somewhere
-    public void workerAction(WorkerData workerData,
+    public void workerAction(String player,
                              WorkerActionType action,
                              int x, int y) throws NotExecutedException {
         // should be not checked because checking currentPlayer is enough
         /*if (workerData.getPlayer().isDefeated()) {
             throw new NotExecutedException("You have been defeated");
         }*/
-        if (!this.game.getCurrentPlayer().getName().equals(workerData.getPlayer())) {
+        if (!this.game.getCurrentPlayer().getName().equals(player)) {
             throw new NotExecutedException("Not your turn");
         }
 
-        Worker worker = this.game.getCurrentPlayer().getWorker(workerData);
+        if(!this.game.getCurrentPlayer().hasSelectedAWorker()) {
+            throw new NotExecutedException("You need to select worker first");
+        }
+
+        Worker worker = this.game.getCurrentPlayer().getSelectedWorker();
         Space targetSpace = this.game.getWorld().get(x, y);
 
         if (action == WorkerActionType.PLACE && this.gameStarted) {
@@ -51,18 +59,10 @@ public class LocalGameController implements GameController {
         }
 
         switch (action) {
-            case PLACE:   // TODO: Da togliere
-                this.place(worker, targetSpace);
-                break;
-            case MOVE:
-                this.move(worker, targetSpace);
-                break;
-            case BUILD:
-                this.build(worker, targetSpace);
-                break;
-            case BUILD_DOME:
-                this.buildDome(worker, targetSpace);
-                break;
+            case PLACE -> this.place(worker, targetSpace); // TODO: Da togliere
+            case MOVE -> this.move(worker, targetSpace);
+            case BUILD -> this.build(worker, targetSpace);
+            case BUILD_DOME -> this.buildDome(worker, targetSpace);
         }
     }
 
@@ -181,10 +181,6 @@ public class LocalGameController implements GameController {
             throw new NotExecutedException("No such player");
         }
         found.get().setGod(god);
-    }
-
-    public void selectWorker(int index) {
-        game.getCurrentPlayer().selectWorker(index);
     }
 
     public void resetTurn() {

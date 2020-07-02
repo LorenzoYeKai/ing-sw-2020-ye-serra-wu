@@ -12,7 +12,10 @@ public interface GameController {
     void joinGame(String nickname, GameView view)
             throws NotExecutedException, IOException;
 
-    void workerAction(WorkerData workerData,
+    void selectWorker(int index)
+            throws NotExecutedException, IOException;
+
+    void workerAction(String player,
                       WorkerActionType action,
                       int x, int y) throws NotExecutedException, IOException;
 
@@ -39,8 +42,7 @@ public interface GameController {
     void setPlayerGod(String player, GodType god)
             throws NotExecutedException, IOException;
 
-    void selectWorker(int index)
-            throws NotExecutedException, IOException;
+
 
     void resetTurn()
             throws NotExecutedException, IOException;

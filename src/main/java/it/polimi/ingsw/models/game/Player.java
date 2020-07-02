@@ -53,7 +53,7 @@ public class Player {
         return this.god;
     }
 
-    public GodType getGodType(God god){
+    public GodType getGodType(God god) {
         return GodType.parseFromGod(god);
     }
 
@@ -70,7 +70,7 @@ public class Player {
     }
 
     public Worker getWorker(WorkerData data) {
-        if(!this.name.equals(data.getPlayer())) {
+        if (!this.name.equals(data.getPlayer())) {
             throw new InternalError("Invalid worker data");
         }
         return this.workers.get(data.getIndex());
@@ -89,34 +89,32 @@ public class Player {
         throw new IllegalArgumentException("Player not found");
     }
 
-    public void selectWorker(int index){
-        if(index == 0 || index == 1) {
+    public void selectWorker(int index) {
+        if (index == 0 || index == 1) {
             this.selectedWorker = index;
-        }
-        else{
+        } else {
             this.selectedWorker = -1;
             throw new IllegalArgumentException("Worker doesn't exist");
         }
     }
 
-    public void deselectWorker(){
+    public void deselectWorker() {
         this.selectedWorker = -1;
     }
 
-    public boolean hasSelectedAWorker(){
+    public boolean hasSelectedAWorker() {
         return this.selectedWorker != -1;
     }
 
-    public Worker getSelectedWorker(){
-        if(this.selectedWorker == 0 || this.selectedWorker == 1) {
+    public Worker getSelectedWorker() {
+        if (this.selectedWorker == 0 || this.selectedWorker == 1) {
             return this.workers.get(this.selectedWorker);
-        }
-        else{
-            throw new IllegalArgumentException("You have not selected a worker yet!");
+        } else {
+            throw new InternalError("You have not selected a worker yet!");
         }
     }
 
-    public int getIndexSelectedWorker(){
+    public int getIndexSelectedWorker() {
         return selectedWorker;
     }
 

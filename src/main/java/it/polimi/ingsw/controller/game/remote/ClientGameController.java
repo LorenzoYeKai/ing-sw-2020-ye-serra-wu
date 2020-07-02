@@ -6,7 +6,6 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.Vector2;
-import it.polimi.ingsw.models.game.WorkerData;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.game.GameView;
@@ -44,12 +43,12 @@ public class ClientGameController implements GameController {
     }
 
     @Override
-    public void workerAction(WorkerData workerData,
+    public void workerAction(String player,
                              WorkerActionType action,
                              int x, int y)
             throws NotExecutedException, IOException {
         WorkerAction workerAction =
-                new WorkerAction(workerData, action, new Vector2(x, y));
+                new WorkerAction(player, action, new Vector2(x, y));
         this.connection.remoteInvoke(workerAction);
     }
 

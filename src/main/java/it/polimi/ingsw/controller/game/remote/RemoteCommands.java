@@ -5,7 +5,6 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.Vector2;
-import it.polimi.ingsw.models.game.WorkerData;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.game.GameView;
 
@@ -40,22 +39,22 @@ final class JoinGameCommand implements Serializable {
 
 /**
  * A command which corresponds to
- * {@link GameController#workerAction(WorkerData, WorkerActionType, int, int)}
+ * {@link GameController#workerAction(String, WorkerActionType, int, int)}
  */
 final class WorkerAction implements RemoteCommand {
-    private final WorkerData worker;
+    private final String player;
     private final WorkerActionType type;
     private final Vector2 position;
 
-    public WorkerAction(WorkerData worker, WorkerActionType type, Vector2 position) {
-        this.worker = worker;
+    public WorkerAction(String player, WorkerActionType type, Vector2 position) {
+        this.player = player;
         this.type = type;
         this.position = position;
     }
     @Override
     public void apply(GameController controller)
             throws NotExecutedException, IOException {
-        controller.workerAction(worker, type, position.getX(), position.getY());
+        controller.workerAction(player, type, position.getX(), position.getY());
     }
 }
 
