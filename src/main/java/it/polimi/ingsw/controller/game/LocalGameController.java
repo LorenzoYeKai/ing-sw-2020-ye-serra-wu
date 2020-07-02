@@ -180,8 +180,7 @@ public class LocalGameController implements GameController {
         if(!this.game.isGodAvailable(god)) {
             throw new NotExecutedException("This god is not available");
         }
-        God chosenGod = game.chooseGod(god);
-
+        this.game.chooseGod(found.get(), god);
     }
 
     public void resetTurn() {
