@@ -1,7 +1,9 @@
 package it.polimi.ingsw.controller.game;
 
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
+import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
@@ -175,7 +177,11 @@ public class LocalGameController implements GameController {
         if(found.isEmpty()) {
             throw new NotExecutedException("No such player");
         }
-        found.get().setGod(god);
+        if(!this.game.isGodAvailable(god)) {
+            throw new NotExecutedException("This god is not available");
+        }
+        God chosenGod = game.chooseGod(god);
+
     }
 
     public void resetTurn() {

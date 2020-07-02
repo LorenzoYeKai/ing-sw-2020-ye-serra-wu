@@ -1,5 +1,6 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.Notifier;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.InternalError;
@@ -27,6 +28,7 @@ public class Game {
     private final ActualRule rules;
 
     private final List<Player> listOfPlayers;
+    private final Map<String, GodType> playerGods;
     private final Map<String, GameView> gameViews;
 
     private int currentPlayer;
@@ -52,6 +54,7 @@ public class Game {
 
         this.listOfPlayers = new ArrayList<Player>();
         nicknames.forEach(n -> listOfPlayers.add(new Player(this, n)));
+        this.playerGods = new HashMap<>();
         this.gameViews = new HashMap<>();
 
         this.currentPlayer = -1;
@@ -127,7 +130,7 @@ public class Game {
         return this.availableGods.contains(type);
     }
 
-    public God chooseGod(GodType type) {
+    public void chooseGod(Player player, GodType type) {
         if (this.status != GameStatus.CHOOSING_GODS) {
             throw new InternalError("Cannot choose available gods now");
         }
@@ -137,9 +140,12 @@ public class Game {
         if (!this.isGodAvailable(type)) {
             throw new InternalError("God" + type + " is not available");
         }
+
+        player.setGod(factory.getGod(type));
+        this.playerGods.put(player.getName(), type);
         this.availableGods.remove(type);
         this.availableGodsNotifier.notify(this.availableGods);
-        return factory.getGod(type);
+        this.playerGodsNotifier.notify(this.playerGods);
     }
 
     public void announceVictory(Player winner) {

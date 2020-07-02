@@ -60,9 +60,11 @@ public class Player {
     /**
      * Sets the God that will be used by this player
      */
-    public void setGod(GodType type) {
-        GodFactory factory = new GodFactory();
-        this.god = factory.getGod(type);
+    public void setGod(God god) {
+        if(this.god != null) {
+            throw new InternalError("God already set");
+        }
+        this.god = god;
     }
 
     public Worker getWorker(WorkerData data) {
