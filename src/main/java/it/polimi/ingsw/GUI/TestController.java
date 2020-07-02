@@ -1,8 +1,8 @@
 package it.polimi.ingsw.GUI;
 
+import it.polimi.ingsw.models.game.gods.GodType;
 import javafx.animation.PauseTransition;
-import javafx.beans.InvalidationListener;
-import javafx.fxml.FXML;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -18,13 +18,18 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class TestController implements Initializable{
 
 
     private Stage stage;
+
     private int numberOfPlayers;
+
+    private List<GodType> chosenGods;
 
     public Button lowResButton;
 
@@ -87,6 +92,8 @@ public class TestController implements Initializable{
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/chooseGod.fxml"));
         try {
             Parent chooseGodLoader = loader.load();
+            ChooseGodAndFirstPlayerController chooseGodController = loader.getController();
+            chooseGodController.initData(numberOfPlayers, this);
             Scene chooseGodScene = new Scene(chooseGodLoader);
             Stage chooseGodWindow = new Stage();
             chooseGodWindow.initModality(Modality.APPLICATION_MODAL);
@@ -97,9 +104,15 @@ public class TestController implements Initializable{
         }
     }
 
+    public void setChosenGods(List<GodType> chosenGods){
+        this.chosenGods = chosenGods;
+    }
+
     public void init(Stage stage, int numberOfPlayers){
         this.stage = stage;
         this.numberOfPlayers = numberOfPlayers;
+        this.chosenGods = new ArrayList<>();
+        System.out.println("Number of players: " + numberOfPlayers);
     }
 
     @Override
@@ -109,8 +122,14 @@ public class TestController implements Initializable{
         topArea.setPrefHeight(80);
         leftArea.setPrefWidth(350);
         rightArea.setPrefWidth(350);
+
         PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
         delay.setOnFinished(e -> chooseGod());
         delay.play();
+    }
+
+    public void showChosenGods(ActionEvent event) {
+        System.out.println("Chosen Gods:");
+        this.chosenGods.forEach(System.out::println);
     }
 }

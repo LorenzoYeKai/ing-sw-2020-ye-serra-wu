@@ -61,6 +61,7 @@
             <Button fx:id="hdButton" mnemonicParsing="false" onAction="#setHd" text="1280x720" />
             <Button fx:id="fullHdButton" mnemonicParsing="false" onAction="#setFullHd" text="1920x1080" />
             <Button fx:id="fullScreenButton" mnemonicParsing="false" onAction="#setFullScreen" text="Full Screen" />
+            <Button mnemonicParsing="false" onAction="#showChosenGods" text="Gods" />
          </children>
       </HBox>
    </top>

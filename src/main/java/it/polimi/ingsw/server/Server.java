@@ -71,8 +71,6 @@ public class Server {
             executor.submit(gameServer1);
             executor.submit(gameServer2);
             executor.submit(gameServer3);
-
-
         }
     }
 

@@ -1,22 +1,18 @@
 package it.polimi.ingsw.GUI;
 
-import it.polimi.ingsw.GUI.GUIApp;
 import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.requests.RequestProcessor;
-import it.polimi.ingsw.views.lobby.ConsoleLobbyView;
 import it.polimi.ingsw.views.lobby.GUILobbyView;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -95,41 +91,6 @@ public class GUIClient implements AutoCloseable {
 
         window.setScene(lobbyScene);
         window.show();
-
-
-        /*while (!futureGame.isDone()) {
-            this.dispatch(() -> {
-                view.displaySummary();
-                return null;
-            });
-
-            /*String line = input.nextLine().strip();
-            if (line.isEmpty()) {
-                continue;
-            }
-            String[] splitted = line.split("\\s+", 2);
-            if (splitted.length != 2) {
-                System.out.println("Wrong input, try again");
-                continue;
-            }
-
-            this.dispatch(() -> {
-                try {
-                    view.executeInput(splitted[0], splitted[1]);
-                } catch (NotExecutedException e) {
-                    System.out.println(e.getMessage());
-                }
-                return null;
-            });
-        //}
-
-        System.out.println("Got game controller (Not implemented yet)");
-        this.processor.requestStop();
-        try {
-            this.eventThread.join();
-        } catch (InterruptedException e) {
-            throw new InternalError(e);
-        }*/
     }
 
     public void stopProcessor(){

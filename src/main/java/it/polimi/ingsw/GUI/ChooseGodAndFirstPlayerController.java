@@ -2,23 +2,36 @@ package it.polimi.ingsw.GUI;
 
 import it.polimi.ingsw.models.game.gods.GodType;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-public class ChooseGodController implements Initializable {
+public class ChooseGodAndFirstPlayerController implements Initializable {
 
-    List<GodType> listOfGods = GodType.getListOfGods();
+    private List<GodType> listOfGods = GodType.getListOfGods();
 
-    Map<ImageView, GodType> chosenGods = new HashMap<>();
+    private Map<ImageView, GodType> chosenGods = new HashMap<>();
 
-    int currentShowingGod = 0;
+    private int currentShowingGod = 0;
+
+    private int numberOfPlayers;
+
+    private TestController primaryScene;
 
     public ImageView godImage;
 
@@ -31,6 +44,23 @@ public class ChooseGodController implements Initializable {
     public Button confirmButton;
 
     public Button discardButton;
+
+    public AnchorPane bottomArea;
+
+    
+
+    public void initData(int numberOfPlayers, TestController primaryScene){
+        this.numberOfPlayers = numberOfPlayers;
+        this.primaryScene = primaryScene;
+        chosenGods.put(chosenGodOne, null);
+        chosenGods.put(chosenGodThree, null);
+        if(numberOfPlayers == 3) {
+            chosenGods.put(chosenGodTwo, null);
+        }
+        else{
+            bottomArea.getChildren().remove(chosenGodTwo);
+        }
+    }
 
     public void goLeft(ActionEvent event) {
         if(currentShowingGod == 0){
@@ -77,9 +107,7 @@ public class ChooseGodController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        chosenGods.put(chosenGodOne, null);
-        chosenGods.put(chosenGodTwo, null);
-        chosenGods.put(chosenGodThree, null);
+
         discardButton.setDisable(true);
         confirmButton.setDisable(true);
         loadImage();
@@ -91,7 +119,7 @@ public class ChooseGodController implements Initializable {
             if (chosenGods.get(chosenGodOne) == null) {
                 chosenGodOne.setImage(image);
                 chosenGods.replace(chosenGodOne, getCurrentShowingGod());
-            } else if (chosenGods.get(chosenGodTwo) == null) {
+            } else if (chosenGods.get(chosenGodTwo) == null && chosenGods.containsKey(chosenGodTwo)) {
                 chosenGodTwo.setImage(image);
                 chosenGods.replace(chosenGodTwo, getCurrentShowingGod());
             } else if (chosenGods.get(chosenGodThree) == null) {
@@ -99,6 +127,7 @@ public class ChooseGodController implements Initializable {
                 chosenGods.replace(chosenGodThree, getCurrentShowingGod());
             }
         }
+        confirmButton.setDisable(chosenGodsSize() != numberOfPlayers);
     }
 
     public void godDiscarded(MouseEvent mouseEvent) {
@@ -108,11 +137,44 @@ public class ChooseGodController implements Initializable {
             source.setImage(image);
             chosenGods.replace(source, null);
         }
+        confirmButton.setDisable(chosenGodsSize() != numberOfPlayers);
     }
 
-    public void confirmChoice(ActionEvent event) {
+    private int chosenGodsSize(){
+        int counter = 0;
+        List<GodType> gods = new ArrayList<>(chosenGods.values());
+        for (GodType god : gods) {
+            if (god != null) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+    public void confirmChoice(ActionEvent event) throws IOException {
+        this.primaryScene.setChosenGods(getChosenGods());
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/views/chooseFirstPlayer.fxml"));
+        Parent chooseFirstPlayer = loader.load();
+
+
+
+        Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
+        Scene chooseFirstPlayerScene = new Scene(chooseFirstPlayer);
+        stage.setScene(chooseFirstPlayerScene);
+        stage.show();
+        System.out.println(chosenGodsSize());
+    }
+
+    private List<GodType> getChosenGods(){
+        return new ArrayList<>(chosenGods.values());
     }
 
     public void discardChoice(ActionEvent event) {
+    }
+
+
+
+    public void confirmPlayer(ActionEvent event) {
     }
 }

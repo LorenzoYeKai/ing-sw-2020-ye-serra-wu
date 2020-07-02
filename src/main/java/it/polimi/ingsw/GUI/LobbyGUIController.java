@@ -7,6 +7,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -14,6 +15,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -145,6 +147,9 @@ public class LobbyGUIController {
                                 Label label = new Label(username); //the text on the button will be the player's name that will be acquired from the server in the real method
                                 label.setPrefWidth(540);
                                 label.setId(label.getText());
+                                label.setFont(new Font("Arial Black", 18));
+                                label.setStyle("-fx-text-fill: #2F80ED");
+                                label.setAlignment(Pos.CENTER);
                                 onlinePlayersLabels.add(label);
                                 playerListBox.getChildren().add(label);
                                 System.out.println("Number of players online: " + getNumberOfOnlinePlayers());
@@ -187,6 +192,9 @@ public class LobbyGUIController {
                                 Label label = new Label(roomName); //the text on the button will be the player's name that will be acquired from the server in the real method
                                 label.setPrefWidth(540);
                                 label.setId(roomName + "Room");
+                                label.setFont(new Font("Arial Black", 18));
+                                label.setStyle("-fx-text-fill: #00FF66");
+                                label.setAlignment(Pos.CENTER);
                                 label.setOnMouseClicked(this::roomSelected);
                                 availableRoomsLabels.add(label);
                                 roomListBox.getChildren().add(label);

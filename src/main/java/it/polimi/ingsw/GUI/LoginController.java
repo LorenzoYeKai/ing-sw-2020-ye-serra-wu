@@ -1,12 +1,11 @@
 package it.polimi.ingsw.GUI;
 
-import it.polimi.ingsw.NotExecutedException;
+
 import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
+
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -16,7 +15,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
+
 
 public class LoginController implements Initializable {
 
