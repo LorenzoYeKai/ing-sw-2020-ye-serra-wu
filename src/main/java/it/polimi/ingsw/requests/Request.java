@@ -90,4 +90,11 @@ class Request implements Serializable {
         return new Response(this.sequenceNumber, true, exception);
     }
 
+    @Override
+    public String toString() {
+        return "Request{" +
+                "sequenceNumber=" + sequenceNumber +
+                ", command=" + command +
+                '}';
+    }
 }

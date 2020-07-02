@@ -141,7 +141,16 @@ public class RequestProcessor implements AutoCloseable {
         this.checkThread();
         long sequenceNumber = this.sequenceNumber;
         this.sequenceNumber += 1;
-        this.writeAndFlush(new Request(sequenceNumber, command));
+
+        Request request = new Request(sequenceNumber, command);
+
+        System.out.println("remoteInvoke request: " + request);
+
+        this.writeAndFlush(request);
+
+        if(this.sequenceNumber == 9){
+            System.out.println("ciao");
+        }
 
         while (true) {
             Object input = this.takeNext();
@@ -160,7 +169,7 @@ public class RequestProcessor implements AutoCloseable {
             if (response.getSequenceNumber() != sequenceNumber) {
                 throw new InternalError("Sequence number does not match");
             }
-
+            System.out.println("remoteInvoke response: " + response);
             return response.getResult();
         }
     }
@@ -237,9 +246,6 @@ public class RequestProcessor implements AutoCloseable {
             ((Runnable) input).run();
             return;
         }
-        if(input instanceof Response){
-            System.out.println("response");
-        }
         Request request = (Request) input;
         Serializable command = request.getCommand();
         Optional<RemoteRequestHandler> handler = this.handlers.stream()
@@ -247,11 +253,16 @@ public class RequestProcessor implements AutoCloseable {
         if (handler.isPresent()) {
             if (request.needReply()) {
                 Response response;
+                System.out.println("Request: " + request);
+                System.out.println("Request: " + request.getCommand());
+
+
                 try {
                     response = request.replyResult(handler.get().processRequest(command));
                 } catch (NotExecutedException e) {
                     response = request.replyError(e);
                 }
+                System.out.println("Response: " + response);
                 this.writeAndFlush(response);
             } else {
                 try {

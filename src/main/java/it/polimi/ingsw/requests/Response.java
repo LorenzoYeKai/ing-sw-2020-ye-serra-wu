@@ -34,4 +34,13 @@ class Response implements Serializable {
         }
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Response{" +
+                "sequenceNumber=" + sequenceNumber +
+                ", isException=" + isException +
+                ", result=" + result +
+                '}';
+    }
 }
