@@ -5,13 +5,12 @@ import javafx.animation.PauseTransition;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -55,6 +54,9 @@ public class TestController implements Initializable{
 
     public HBox bottomArea;
 
+    public ImageView yourGod;
+
+    public AnchorPane background;
 
     public void setLowRes(){
         stage.setWidth(640);
@@ -63,6 +65,8 @@ public class TestController implements Initializable{
         topArea.setPrefHeight(54);
         leftArea.setPrefWidth(175);
         rightArea.setPrefWidth(175);
+        yourGod.setFitWidth(100);
+        yourGod.setFitHeight(0);
     }
 
     public void setHd(){
@@ -72,24 +76,45 @@ public class TestController implements Initializable{
         topArea.setPrefHeight(80);
         leftArea.setPrefWidth(350);
         rightArea.setPrefWidth(350);
+        yourGod.setFitWidth(150);
+        yourGod.setFitHeight(0);
     }
 
     public void setFullHd(){
         stage.setWidth(1920);
         stage.setHeight(1080);
-
         bottomArea.setPrefHeight(120);
         topArea.setPrefHeight(120);
         leftArea.setPrefWidth(540);
         rightArea.setPrefWidth(540);
+        yourGod.setFitWidth(250);
+        yourGod.setFitHeight(0);
     }
 
     public void setFullScreen(){
-        stage.setFullScreen(true);
-        bottomArea.setPrefHeight(120);
-        topArea.setPrefHeight(120);
-        leftArea.setPrefWidth(540);
-        rightArea.setPrefWidth(540);
+        if(!stage.isFullScreen()) {
+            stage.setFullScreen(true);
+            bottomArea.setPrefHeight(120);
+            topArea.setPrefHeight(120);
+            leftArea.setPrefWidth(540);
+            rightArea.setPrefWidth(540);
+            yourGod.setFitWidth(250);
+            yourGod.setFitHeight(0);
+            fullScreenButton.setText("Exit FullScreen");
+        }
+        else{
+            stage.setFullScreen(false);
+            stage.setWidth(1280);
+            stage.setHeight(720);
+            bottomArea.setPrefHeight(80);
+            topArea.setPrefHeight(80);
+            leftArea.setPrefWidth(350);
+            rightArea.setPrefWidth(350);
+            yourGod.setFitWidth(150);
+            yourGod.setFitHeight(0);
+            fullScreenButton.setText("FullScreen");
+        }
+
     }
 
     private void chooseGod(){
@@ -127,10 +152,16 @@ public class TestController implements Initializable{
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("ciao");
+        /*world.setPrefWidth(580);
+        world.setPrefHeight(580);*/
+
         bottomArea.setPrefHeight(80);
         topArea.setPrefHeight(80);
         leftArea.setPrefWidth(350);
         rightArea.setPrefWidth(350);
+        yourGod.setFitWidth(150);
+        yourGod.setFitHeight(0);
+
 
         PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
         delay.setOnFinished(e -> chooseGod());

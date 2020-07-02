@@ -137,7 +137,7 @@ public class RoomController {
         window.setScene(lobbyScene);
         window.show();
 
-        client.stopProcessor();
+        //client.stopProcessor();
     }
 
     public void updatePlayersInTheRoom() {
