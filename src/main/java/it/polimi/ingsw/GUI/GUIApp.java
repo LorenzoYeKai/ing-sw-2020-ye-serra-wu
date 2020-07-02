@@ -1,6 +1,7 @@
 package it.polimi.ingsw.GUI;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -23,6 +24,10 @@ public class GUIApp extends Application {
         stage.setMinWidth(1280);
         stage.setWidth(1280);
         stage.setHeight(720);
+        stage.setOnCloseRequest(e -> {
+            Platform.exit();
+            System.exit(0);
+        });
         stage.show();
     }
 
