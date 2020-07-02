@@ -26,11 +26,6 @@ public class Space implements Serializable {
         return this.position;
     }
 
-    @Deprecated
-    public Vector2 getCoordinates() {
-        return this.getPosition();
-    }
-
     /**
      * Calculates the level difference between 2 spaced
      * Returns negative if moving up

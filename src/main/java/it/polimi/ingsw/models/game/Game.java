@@ -260,17 +260,17 @@ public class Game {
             if (w == WorkerActionType.MOVE) {
                 List<Vector2> availableSpacesCoordinates = new ArrayList<>();
                 List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
-                availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getCoordinates()));
+                availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getPosition()));
                 actions.put(w, availableSpacesCoordinates);
             } else if (w == WorkerActionType.BUILD) {
                 List<Vector2> buildableSpacesCoordinates = new ArrayList<>();
                 List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
-                buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getCoordinates()));
+                buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getPosition()));
                 actions.put(w, buildableSpacesCoordinates);
             } else if (w == WorkerActionType.BUILD_DOME) {
                 List<Vector2> buildDomeSpacesCoordinates = new ArrayList<>();
                 List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
-                buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getCoordinates()));
+                buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getPosition()));
                 actions.put(w, buildDomeSpacesCoordinates);
             } else if (w == WorkerActionType.END_TURN) {
                 actions.put(w, null);

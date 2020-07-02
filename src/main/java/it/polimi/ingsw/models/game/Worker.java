@@ -35,7 +35,6 @@ public class Worker {
         return this.currentSpace;
     }
 
-    @Deprecated
     public Player getPlayer() {
         return this.player;
     }
@@ -223,7 +222,7 @@ public class Worker {
      * @param target the target worker.
      */
     public void swap(WorkerData target) {
-        Worker targetWorker = this.getPlayer().getGame().getWorker(target);
+        Worker targetWorker = this.player.getGame().getWorker(target);
         if (this.equals(targetWorker)) {
             throw new InternalError("Cannot swap self");
         }
@@ -244,7 +243,7 @@ public class Worker {
      * @param target the target worker.
      */
     public void push(WorkerData target) {
-        Worker targetWorker = this.getPlayer().getGame().getWorker(target);
+        Worker targetWorker = this.player.getGame().getWorker(target);
         if (this.equals(targetWorker)) {
             throw new InternalError("Cannot push self");
         }
