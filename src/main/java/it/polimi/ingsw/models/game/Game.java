@@ -224,6 +224,9 @@ public class Game {
     public void goToNextTurn() {
         do {
             this.setCurrentPlayer((this.currentPlayer + 1) % this.listOfPlayers.size());
+            if(this.getNumberOfActivePlayers() == 1) {
+                break;
+            }
         }
         while (this.getCurrentPlayer().isDefeated());
     }
@@ -333,6 +336,36 @@ public class Game {
             this.setStatus(GameStatus.PLAYING);
         }
         this.currentPlayer = i;
+
+        if(this.status == GameStatus.PLAYING) {
+            if(this.getCurrentPlayer().getAllWorkers().stream().noneMatch(worker -> worker.getCurrentSpace() == null)) {
+                boolean defeated = false;
+                this.getCurrentPlayer().selectWorker(0);
+                this.clearPreviousWorlds();
+                this.clearCurrentWorkerMovedFlag();
+                this.calculateValidWorkerActions();
+                if(this.getValidWorkerActions().isEmpty()) {
+                    this.getCurrentPlayer().selectWorker(1);
+                    this.clearPreviousWorlds();
+                    this.clearCurrentWorkerMovedFlag();
+                    this.calculateValidWorkerActions();
+                    // if player cannot do anything
+                    if(this.getValidWorkerActions().isEmpty()) {
+                        defeated = true;
+                    }
+                }
+                this.clearPreviousWorlds();
+                this.clearCurrentWorkerMovedFlag();
+                this.getCurrentPlayer().deselectWorker();
+                if(defeated) {
+                    this.getCurrentPlayer().setDefeated();
+                    this.playerLostNotifier.notify(this.getCurrentPlayer().getName());
+                }
+            }
+
+        }
+
+
         this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
         // activate god power for current player
         if(this.getCurrentPlayer().getGod() != null && this.status == GameStatus.PLAYING) {

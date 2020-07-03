@@ -20,6 +20,7 @@ public class GoToNextTurnTest {
         game = new Game(names);
 
         game.setCurrentPlayer(0);
+        game.getCurrentPlayer().selectWorker(0);
     }
 
     @Test
