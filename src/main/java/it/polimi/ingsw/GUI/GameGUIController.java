@@ -170,19 +170,7 @@ public class GameGUIController implements Initializable{
             leftArea.getChildren().remove(opponentOne);
         }
         if(isChallenger) {
-            /*try {
-                client.gameViewInputExec(gameView, "setup");
-            } catch (NotExecutedException e){
-                PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
-                delay.setOnFinished(d -> {
-                    try {
-                        client.gameViewInputExec(gameView, "setup");
-                    }catch(NotExecutedException e){
-                        System.err.println(e.getMessage());
-                    }
-                });
-                delay.play();
-            }*/
+
             client.gameViewInputExec(gameView, "setup");
             PauseTransition delay = new PauseTransition(Duration.seconds(0.5));
             delay.setOnFinished(e -> chooseAvailableGod());

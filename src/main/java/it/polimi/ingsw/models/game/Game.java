@@ -60,7 +60,7 @@ public class Game {
         this.gameViews = new HashMap<>();
 
         this.currentPlayer = -1;
-        this.status = GameStatus.PLAYER_JOINING;
+        this.status = GameStatus.SETUP;
     }
 
     public void attachView(String name, GameView view) {
@@ -80,7 +80,7 @@ public class Game {
         this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
 
         if(this.gameViews.size() == this.listOfPlayers.size()) {
-            this.status = GameStatus.SETUP;
+            this.setStatus(GameStatus.SETUP);
         }
     }
 
@@ -271,6 +271,9 @@ public class Game {
             if(player.getGod() != null) {
                 player.getGod().onTurnEnded(player.getSelectedWorker(), this.getRules());
             }
+        }
+        if(this.status == GameStatus.BEFORE_PLACING){
+            this.setStatus(GameStatus.PLACING);
         }
         if(this.status == GameStatus.BEFORE_PLAYING){
             this.clearPreviousWorlds();

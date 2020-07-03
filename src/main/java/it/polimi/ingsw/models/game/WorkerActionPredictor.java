@@ -28,7 +28,9 @@ public class WorkerActionPredictor {
      * @return true if this initial action
      */
     public boolean verify(Worker worker, WorkerActionType type, Vector2 position) {
+        this.game.getWorld().disableNotifications();
         tryNextAction(worker, type, this.game.getWorld().get(position));
+        this.game.getWorld().enableNotifications();
         return this.isValid;
     }
 
