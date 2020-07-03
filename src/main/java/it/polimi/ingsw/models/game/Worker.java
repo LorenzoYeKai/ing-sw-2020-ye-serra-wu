@@ -11,6 +11,12 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ *
+ *
+ This class represents the pawn
+ It contain all information relating to the player, world and rules.
+ */
 public class Worker {
     private final WorkerData identity;
     private final Player player;
@@ -307,7 +313,12 @@ public class Worker {
         this.currentSpace = previousSpace;
     }
 
-    // TODO: CHECK AGAIN
+    //
+
+    /**
+     *
+     * Remove the worker when the player loses
+     */
     public void removeWorkerWhenDefeated() {
         this.world.update(this.currentSpace.setWorker(null));
         this.currentSpace = null;

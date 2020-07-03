@@ -11,12 +11,16 @@ import java.io.Serializable;
  */
 public class DefaultRule implements Serializable {
 
-    /* Movement rules */
-
     /**
-     * Alcuni currentSpaceData sono passati solo per avere uniformità di parametri per la HashMap
-     * NON sono sicuro si possa o sia poco elegamte farlo ma è la migliore soluzione per ora
+     *
+     * set of all the methods that manage the basic rules of the game
+     *
+     * @param worker the worker which wants to move
+     * @param target the destination space
+     * @return
      */
+
+
     public static boolean defaultIsNeighbor(Worker worker, Space target) {
         return worker.getCurrentSpace().getPosition().isNeighbor(target.getPosition());
     }

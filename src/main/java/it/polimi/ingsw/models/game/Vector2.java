@@ -5,6 +5,12 @@ import it.polimi.ingsw.InternalError;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ *
+ * This class contains a two-dimensional vector.
+ * We have implemented this class to have easier access to the coordinates
+ *
+ */
 public class Vector2 implements Serializable {
     private final int x;
     private final int y;

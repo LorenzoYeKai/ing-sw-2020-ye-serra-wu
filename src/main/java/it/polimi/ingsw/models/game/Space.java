@@ -5,6 +5,12 @@ import it.polimi.ingsw.InternalError;
 import java.io.Serializable;
 import java.util.Objects;
 
+/**
+ *
+ *
+ * This class represents a box on the board so inside we keep all of
+ * information on the levels of the boxes and their occupation
+ */
 public class Space implements Serializable {
     private final Vector2 position;
     private final int level;
@@ -41,16 +47,35 @@ public class Space implements Serializable {
         return this.level;
     }
 
+    /**
+     *
+     *
+     * @return return the workerdata of the worker who occupies it returns
+     */
     public WorkerData getWorkerData() {
         return this.worker;
     }
 
+    /**
+     *
+     *
+     * @return true if it is occupied by a Worker
+     */
     public boolean isOccupiedByWorker() { return this.worker != null; }
 
+    /**
+     *
+     *
+     * @return true if it is occupied by a Dome
+     */
     public boolean isOccupiedByDome() {
         return this.occupiedByDome;
     }
 
+    /**
+     *
+     * @return true if it is occupied
+     */
     public boolean isOccupied() {
         return this.isOccupiedByWorker() || this.isOccupiedByDome();
     }

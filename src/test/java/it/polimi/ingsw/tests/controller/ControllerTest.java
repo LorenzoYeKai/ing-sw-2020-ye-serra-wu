@@ -81,26 +81,9 @@ public class ControllerTest {
 
     }
 
-    @Test
-    @DisplayName("Place test")
-    public void moveTest() throws NotExecutedException {
-        spaceSetup();
-        Worker worker = controller.getGame().getCurrentPlayer().getAllWorkers().get(0);
-        assertFalse(controller.getGame().getWorld().get(2, 1).isOccupiedByWorker());
-        controller.move(worker, controller.getGame().getWorld().get(2, 1));
-        assertTrue(controller.getGame().getWorld().get(2, 1).isOccupiedByWorker());
-        controller.move(worker, controller.getGame().getWorld().get(1, 1));
-        assertTrue(controller.getGame().getWorld().get(1, 1).isOccupiedByWorker());
-    }
 
-    @Test
-    @DisplayName("Build test")
-    public void buildTest() throws NotExecutedException {
-        spaceSetup();
-        Worker worker = controller.getGame().getCurrentPlayer().getAllWorkers().get(0);
-        controller.build(worker, controller.getGame().getWorld().get(1, 1));
-        controller.buildDome(worker, controller.getGame().getWorld().get(2, 1));
-    }
+
+
 
     @Test
     @DisplayName("Phase test")
@@ -125,12 +108,7 @@ public class ControllerTest {
         controller.setPlayerGod(controller.getGame().getListOfPlayers().get(0).getName(), GodType.APOLLO);
     }
 
-    @Test
-    @DisplayName("selectWorkerTest")
-    public void selectWorkerTest() throws NotExecutedException {
-        controller.selectWorker(controller.getGame().getCurrentPlayer().getName(), 0);
-        assertEquals(0, controller.getGame().getCurrentPlayer().getIndexSelectedWorker());
-    }
+
 
     @Test
     @DisplayName("resetTurnTest")

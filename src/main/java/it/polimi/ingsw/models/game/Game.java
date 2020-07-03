@@ -11,6 +11,14 @@ import it.polimi.ingsw.views.game.GameView;
 
 import java.util.*;
 
+
+/**
+ *
+   It is the main class of the model and allows us to reach all the information easily.
+ *
+ *
+ *
+ */
 public class Game {
 
     private final Notifier<GameStatus> gameStatusNotifier;
@@ -136,10 +144,24 @@ public class Game {
         this.availableGodsNotifier.notify(this.availableGods);
     }
 
+    /**
+     Check that the particular god is playable for this game
+     *
+     * @param type god i want to check
+     * @return a boolean
+     */
     public boolean isGodAvailable(GodType type) {
         return this.availableGods.contains(type);
     }
 
+    /**
+     *
+     It allows me to choose one of the active powers for that game
+     *
+     *
+     * @param player player who chooses
+     * @param type power I want to choose
+     */
     public void chooseGod(Player player, GodType type) {
         if (this.status != GameStatus.CHOOSING_GODS) {
             throw new InternalError("Cannot choose available gods now");
@@ -158,6 +180,12 @@ public class Game {
         this.playerGodsNotifier.notify(this.playerGods);
     }
 
+    /**
+     *
+     It allows me to notify other players who have lost
+     *
+     * @param winner player who won
+     */
     public void announceVictory(Player winner) {
         for (Player player : this.listOfPlayers) {
             if (player != winner) {
@@ -209,6 +237,12 @@ public class Game {
         return this.world;
     }
 
+    /**
+     *
+     allows me to take the updated rules
+     *
+     * @return updated rules
+     */
     public ActualRule getRules() {
         return this.rules;
     }
@@ -243,6 +277,13 @@ public class Game {
         this.currentWorkerValidActions = null;
     }
 
+    /**
+     * allows me to return to the condition before the last move.
+     *
+     * Implemented for the undo function
+     *
+     * @return
+     */
     public WorldData getPreviousWorld() {
         return this.world.peekPrevious().orElseThrow(() -> {
             //TODO: handle empty previousWorlds
@@ -250,6 +291,10 @@ public class Game {
         });
     }
 
+    /**
+     * allows me to return to the condition before the last action.
+     *
+     */
     public void gameUndo() {
         this.world.revertWorld();
         for (Space space : this.world.getData()) {
@@ -262,6 +307,13 @@ public class Game {
     public Set<GodType> getAvailableGods() {
         return this.availableGods;
     }
+
+    /**
+     *
+     *setter for the choice of the first player
+     *
+     * @param i index to move through the list of players
+     */
 
     public void setCurrentPlayer(int i) {
 
@@ -319,6 +371,13 @@ public class Game {
         return this.currentWorkerValidActions;
     }
 
+    /**
+     *
+     *
+     * Calculate all possible actions the worker selects for that turn
+     *
+     *
+     */
     public void calculateValidWorkerActions() {
         if(this.status == GameStatus.PLACING){
             return;

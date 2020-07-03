@@ -19,6 +19,9 @@ public class Lobby {
     private final Map<UserToken, User> usersByToken;
     private final Map<String, Room> stagingRooms;
 
+    /**
+     * create a new lobby
+     */
     public Lobby() {
         this.usersChangedNotifier = new Notifier<>();
         this.roomsChangedNotifier = new Notifier<>();
@@ -41,6 +44,13 @@ public class Lobby {
         return Optional.of(this.usersByToken.get(userToken));
     }
 
+    /**
+     *
+     I create the user of the player
+     * @param userName PlayerNickName
+     * @param view
+     * @return UserToken
+     */
     public UserToken createUser(String userName, LobbyView view) {
         if (this.users.containsKey(userName)) {
             throw new InternalError("Username already exists");

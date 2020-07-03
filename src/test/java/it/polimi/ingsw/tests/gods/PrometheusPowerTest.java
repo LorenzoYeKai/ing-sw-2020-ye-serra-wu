@@ -2,10 +2,7 @@ package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.Player;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
@@ -31,6 +28,7 @@ public class PrometheusPowerTest {
         player1 = game.findPlayerByName("player 2");
         player1.setGod(new GodFactory().getGod(GodType.PROMETHEUS));
         player2 = game.findPlayerByName("player 1");
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         spaceSetup();
         Space firstWorkerPosition = game.getWorld().get(1, 1);

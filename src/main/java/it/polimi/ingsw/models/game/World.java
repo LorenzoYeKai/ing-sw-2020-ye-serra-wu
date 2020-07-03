@@ -159,10 +159,21 @@ public class World {
         }
     }
 
+    /**
+     *
+     *
+     I use this to be able to calculate the phase of the turn
+
+
+     * @return return the number of actions done this turn
+     */
     public int getNumberOfSavedPreviousWorlds() {
         return this.previousWorlds.size();
     }
 
+    /**
+     *eliminate all instances of the world when the turn changes
+     */
     public void clearPreviousWorlds() {
         this.previousWorlds.clear();
     }
