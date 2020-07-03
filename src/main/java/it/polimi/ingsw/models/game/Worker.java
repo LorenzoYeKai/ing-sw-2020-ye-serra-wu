@@ -12,10 +12,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- *
- *
- This class represents the pawn
- It contain all information relating to the player, world and rules.
+ * This class represents the pawn
+ * It contain all information relating to the player, world and rules.
  */
 public class Worker {
     private final WorkerData identity;
@@ -99,6 +97,7 @@ public class Worker {
 
     /**
      * Get the possible actions in the current phase
+     *
      * @return the possible actions for the current phase
      */
     public final Map<WorkerActionType, List<Vector2>> computePossibleActions() {
@@ -116,7 +115,7 @@ public class Worker {
         result.put(WorkerActionType.WIN, possibleWins);
         return result;
     }
-    
+
     /**
      * Get the previous space occupied by the worker in the current turn.
      *
@@ -248,6 +247,9 @@ public class Worker {
      * Checks if a movement is satisfying a win condition
      */
     public void victory(Space targetSpace) { //This method is called only after checking that the worker can move to that position
+        if (!this.world.isNotificationEnabled()) {
+            return;
+        }
         if (this.rules.winCondition(this, targetSpace)) {
             this.setAndUpdatePosition(targetSpace);
             this.player.getGame().announceVictory(this.player); //If true the game ends
@@ -316,7 +318,6 @@ public class Worker {
     //
 
     /**
-     *
      * Remove the worker when the player loses
      */
     public void removeWorkerWhenDefeated() {

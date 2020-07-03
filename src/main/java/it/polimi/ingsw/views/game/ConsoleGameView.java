@@ -171,7 +171,6 @@ public class ConsoleGameView implements GameView {
                 if (this.currentStatus == GameStatus.PLAYING) {
                     if (command.equals("UNDO")) {
                         this.controller.undo();
-                        this.workerHasBeenSelected = false;
                         return;
                     }
                 }

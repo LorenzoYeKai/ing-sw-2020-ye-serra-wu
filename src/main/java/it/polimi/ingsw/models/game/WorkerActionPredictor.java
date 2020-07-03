@@ -53,28 +53,32 @@ public class WorkerActionPredictor {
     }
 
     private void tryNextAction(Worker worker, WorkerActionType type, Space space) {
+        boolean needUndo = false;
         switch (type) {
             case MOVE -> {
+                needUndo = true;
                 if (space.isOccupied()) {
                     worker.getPlayer().getGod().forcePower(worker, space);
+                } else {
+                    worker.move(space);
                 }
-                worker.move(space);
                 // worker has moved
                 this.hasMoved = true;
                 this.findValidPath(worker);
             }
             case BUILD, BUILD_DOME -> {
-                if (type == WorkerActionType.BUILD) {
-                    worker.buildBlock(space);
-                } else {
-                    worker.buildDome(space);
-                }
                 // if worker has built after move, then this is a
                 // valid action sequence
                 if (hasMoved) {
                     this.isValid = true;
                 } else {
+                    needUndo = true;
                     // otherwise continue to try to find a valid path
+                    if (type == WorkerActionType.BUILD) {
+                        worker.buildBlock(space);
+                    } else {
+                        worker.buildDome(space);
+                    }
                     this.findValidPath(worker);
                 }
             }
@@ -82,6 +86,9 @@ public class WorkerActionPredictor {
             case WIN -> this.isValid = true;
         }
         // after trying, revert the world.
-        game.gameUndo();
+        if (needUndo) {
+            game.gameUndo();
+        }
+
     }
 }

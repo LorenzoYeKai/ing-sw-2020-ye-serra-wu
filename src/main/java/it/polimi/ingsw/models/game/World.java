@@ -70,6 +70,8 @@ public class World {
         this.enableNotification = true;
     }
 
+    public boolean isNotificationEnabled() { return this.enableNotification; }
+
     /**
      * Starts the batch update mode. After calling this function,
      * subsequent calls to {@link this#update(Space...)} will not trigger
