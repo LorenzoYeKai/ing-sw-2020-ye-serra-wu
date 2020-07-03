@@ -28,6 +28,9 @@ public class LocalGameController implements GameController {
     }
 
     public void selectWorker(String player, int index) throws NotExecutedException {
+        if(index < 0 || index >= 2) {
+            throw new NotExecutedException("Invalid index");
+        }
         if(!this.game.getCurrentPlayer().getName().equals(player)) {
             throw new NotExecutedException("Not your turn");
         }
