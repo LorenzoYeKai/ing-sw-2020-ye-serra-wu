@@ -144,11 +144,11 @@ public class RequestProcessor implements AutoCloseable {
 
         Request request = new Request(sequenceNumber, command);
 
-        System.out.println("remoteInvoke request: " + request);
+        System.out.println("remoteInvoke request: " + request.getCommand());
 
         this.writeAndFlush(request);
 
-        if(this.sequenceNumber == 9){
+        if(this.sequenceNumber == 6){
             System.out.println("ciao");
         }
 

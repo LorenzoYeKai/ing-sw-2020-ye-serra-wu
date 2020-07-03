@@ -3,13 +3,13 @@ package it.polimi.ingsw.views.game;
 import it.polimi.ingsw.GUI.GameGUIController;
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
+import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
 
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -55,23 +55,27 @@ public class GUIGameView implements GameView {
     @Override
     public void notifyPlayerGods(Map<String, GodType> playerAndGods) {
 
+        playerAndGods.forEach((p, g) -> gameGUIController.displayOpponentsAvailableGods(p, g));
     }
 
 
     @Override
     public void notifySpaceChange(Space space) {
+        System.out.println("NotifyPlayerGods");
+        System.out.println(space.isOccupiedByWorker());
+        System.out.println(space.getWorkerData().getPlayer());
 
+        gameGUIController.updateWorld(space);
     }
 
     @Override
     public void notifyPlayerTurn(String player) {
-        System.out.println("I'm in notifyPlayerTurn");
+
         if(player.equals(this.player)) {
-            System.out.println("I'm " + player);
             gameGUIController.initCurrentTurn(this.currentStatus);
         }
         else{
-            System.out.println("I'm not " + player);
+            gameGUIController.notYourTurnMessage(this.currentStatus, player);
         }
     }
 
@@ -94,10 +98,13 @@ public class GUIGameView implements GameView {
                 this.controller.setGameStatus(GameStatus.CHOOSING_GODS);
                 this.controller.setCurrentPlayer(gameGUIController.getListOfPlayers().indexOf(gameGUIController.getFirstPlayerName()));
             }
-            case "END" -> this.controller.nextTurn();
+            case "placing" -> this.controller.setGameStatus(GameStatus.PLACING);
+            case "place" -> this.controller.workerAction(player, WorkerActionType.PLACE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
+            case "play" -> this.controller.setGameStatus(GameStatus.PLAYING);
+            case "end" -> this.controller.nextTurn();
             case "setup" -> this.controller.setGameStatus(GameStatus.SETUP);
-            /*case "GOD" -> this.controller.setPlayerGod(this.player, GodType.valueOf(scanner.next().toUpperCase()));
-            case "SELECT" -> this.controller.selectWorker(scanner.nextInt());*/
+            case "god" -> this.controller.setPlayerGod(this.player, gameGUIController.getChosenGod());
+            //case "SELECT" -> this.controller.selectWorker(scanner.nextInt());*/
         }
     }
 }
