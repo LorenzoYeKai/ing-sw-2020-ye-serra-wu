@@ -4,6 +4,9 @@ import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.lobby.remote.ClientLobbyController;
 import it.polimi.ingsw.InternalError;
+import it.polimi.ingsw.models.game.GameStatus;
+import it.polimi.ingsw.models.game.gods.God;
+import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.requests.RequestProcessor;
 import it.polimi.ingsw.views.game.ConsoleGameView;
 import it.polimi.ingsw.views.game.GameView;
@@ -68,8 +71,9 @@ public class Client implements AutoCloseable {
         }
     }
 
-    public void run() {
+    public void run() throws NotExecutedException, IOException {
 
+        GameController gameCon;
         Scanner input = new Scanner(System.in);
         System.out.println("Type your username: ");
         String userName = input.nextLine();
@@ -105,7 +109,7 @@ public class Client implements AutoCloseable {
                 return null;
             });
         }
-        System.out.println("Got game controller (Not implemented yet");
+
 
         ConsoleGameView gameView;
         try {
@@ -119,17 +123,20 @@ public class Client implements AutoCloseable {
             throw new InternalError(e);
         }
         while (true) {
-            String line = input.nextLine();
-            this.dispatch(() -> {
-                try {
-                    gameView.executeAction(line);
-                } catch (NotExecutedException e) {
-                    System.out.println(e.getMessage());
-                }
-                return null;
-            });
 
+                String line = input.nextLine();
+                this.dispatch(() -> {
+                    try {
+                        gameView.executeAction(line);
+                    } catch (NotExecutedException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    return null;
+
+                });
         }
+
+
 
         /*this.processor.requestStop();
         try {
@@ -139,3 +146,4 @@ public class Client implements AutoCloseable {
         }*/
     }
 }
+

@@ -8,6 +8,7 @@ import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.utils.ConsoleMatrix;
 
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -21,51 +22,127 @@ public class ConsoleGameView implements GameView {
     private final List<String> allPlayers;
     private final Map<String, GodType> playerGods;
     private GameStatus currentStatus = GameStatus.SETUP;
+    private int x=0;
+    public List<String> avaliableGods;
+
+
 
     public ConsoleGameView(String player,
                            List<String> allPlayers,
                            GameController controller,
-                           PrintStream output) {
+                           PrintStream output) throws NotExecutedException, IOException {
         this.player = player;
         this.controller = controller;
         this.output = output;
         this.allPlayers = allPlayers;
         this.playerGods = new HashMap<>();
+        controller.joinGame(this.player,this);
+        System.out.print("sei connesso alla partita");
+        controller.setGameStatus(GameStatus.SETUP);
+        controller.setCurrentPlayer(0);
+
+
+
+
+        for(int y=0;y<World.SIZE;++y)
+        {
+            for(int x=0;x<World.SIZE;++x){
+                spaces[y*World.SIZE+x]= new Space(x,y);
+            }
+
+        }
+        this.printMap();
     }
+
+
+
 
     public void executeAction(String input)
             throws NotExecutedException, IOException {
-        Scanner scanner = new Scanner(input);
 
+
+        if (this.currentStatus.equals(GameStatus.SETUP)) {
+            System.out.print("il challenger scelga i poteri");
+            Scanner scanner = new Scanner(input);
+            String command = scanner.next().toUpperCase();
+            if(isAvailable(command))
+            {this.controller.addAvailableGods(GodType.valueOf(command));
+            avaliableGods.add(command);}
+            if(avaliableGods.size()==allPlayers.size())
+            {
+                controller.setGameStatus(GameStatus.CHOOSING_GODS);
+            }
+        } else {
+            System.out.print("errore di inserimento");
+        }
+        Scanner scanner = new Scanner(input);
         String command = scanner.next().toUpperCase();
+
         switch (command) {
+
             case "END" -> this.controller.nextTurn();
             case "GOD" -> this.controller.setPlayerGod(this.player, GodType.valueOf(scanner.next().toUpperCase()));
             case "SELECT" -> this.controller.selectWorker(scanner.nextInt());
-            default -> {
-                WorkerActionType type;
-                int x;
-                int y;
-                try {
-                    type = WorkerActionType.valueOf(command);
-                    x = scanner.nextInt();
-                    y = scanner.nextInt();
-                    if (!World.isInWorld(x, y)) {
-                        throw new NotExecutedException("Invalid coordinates");
-                    }
-                } catch (Exception exception) {
-                    this.output.println("Exception: " + exception);
-                    return;
-                }
+            case "UNDO" -> this.controller.undo();
+            case "PLACE" -> {
+                if (this.getCurrentStatus().equals(GameStatus.PLACING)) {
+                    WorkerActionType type;
+                    int x;
+                    int y;
+                    try {
+                        type = WorkerActionType.valueOf(command);
+                        x = scanner.nextInt();
+                        y = scanner.nextInt();
+                        if (!World.isInWorld(x, y)) {
+                            throw new NotExecutedException("Invalid coordinates");
+                        }
 
-                try {
-                    this.controller.workerAction(this.player, type, x, y);
-                } catch (NotExecutedException | IOException e) {
-                    this.output.println("Command failed: " + e);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+                default -> {
+                    WorkerActionType type;
+                    int x;
+                    int y;
+                    try {
+                        type = WorkerActionType.valueOf(command);
+                        x = scanner.nextInt();
+                        y = scanner.nextInt();
+                        if (!World.isInWorld(x, y)) {
+                            throw new NotExecutedException("Invalid coordinates");
+                        }
+                    } catch (Exception exception) {
+                        this.output.println("Exception: " + exception);
+                        return;
+                    }
+
+                    try {
+                        this.controller.workerAction(this.player, type, x, y);
+                    } catch (NotExecutedException | IOException e) {
+                        this.output.println("Command failed: " + e);
+                    }
                 }
             }
         }
-    }
+
+
+
+
+
+
+    public GameStatus  getCurrentStatus()
+
+    {return currentStatus;}
+
+
+    public GameController getGameController()
+
+    {return this.controller;}
+
+
+
+
 
     @Override
     public void notifyGameStatus(GameStatus status) {
@@ -112,7 +189,7 @@ public class ConsoleGameView implements GameView {
         this.output.println(player + " has lost!");
     }
 
-    private void printMap() {
+    public void printMap() {
         String[] levels = new String[]{" ", "1", "2", "3"};
         String dome = "^";
 
@@ -197,4 +274,20 @@ public class ConsoleGameView implements GameView {
 
         this.output.print(matrix.toString());
     }
+    public boolean isAvailable(String god)
+    {
+        try{
+            GodType.valueOf(god);return true;
+        }catch(Exception e){
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
 }
