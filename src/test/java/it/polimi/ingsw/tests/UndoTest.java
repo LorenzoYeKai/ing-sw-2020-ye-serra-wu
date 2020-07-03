@@ -1,5 +1,6 @@
 package it.polimi.ingsw.tests;
 
+import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +43,7 @@ public class UndoTest {
 
     @Test
     @DisplayName("Undo with a move:")
-    public void undoMoveTest() {
+    public void undoMoveTest() throws NotExecutedException {
 
         //Worker moves
 
@@ -64,7 +65,7 @@ public class UndoTest {
 
     @Test
     @DisplayName("Undo with a move and a build:")
-    public void undoMoveAndBuildTest() {
+    public void undoMoveAndBuildTest() throws NotExecutedException {
 
         //Worker moves
 
