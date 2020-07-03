@@ -836,6 +836,49 @@ public class GameGUIController implements Initializable{
                                         String img = getClass().getResource("/images/DOME.png").toExternalForm();
                                         space.setStyle("-fx-background-image: url('" + img +"')");
                                     }
+                                    if(gameView.getCurrentStatus() == GameStatus.PLAYING){
+                                        sameWorkerSelect();
+                                    }
+
+                                } catch (IndexOutOfBoundsException e) {
+                                    e.printStackTrace();
+                                } finally{
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
+
+
+    }
+
+    public void sameWorkerSelect(){
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    if(selectedWorkerIndex == 0) {
+                                        client.gameViewInputExec(gameView, "validate0");
+                                    }
+                                    if(selectedWorkerIndex == 1) {
+                                        client.gameViewInputExec(gameView, "validate1");
+                                    }
+                                    activateButtons();
                                 } catch (IndexOutOfBoundsException e) {
                                     e.printStackTrace();
                                 } finally{
