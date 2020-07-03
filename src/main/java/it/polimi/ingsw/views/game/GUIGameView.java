@@ -9,6 +9,7 @@ import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Vector2;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
+import javafx.scene.control.MultipleSelectionModel;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -62,12 +63,12 @@ public class GUIGameView implements GameView {
 
     @Override
     public void notifySpaceChange(Space space) {
+        System.out.println("Space changed!");
         gameGUIController.updateWorld(space);
     }
 
     @Override
     public void notifyPlayerTurn(String player) {
-
         if(player.equals(this.player)) {
             gameGUIController.initCurrentTurn(this.currentStatus);
         }
@@ -95,6 +96,7 @@ public class GUIGameView implements GameView {
                 this.controller.setGameStatus(GameStatus.CHOOSING_GODS);
                 this.controller.setCurrentPlayer(gameGUIController.getListOfPlayers().indexOf(gameGUIController.getFirstPlayerName()));
             }
+            case "move" -> this.controller.workerAction(player, WorkerActionType.MOVE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "placing" -> this.controller.setGameStatus(GameStatus.BEFORE_PLACING);
             case "place" -> this.controller.workerAction(player, WorkerActionType.PLACE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "play" -> this.controller.setGameStatus(GameStatus.BEFORE_PLAYING);

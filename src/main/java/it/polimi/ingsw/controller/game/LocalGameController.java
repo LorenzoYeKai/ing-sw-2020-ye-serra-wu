@@ -52,12 +52,12 @@ public class LocalGameController implements GameController {
             }
         }
 
-        if (action == WorkerActionType.PLACE) {
+        /*if (action == WorkerActionType.PLACE) {
             game.getCurrentPlayer().selectWorker(0);
             if (game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null) {
                 game.getCurrentPlayer().selectWorker(1);
             }
-        }
+        }*/
         Worker worker = this.game.getCurrentPlayer().getSelectedWorker();
         Space targetSpace = this.game.getWorld().get(x, y);
 

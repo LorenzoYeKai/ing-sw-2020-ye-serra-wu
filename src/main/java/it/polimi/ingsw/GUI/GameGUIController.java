@@ -7,6 +7,7 @@ import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Vector2;
+import it.polimi.ingsw.models.game.Worker;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.game.GUIGameView;
 import javafx.animation.PauseTransition;
@@ -90,6 +91,8 @@ public class GameGUIController implements Initializable{
     private boolean utilityBoolean;
 
     private Map<WorkerActionType, List<Vector2>> workerTwoPossibleActions;
+
+    private WorkerActionType selectedAction;
 
     public Button lowResButton;
 
@@ -347,6 +350,7 @@ public class GameGUIController implements Initializable{
                 yourTurnMessage(GameStatus.PLAYING, "Select a worker and make a move");
                 workerAutoSelect();
             }
+
             //case ENDED -> ;*/
             default -> throw new InternalError("Not implemented yet");
         }
@@ -516,6 +520,8 @@ public class GameGUIController implements Initializable{
     }
 
     public void placeWorker(){
+        selectedWorkerIndex = utilityCounter - 1;
+        client.gameViewInputExec(gameView, "select");
         client.gameViewInputExec(gameView, "place");
         if(utilityCounter == 2){
             if(areAllWorkerPlaced()){
@@ -523,7 +529,8 @@ public class GameGUIController implements Initializable{
             }
             endTurnButton.setDisable(false);
         }
-        System.out.println("Are all workers placed? -> " + areAllWorkerPlaced());
+        selectedY = -1;
+        selectedX = -1;
     }
 
 
@@ -634,6 +641,14 @@ public class GameGUIController implements Initializable{
 
 
     public void move(ActionEvent event) {
+        if(selectedWorkerIndex == 0){
+            workerOnePossibleActions.get(WorkerActionType.MOVE).forEach(this::lightUpSpaces);
+        }
+        if(selectedWorkerIndex == 1){
+            workerTwoPossibleActions.get(WorkerActionType.MOVE).forEach(this::lightUpSpaces);
+        }
+        selectedAction = WorkerActionType.MOVE;
+        moveButton.setDisable(true);
     }
 
     public void build(ActionEvent event) {
@@ -656,6 +671,45 @@ public class GameGUIController implements Initializable{
         }
         if(isYourTurn && gameView.getCurrentStatus() == GameStatus.PLAYING ){
             selectWorkerInteraction(mouseEvent);
+        }
+        if(selectedAction == WorkerActionType.MOVE && isYourTurn){
+            moveSelection(mouseEvent);
+        }
+    }
+
+    private void moveSelection(MouseEvent mouseEvent) {
+        Node source = (Node) mouseEvent.getSource();
+        int newSelectedX;
+        int newSelectedY;
+        if (GridPane.getRowIndex(source) == null) {
+            newSelectedX = 0;
+        } else {
+            newSelectedX = GridPane.getRowIndex(source);
+        }
+        if (GridPane.getColumnIndex(source) == null) {
+            newSelectedY = 0;
+        } else {
+            newSelectedY = GridPane.getColumnIndex(source);
+        }
+        List<Vector2> vector = this.getPossibleWorkerAction(selectedWorkerIndex).get(WorkerActionType.MOVE);
+        for(Vector2 v : vector){
+            if(v.getX() == newSelectedX && v.getY() == newSelectedY){
+                selectedX = newSelectedX;
+                selectedY = newSelectedY;
+                System.out.println("Worker: " + selectedWorkerIndex);
+                System.out.println("Coordinates: " + newSelectedX + " " + newSelectedY);
+                client.gameViewInputExec(gameView, "move");
+            }
+        }
+        clearSpaces();
+    }
+
+    private void clearSpaces() {
+        ObservableList<Node> children = boardGrid.getChildren();
+
+        for (Node node : children) {
+            StackPane space = (StackPane) node;
+            space.setStyle("-fx-background-color: transparent");
         }
     }
 
@@ -833,8 +887,7 @@ public class GameGUIController implements Initializable{
                     utilityCounter++;
                     placeWorker();
                 }
-                selectedX = -1;
-                selectedY = -1;
+
             }
         }
     }
@@ -866,11 +919,13 @@ public class GameGUIController implements Initializable{
                     oldSpace.setStyle("-fx-background-color: transparent");
                     this.selectedWorkerIndex = 0;
                     space.setStyle("-fx-background-color: rgba(150, 192, 235, 0.7)");
+                    client.gameViewInputExec(gameView, "select");
                     activateButtons();
                 }
                 else if(this.selectedWorkerIndex == -1){
                     this.selectedWorkerIndex = 0;
                     space.setStyle("-fx-background-color: rgba(150, 192, 235, 0.7)");
+                    client.gameViewInputExec(gameView, "select");
                     activateButtons();
                 }
             }
@@ -880,6 +935,7 @@ public class GameGUIController implements Initializable{
                     oldSpace.setStyle("-fx-background-color: transparent");
                     this.selectedWorkerIndex = 1;
                     space.setStyle("-fx-background-color: rgba(150, 192, 235, 0.7)");
+                    client.gameViewInputExec(gameView, "select");
                     activateButtons();
                 }
                 else if(this.selectedWorkerIndex == 1){
@@ -890,12 +946,14 @@ public class GameGUIController implements Initializable{
                 else if(this.selectedWorkerIndex == -1){
                     this.selectedWorkerIndex = 1;
                     space.setStyle("-fx-background-color: rgba(150, 192, 235, 0.7)");
+                    client.gameViewInputExec(gameView, "select");
                     activateButtons();
                 }
             }
             else{
                 this.selectedWorkerIndex = -1;
             }
+
             activateButtons();
         }
     }
@@ -937,11 +995,33 @@ public class GameGUIController implements Initializable{
         buildDomeButton.setDisable(true);
     }
 
-    private void lightUpSpaces(){
+    private void lightUpSpaces(Vector2 vector){
+        ObservableList<Node> children = boardGrid.getChildren();
+        for (Node node : children) {
+            StackPane space = (StackPane) node;
+            int newSelectedX;
+            int newSelectedY;
+            if(GridPane.getRowIndex(node) == null){
+                newSelectedX = 0;
+            }
+            else {
+                newSelectedX = GridPane.getRowIndex(node);
+            }
+            if(GridPane.getColumnIndex(node) == null){
+                newSelectedY = 0;
+            }
+            else {
+                newSelectedY = GridPane.getColumnIndex(node);
+            }
+            if(newSelectedX == vector.getX() && newSelectedY == vector.getY()){
+                space.setStyle("-fx-background-color: rgba(0, 0, 252, 0.7)");
+            }
+        }
 
     }
 
     private Node whereIsWorker(ImageView worker){
+
         Node result = null;
         ObservableList<Node> children = boardGrid.getChildren();
 
@@ -956,6 +1036,15 @@ public class GameGUIController implements Initializable{
         return result;
     }
 
+
+    private Map<WorkerActionType, List<Vector2>> getPossibleWorkerAction(int i){
+        if(i == 0){
+            return workerOnePossibleActions;
+        }
+        else{
+           return workerTwoPossibleActions;
+        }
+    }
 
     private enum workerColor{
         RED,
