@@ -272,6 +272,9 @@ public class Game {
                 player.getGod().onTurnEnded(player.getSelectedWorker(), this.getRules());
             }
         }
+        if(this.status == GameStatus.BEFORE_PLACING){
+            this.setStatus(GameStatus.PLACING);
+        }
         if(this.status == GameStatus.BEFORE_PLAYING){
             this.clearPreviousWorlds();
             this.clearCurrentWorkerMovedFlag();
