@@ -5,9 +5,7 @@ import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.models.game.rules.DefaultRule;
 
-/**
- * Not implemented yet
- */
+
 public class Minotaur extends God {
 
     //Default action order
