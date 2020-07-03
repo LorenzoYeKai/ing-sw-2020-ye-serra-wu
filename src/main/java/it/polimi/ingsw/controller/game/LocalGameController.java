@@ -118,6 +118,7 @@ public class LocalGameController implements GameController {
             }
         }
         this.game.goToNextTurn();
+        this.resetTurn();
     }
 
     public void setCurrentPlayer(int index) {
@@ -181,7 +182,10 @@ public class LocalGameController implements GameController {
         this.game.clearCurrentWorkerMovedFlag();
     }
 
-    public void undo() {
+    public void undo() throws NotExecutedException {
+        if(this.currentActions.isEmpty()) {
+            throw new NotExecutedException("Cannot undo because you haven't done anything yet");
+        }
         this.game.gameUndo();
         this.currentActions.remove(this.currentActions.size() - 1);
     }
