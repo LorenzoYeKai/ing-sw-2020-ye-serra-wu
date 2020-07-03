@@ -59,7 +59,7 @@ public class HephaestusPowerTest {
         game.getWorld().get(2, 0);
         game.getWorld().get(2, 0); //lv3
         action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.BUILD) && action.contains(WorkerActionType.END_TURN));
+        assertTrue(action.contains(WorkerActionType.BUILD));
         assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(0, 0)));
         assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(1, 0)));
         controller.build(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 0));

@@ -46,15 +46,15 @@ public class LocalGameController implements GameController {
             throw new NotExecutedException("Not your turn");
         }
 
-        if(!this.game.getCurrentPlayer().hasSelectedAWorker()) {
-            if(action != WorkerActionType.PLACE) {
+        if (!this.game.getCurrentPlayer().hasSelectedAWorker()) {
+            if (action != WorkerActionType.PLACE) {
                 throw new NotExecutedException("You need to select worker first");
             }
         }
 
-        if(action == WorkerActionType.PLACE){
+        if (action == WorkerActionType.PLACE) {
             game.getCurrentPlayer().selectWorker(0);
-            if(game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null){
+            if (game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null) {
                 game.getCurrentPlayer().selectWorker(1);
             }
         }
@@ -70,11 +70,11 @@ public class LocalGameController implements GameController {
 
         if (action != WorkerActionType.PLACE) {
             // check if the request action is valid
-            if(!this.getValidActions().containsKey(action)) {
+            if (!this.getValidActions().containsKey(action)) {
                 // this action isn't valid
                 throw new NotExecutedException("Invalid action");
             }
-            if(!this.getValidActions().get(action).contains(new Vector2(x, y))) {
+            if (!this.getValidActions().get(action).contains(new Vector2(x, y))) {
                 // the action is valid, but not valid with this coordinate.
                 throw new NotExecutedException("Invalid action");
             }
@@ -102,15 +102,19 @@ public class LocalGameController implements GameController {
         game.removeAvailableGod(type);
     }
 
-    public void nextTurn() {
-        if (game.getCurrentPlayer().getIndex() == game.getNumberOfActivePlayers() - 1) {
-            game.setCurrentPlayer(0);
-        } else {
-            game.setCurrentPlayer(game.getCurrentPlayer().getIndex() + 1);
+    public void nextTurn() throws NotExecutedException {
+        // ensure all workers has been placed
+        if (this.game.getStatus() == GameStatus.PLACING) {
+            for (Worker worker : this.game.getCurrentPlayer().getAllWorkers()) {
+                if (worker.getCurrentSpace() == null) {
+                    throw new NotExecutedException("You need to place all your workers!");
+                }
+            }
         }
+        this.game.goToNextTurn();
     }
 
-    public void setCurrentPlayer(int index) {   // l'indice del giocatore lo prendiamo lato client
+    public void setCurrentPlayer(int index) {
         game.setCurrentPlayer(index);
     }
 
@@ -149,22 +153,11 @@ public class LocalGameController implements GameController {
         worker.buildDome(targetSpace);
     }
 
-    public void handleDefeat(Player player) {
-        if (!(player.getIndex() == game.getNumberOfActivePlayers() - 1)) {
-            nextTurn();
-        }
-        game.getListOfPlayers().remove(player);
-        player.getAllWorkers().get(0).removeWorkerWhenDefeated();
-        player.getAllWorkers().get(1).removeWorkerWhenDefeated();
-
-    }
-
-    public void checkDefeat(WorkerActionType type, Worker worker) {
-        throw new InternalError("Not implemented");
-    }
-
     @Override
     public void setGameStatus(GameStatus status) {
+        if (this.game.getStatus() == GameStatus.PLAYER_JOINING) {
+            throw new NotExecutedException("Wait for player join before changing status");
+        }
         this.game.setStatus(status);
     }
 

@@ -53,7 +53,7 @@ public class ControllerTest {
 
     @Test
     @DisplayName("NextTurn")
-    public void nextTurnTest() {
+    public void nextTurnTest() throws NotExecutedException {
         controller.setCurrentPlayer(0);
         controller.nextTurn();
         assertNotEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(0));

@@ -21,9 +21,11 @@ public class ConsoleGameView implements GameView {
     private final Space[] spaces = new Space[World.SIZE * World.SIZE];
     private final List<String> allPlayers;
     private final Map<String, GodType> playerGods;
+    private final boolean iAmChallenger;
+    private int numberOfAvailableGods = 0;
     private GameStatus currentStatus = GameStatus.SETUP;
-    private int x=0;
-    public List<String> avaliableGods;
+    private boolean isMyTurn;
+    private boolean workerHasBeenSelected;
 
 
 
@@ -36,122 +38,164 @@ public class ConsoleGameView implements GameView {
         this.output = output;
         this.allPlayers = allPlayers;
         this.playerGods = new HashMap<>();
-        controller.joinGame(this.player,this);
-        System.out.print("sei connesso alla partita");
-        controller.setGameStatus(GameStatus.SETUP);
-        controller.setCurrentPlayer(0);
+        this.iAmChallenger = this.allPlayers.get(0).equals(this.player);
 
+        this.controller.joinGame(this.player, this);
+        this.output.print("Connected to game");
+        this.controller.setGameStatus(GameStatus.SETUP);
 
-
-
-        for(int y=0;y<World.SIZE;++y)
-        {
-            for(int x=0;x<World.SIZE;++x){
-                spaces[y*World.SIZE+x]= new Space(x,y);
+        for (int y = 0; y < World.SIZE; ++y) {
+            for (int x = 0; x < World.SIZE; ++x) {
+                spaces[y * World.SIZE + x] = new Space(x, y);
             }
-
         }
-        this.printMap();
     }
 
-
-
+    public void showHelp() {
+        switch (this.currentStatus) {
+            case SETUP -> {
+                if(this.iAmChallenger) {
+                    if(numberOfAvailableGods != this.allPlayers.size()) {
+                        this.output.println("Add gods using `add_god [GOD NAME]`");
+                    }
+                    else {
+                        this.output.println("Choose first player using `set_first [PLAYER NAME]`");
+                    }
+                }
+                else {
+                    this.output.println("Wait for the challenger.");
+                }
+            }
+            case CHOOSING_GODS -> this.output.println("Choose your god using `god [GOD NAME]`");
+            case PLACING -> {
+                if(!this.workerHasBeenSelected) {
+                    this.output.println("Select your worker using `select [INDEX]`");
+                }
+                else {
+                    this.output.println("Place your worker using `place [X] [Y]`");
+                }
+            }
+            case PLAYING -> {
+                if(!this.workerHasBeenSelected) {
+                    this.output.println("Select your worker using `select [INDEX]`");
+                }
+                else {
+                    this.output.println("Usage: `move/build/build_dome [X] [Y]`");
+                }
+            }
+        }
+    }
 
     public void executeAction(String input)
             throws NotExecutedException, IOException {
 
-
-        if (this.currentStatus.equals(GameStatus.SETUP)) {
-            System.out.print("il challenger scelga i poteri");
-            Scanner scanner = new Scanner(input);
-            String command = scanner.next().toUpperCase();
-            if(isAvailable(command))
-            {this.controller.addAvailableGods(GodType.valueOf(command));
-            avaliableGods.add(command);}
-            if(avaliableGods.size()==allPlayers.size())
-            {
-                controller.setGameStatus(GameStatus.CHOOSING_GODS);
+        if (this.currentStatus == GameStatus.SETUP) {
+            if (!iAmChallenger) {
+                throw new NotExecutedException("Wait the challenger!");
             }
-        } else {
-            System.out.print("errore di inserimento");
+        } else if (!this.isMyTurn) {
+            throw new NotExecutedException("Not your turn!");
         }
-        Scanner scanner = new Scanner(input);
-        String command = scanner.next().toUpperCase();
 
-        switch (command) {
+        Scanner scanner = new Scanner(input.toUpperCase());
+        String command = scanner.next();
 
-            case "END" -> this.controller.nextTurn();
-            case "GOD" -> this.controller.setPlayerGod(this.player, GodType.valueOf(scanner.next().toUpperCase()));
-            case "SELECT" -> this.controller.selectWorker(scanner.nextInt());
-            case "UNDO" -> this.controller.undo();
-            case "PLACE" -> {
-                if (this.getCurrentStatus().equals(GameStatus.PLACING)) {
-                    WorkerActionType type;
-                    int x;
-                    int y;
-                    try {
-                        type = WorkerActionType.valueOf(command);
-                        x = scanner.nextInt();
-                        y = scanner.nextInt();
-                        if (!World.isInWorld(x, y)) {
-                            throw new NotExecutedException("Invalid coordinates");
-                        }
-
-                    } catch (Exception e) {
+        switch (this.currentStatus) {
+            case SETUP -> {
+                if (numberOfAvailableGods != this.allPlayers.size()) {
+                    if (!command.equals("ADD_GOD")) {
+                        throw new NotExecutedException("You need add god now.");
                     }
+                    this.controller.addAvailableGods(GodType.valueOf(scanner.next()));
+                } else {
+                    if (!command.equals("SET_FIRST")) {
+                        throw new NotExecutedException("You need set first player now.");
+                    }
+                    String playerName = scanner.nextLine();
+                    Optional<String> player = this.allPlayers.stream()
+                            .filter(x -> x.toUpperCase().equals(playerName))
+                            .findAny();
+                    if (player.isEmpty()) {
+                        throw new NotExecutedException("Invalid player name");
+                    }
+                    this.controller.setGameStatus(GameStatus.CHOOSING_GODS);
+                    this.controller.setCurrentPlayer(this.allPlayers.indexOf(player.get()));
                 }
             }
-                default -> {
-                    WorkerActionType type;
-                    int x;
-                    int y;
-                    try {
-                        type = WorkerActionType.valueOf(command);
-                        x = scanner.nextInt();
-                        y = scanner.nextInt();
-                        if (!World.isInWorld(x, y)) {
-                            throw new NotExecutedException("Invalid coordinates");
-                        }
-                    } catch (Exception exception) {
-                        this.output.println("Exception: " + exception);
+            case CHOOSING_GODS -> {
+                if (!command.equals("GOD")) {
+                    throw new NotExecutedException("You must choose god now.");
+                }
+
+                GodType type;
+                try {
+                    type = GodType.valueOf(command);
+                } catch (IllegalArgumentException e) {
+                    throw new NotExecutedException("Invalid god name");
+                }
+                this.controller.setPlayerGod(this.player, type);
+            }
+            case PLACING, PLAYING -> {
+                if (this.currentStatus == GameStatus.PLAYING) {
+                    if (command.equals("UNDO")) {
+                        this.controller.undo();
+                        this.workerHasBeenSelected = false;
                         return;
                     }
-
-                    try {
-                        this.controller.workerAction(this.player, type, x, y);
-                    } catch (NotExecutedException | IOException e) {
-                        this.output.println("Command failed: " + e);
-                    }
                 }
+
+                if (!this.workerHasBeenSelected) {
+                    if (!command.equals("SELECT")) {
+                        throw new NotExecutedException("You need to select worker now");
+                    }
+                    this.controller.selectWorker(scanner.nextInt());
+                    this.workerHasBeenSelected = true;
+                    return;
+                }
+
+                WorkerActionType type;
+                int x;
+                int y;
+                try {
+                    type = WorkerActionType.valueOf(command);
+                    x = scanner.nextInt();
+                    y = scanner.nextInt();
+                } catch (Exception e) {
+                    throw new NotExecutedException("Invalid worker action input");
+                }
+
+                if (!World.isInWorld(x, y)) {
+                    throw new NotExecutedException("Invalid coordinates");
+                }
+
+                this.controller.workerAction(this.player, type, x, y);
             }
         }
 
+    }
 
+    public GameStatus getCurrentStatus() {
+        return currentStatus;
+    }
 
-
-
-
-    public GameStatus  getCurrentStatus()
-
-    {return currentStatus;}
-
-
-    public GameController getGameController()
-
-    {return this.controller;}
-
-
-
-
+    public GameController getGameController() {
+        return this.controller;
+    }
 
     @Override
     public void notifyGameStatus(GameStatus status) {
         this.currentStatus = status;
         switch (status) {
             case SETUP -> this.output.println("Setup phase");
-            case CHOOSING_GODS -> this.output.println("Choosing gods, use `GOS [GOD NAME]` to choose god");
-            case PLACING -> this.output.println("Placing workers");
-            case PLAYING -> this.output.println("Game started");
+            case CHOOSING_GODS -> this.output.println("Choosing gods, use `GOD [GOD NAME]` to choose god");
+            case PLACING -> {
+                this.output.println("Placing workers.");
+                this.printMap();
+            }
+            case PLAYING -> {
+                this.output.println("Game started");
+                this.printMap();
+            }
             case ENDED -> this.output.println("Game ended");
             default -> throw new InternalError("Not implemented yet");
         }
@@ -161,12 +205,17 @@ public class ConsoleGameView implements GameView {
     public void notifyAvailableGods(Collection<GodType> availableGods) {
         this.output.println("Available gods: ");
         availableGods.forEach(this.output::println);
+        numberOfAvailableGods = availableGods.size();
     }
 
     @Override
     public void notifyPlayerGods(Map<String, GodType> playerAndGods) {
         this.playerGods.clear();
         this.playerGods.putAll(playerAndGods);
+        this.output.println("Player gods:");
+        this.playerGods.forEach((player, god) -> {
+            this.output.println("Player " + player + " has selected " + god);
+        });
     }
 
     @Override
@@ -179,9 +228,11 @@ public class ConsoleGameView implements GameView {
     public void notifyPlayerTurn(String player) {
         if (this.player.equals(player)) {
             this.output.println("Your turn!");
+            this.workerHasBeenSelected = false;
         } else {
             this.output.println("Turn of " + player);
         }
+
     }
 
     @Override
@@ -219,7 +270,7 @@ public class ConsoleGameView implements GameView {
         yCoordinates.print(" ─0─1─2─3─4─");
 
         if (this.currentStatus == GameStatus.PLACING) {
-            info.println("Now is placing phase, move your workers");
+            info.println("Now is placing phase, place your workers");
         } else {
             info.println("Move / build with your workers");
         }
@@ -253,7 +304,6 @@ public class ConsoleGameView implements GameView {
                 } else {
                     world.setCharacter(i, j, '│');
                 }
-
             }
         }
 
@@ -274,20 +324,4 @@ public class ConsoleGameView implements GameView {
 
         this.output.print(matrix.toString());
     }
-    public boolean isAvailable(String god)
-    {
-        try{
-            GodType.valueOf(god);return true;
-        }catch(Exception e){
-            return false;
-        }
-    }
-
-
-
-
-
-
-
-
 }
