@@ -135,7 +135,6 @@ final class GameStatusCommand implements RemoteCommand {
  * Can be used to represent all
  * {@link GameController}'s commands without a parameter.
  * For example {@link GameController#nextTurn()},
- * {@link GameController#resetTurn()} and
  * {@link GameController#undo()}
  */
 final class MiscellaneousCommand implements RemoteCommand {
@@ -154,7 +153,6 @@ final class MiscellaneousCommand implements RemoteCommand {
     @Override
     public Serializable apply(GameController controller) throws NotExecutedException, IOException {
         switch (type) {
-            case RESET_TURN -> controller.resetTurn();
             case NEXT_TURN -> controller.nextTurn();
             case UNDO -> controller.undo();
         }

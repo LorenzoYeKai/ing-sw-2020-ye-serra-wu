@@ -113,7 +113,7 @@ public class Client implements AutoCloseable {
 
         ConsoleGameView gameView;
         try {
-             gameView = futureGame.thenApply(gameController ->
+            gameView = futureGame.thenApply(gameController ->
                     this.dispatch(() ->
                             new ConsoleGameView(view.getUserName(), view.getRoomPlayers(),
                                     gameController, System.out)
@@ -123,17 +123,19 @@ public class Client implements AutoCloseable {
             throw new InternalError(e);
         }
         while (true) {
-
-                String line = input.nextLine();
-                this.dispatch(() -> {
-                    try {
-                        gameView.executeAction(line);
-                    } catch (NotExecutedException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    return null;
-
-                });
+            this.dispatch(() -> {
+                gameView.showHelp();
+                return null;
+            });
+            String line = input.nextLine();
+            this.dispatch(() -> {
+                try {
+                    gameView.executeAction(line);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
+                return null;
+            });
         }
 
 

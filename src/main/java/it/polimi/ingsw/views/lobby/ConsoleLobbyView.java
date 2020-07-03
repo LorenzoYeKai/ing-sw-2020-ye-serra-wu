@@ -24,6 +24,7 @@ public class ConsoleLobbyView implements LobbyView {
 
     private final Consumer<GameController> onGameStarted;
 
+    private boolean gameStarting = false;
     private String lastRoomName;
     private String currentRoomName;
 
@@ -144,17 +145,22 @@ public class ConsoleLobbyView implements LobbyView {
     public void notifyRoomChanged(String newRoomName) {
         this.lastRoomName = this.currentRoomName;
         this.currentRoomName = newRoomName;
-        this.playersInTheRoom.clear();
+        if (!gameStarting) {
+            this.playersInTheRoom.clear();
+        }
     }
 
     @Override
     public void displayRoomPlayerList(Collection<String> playerList) {
-        this.playersInTheRoom.clear();
-        this.playersInTheRoom.addAll(playerList);
+        if (!gameStarting) {
+            this.playersInTheRoom.clear();
+            this.playersInTheRoom.addAll(playerList);
+        }
     }
 
     @Override
     public void notifyGameStarted(GameController gameController) {
+        this.gameStarting = true;
         this.onGameStarted.accept(gameController);
     }
 }

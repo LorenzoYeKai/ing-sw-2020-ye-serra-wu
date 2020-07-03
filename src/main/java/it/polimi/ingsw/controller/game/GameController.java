@@ -44,9 +44,6 @@ public interface GameController {
     void setPlayerGod(String player, GodType god)
             throws NotExecutedException, IOException;
 
-    void resetTurn()
-            throws NotExecutedException, IOException;
-
     void undo()
             throws NotExecutedException, IOException;
 

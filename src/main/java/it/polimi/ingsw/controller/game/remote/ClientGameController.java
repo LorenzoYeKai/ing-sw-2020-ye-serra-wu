@@ -104,13 +104,6 @@ public class ClientGameController implements GameController {
     }
 
     @Override
-    public void resetTurn() throws NotExecutedException, IOException {
-        MiscellaneousCommand command =
-                new MiscellaneousCommand(MiscellaneousCommand.Type.RESET_TURN);
-        this.connection.remoteInvoke(command);
-    }
-
-    @Override
     public void undo() throws NotExecutedException, IOException {
         MiscellaneousCommand command =
                 new MiscellaneousCommand(MiscellaneousCommand.Type.UNDO);

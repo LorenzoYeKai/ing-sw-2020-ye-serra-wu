@@ -24,8 +24,9 @@ public class ControllerTest {
 
     @Test
     @DisplayName("Aggiuntapoteri alla partita")
-    public void addAvailableGodsTest() {
-        controller.setupGame();
+    public void addAvailableGodsTest() throws NotExecutedException {
+        controller.setGameStatus(GameStatus.SETUP);
+
         controller.addAvailableGods(GodType.APOLLO);
         controller.addAvailableGods(GodType.ARTEMIS);
         controller.addAvailableGods(GodType.ATHENA);
@@ -42,8 +43,8 @@ public class ControllerTest {
 
     @Test
     @DisplayName("Add gods to the match")
-    public void removeAvailableGodsTest() {
-        controller.setupGame();
+    public void removeAvailableGodsTest() throws NotExecutedException {
+        controller.setGameStatus(GameStatus.SETUP);
         assertFalse(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
         controller.addAvailableGods(GodType.APOLLO);
         assertTrue(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
@@ -53,7 +54,7 @@ public class ControllerTest {
 
     @Test
     @DisplayName("NextTurn")
-    public void nextTurnTest() {
+    public void nextTurnTest() throws NotExecutedException {
         controller.setCurrentPlayer(0);
         controller.nextTurn();
         assertNotEquals(controller.getGame().getCurrentPlayer(), controller.getGame().getListOfPlayers().get(0));
@@ -103,14 +104,14 @@ public class ControllerTest {
 
     @Test
     @DisplayName("Phase test")
-    public void phaseTest() {
-        controller.setupGame();
+    public void phaseTest() throws NotExecutedException {
+        controller.setGameStatus(GameStatus.SETUP);
         assertEquals(controller.getGame().getStatus(), GameStatus.SETUP);
-        controller.chooseGods();
+        controller.setGameStatus(GameStatus.CHOOSING_GODS);
         assertEquals(controller.getGame().getStatus(), GameStatus.CHOOSING_GODS);
-        controller.placeWorkers();
+        controller.setGameStatus(GameStatus.PLACING);
         assertEquals(controller.getGame().getStatus(), GameStatus.PLACING);
-        controller.playGame();
+        controller.setGameStatus(GameStatus.PLAYING);
         assertEquals(controller.getGame().getStatus(), GameStatus.PLAYING);
 
     }

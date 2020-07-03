@@ -32,31 +32,31 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <StackPane id="space" prefHeight="150.0" prefWidth="200.0" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" />
-            <StackPane id="space" layoutX="61.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" />
-            <StackPane id="space" layoutX="113.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" />
-            <StackPane id="space" layoutX="217.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="1" />
-            <StackPane id="space" layoutX="10.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <StackPane id="space" layoutX="61.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-            <StackPane id="space" layoutX="113.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-            <StackPane id="space" layoutX="10.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="2" />
-            <StackPane id="space" layoutX="10.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-            <StackPane id="space" layoutX="113.0" layoutY="132.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-            <StackPane id="space" layoutX="217.0" layoutY="132.0" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="3" />
-            <StackPane id="space" layoutX="10.0" layoutY="193.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-            <StackPane id="space" layoutX="61.0" layoutY="193.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-            <StackPane id="space" layoutX="113.0" layoutY="193.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-            <StackPane id="space" layoutX="217.0" layoutY="193.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <StackPane id="space" layoutX="53.0" layoutY="254.0" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="4" />
-            <StackPane id="space" layoutX="53.0" layoutY="254.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-            <StackPane id="space" layoutX="61.0" layoutY="254.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <StackPane id="space" layoutX="10.0" layoutY="10.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <StackPane id="space" layoutX="61.0" layoutY="71.0" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <StackPane id="space" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" />
+            <StackPane id="space" layoutX="61.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" />
+            <StackPane id="space" layoutX="113.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" />
+            <StackPane id="space" layoutX="217.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="1" />
+            <StackPane id="space" layoutX="10.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <StackPane id="space" layoutX="61.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <StackPane id="space" layoutX="113.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+            <StackPane id="space" layoutX="10.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="2" />
+            <StackPane id="space" layoutX="10.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+            <StackPane id="space" layoutX="113.0" layoutY="132.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <StackPane id="space" layoutX="217.0" layoutY="132.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="3" />
+            <StackPane id="space" layoutX="10.0" layoutY="193.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+            <StackPane id="space" layoutX="61.0" layoutY="193.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+            <StackPane id="space" layoutX="113.0" layoutY="193.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="3" />
+            <StackPane id="space" layoutX="217.0" layoutY="193.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <StackPane id="space" layoutX="53.0" layoutY="254.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.rowIndex="4" />
+            <StackPane id="space" layoutX="53.0" layoutY="254.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
+            <StackPane id="space" layoutX="61.0" layoutY="254.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <StackPane id="space" layoutX="10.0" layoutY="10.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <StackPane id="space" layoutX="61.0" layoutY="71.0" onMouseClicked="#selectSpace" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          </children>
       </GridPane>
    </center>
@@ -69,6 +69,7 @@
             <Button fx:id="fullScreenButton" mnemonicParsing="false" onAction="#setFullScreen" text="FullScreen" />
             <Button mnemonicParsing="false" onAction="#showChosenGods" text="Gods" />
             <Button mnemonicParsing="false" onAction="#showFirstPlayer" text="FirstPlayer" />
+            <Label fx:id="messageLabel" alignment="CENTER" text="A game has started!" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
    </top>
@@ -83,7 +84,7 @@
                   <Image url="@../images/blankGodCard.png" />
                </image>
             </ImageView>
-            <Label fx:id="opponentOne" text="Label" >
+            <Label fx:id="opponentOne" text="Label">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>
@@ -109,7 +110,7 @@
                   <Image url="@../images/blankGodCard.png" />
                </image>
             </ImageView>
-            <Label fx:id="opponentTwo" text="Label" >
+            <Label fx:id="opponentTwo" text="Label">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>

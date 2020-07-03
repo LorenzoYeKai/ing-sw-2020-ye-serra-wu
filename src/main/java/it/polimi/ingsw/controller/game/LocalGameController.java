@@ -9,6 +9,7 @@ import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,65 +17,64 @@ import java.util.Optional;
 public class LocalGameController implements GameController {
     protected final Game game;
     private final ActualRule rules;
-    private boolean gameStarted = false;
+    private final List<WorkerActionType> currentActions;
+
 
     public LocalGameController(List<String> nicknames) {
         this.game = new Game(nicknames);
         this.rules = this.game.getRules();
+        this.currentActions = new ArrayList<>();
     }
 
-    public void joinGame(String nickname, GameView view) { //Old method for the local game view
+    public void joinGame(String nickname, GameView view) {
         this.game.attachView(nickname, view);
-        //return this.game.findPlayerByName(nickname);
     }
 
     public void selectWorker(int index) {
-        game.getCurrentPlayer().selectWorker(index);
+        this.game.getCurrentPlayer().selectWorker(index);
+        this.currentActions.clear();
         // this will be useful to make the game predict actions
-        game.clearCurrentWorkerMovedFlag();
-        game.calculateValidWorkerActions();
+        this.game.clearCurrentWorkerMovedFlag();
+        this.game.calculateValidWorkerActions();
     }
 
     public void workerAction(String player,
                              WorkerActionType action,
                              int x, int y) throws NotExecutedException {
-        // should be not checked because checking currentPlayer is enough
-        /*if (workerData.getPlayer().isDefeated()) {
-            throw new NotExecutedException("You have been defeated");
-        }*/
+
         if (!this.game.getCurrentPlayer().getName().equals(player)) {
             throw new NotExecutedException("Not your turn");
         }
 
-        if(!this.game.getCurrentPlayer().hasSelectedAWorker()) {
-            if(action != WorkerActionType.PLACE) {
+        if (!this.game.getCurrentPlayer().hasSelectedAWorker()) {
+            if (action != WorkerActionType.PLACE) {
                 throw new NotExecutedException("You need to select worker first");
             }
         }
 
-        if(action == WorkerActionType.PLACE){
+        if (action == WorkerActionType.PLACE) {
             game.getCurrentPlayer().selectWorker(0);
-            if(game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null){
+            if (game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null) {
                 game.getCurrentPlayer().selectWorker(1);
             }
         }
         Worker worker = this.game.getCurrentPlayer().getSelectedWorker();
         Space targetSpace = this.game.getWorld().get(x, y);
 
-        if (action == WorkerActionType.PLACE && this.gameStarted) {
-            throw new NotExecutedException("Game already started");
+        if (this.game.getStatus() != GameStatus.PLACING && action == WorkerActionType.PLACE) {
+            throw new NotExecutedException("Cannot place now");
         }
-        if (action != WorkerActionType.PLACE && !this.gameStarted) {
-            throw new NotExecutedException("Game not started yet");
+        if (this.game.getStatus() == GameStatus.PLACING && action != WorkerActionType.PLACE) {
+            throw new NotExecutedException("You must place now");
         }
 
         if (action != WorkerActionType.PLACE) {
             // check if the request action is valid
-            if(!this.getValidActions().containsKey(action)) {
+            if (!this.getValidActions().containsKey(action)) {
                 // this action isn't valid
                 throw new NotExecutedException("Invalid action");
             }
-            if(!this.getValidActions().get(action).contains(new Vector2(x, y))) {
+            if (!this.getValidActions().get(action).contains(new Vector2(x, y))) {
                 // the action is valid, but not valid with this coordinate.
                 throw new NotExecutedException("Invalid action");
             }
@@ -82,35 +82,60 @@ public class LocalGameController implements GameController {
 
         switch (action) {
             case PLACE -> this.place(worker, targetSpace);
-            case MOVE -> this.move(worker, targetSpace);
-            case WIN -> this.move(worker, targetSpace);
+            case MOVE, WIN -> this.move(worker, targetSpace);
             case BUILD -> this.build(worker, targetSpace);
             case BUILD_DOME -> this.buildDome(worker, targetSpace);
         }
 
+        this.currentActions.add(action);
         if (action == WorkerActionType.MOVE) {
             this.game.setCurrentWorkerMovedFlag();
         }
         this.game.calculateValidWorkerActions();
     }
 
-    public void addAvailableGods(GodType type) {
-        game.addAvailableGods(type);
-    }
-
-    public void removeAvailableGod(GodType type) {
-        game.removeAvailableGod(type);
-    }
-
-    public void nextTurn() {
-        if (game.getCurrentPlayer().getIndex() == game.getNumberOfActivePlayers() - 1) {
-            game.setCurrentPlayer(0);
-        } else {
-            game.setCurrentPlayer(game.getCurrentPlayer().getIndex() + 1);
+    public void addAvailableGods(GodType type) throws NotExecutedException {
+        if (this.game.isGodAvailable(type)) {
+            throw new NotExecutedException("God already added");
         }
+        this.game.addAvailableGods(type);
     }
 
-    public void setCurrentPlayer(int index) {   // l'indice del giocatore lo prendiamo lato client
+    public void removeAvailableGod(GodType type) throws NotExecutedException {
+        if (!this.game.isGodAvailable(type)) {
+            throw new NotExecutedException("Cannot remove non existing god");
+        }
+        this.game.removeAvailableGod(type);
+    }
+
+    public void nextTurn() throws NotExecutedException {
+        if (this.game.getStatus() == GameStatus.PLACING ||
+                this.game.getStatus() == GameStatus.BEFORE_PLAYING) {
+            // ensure all workers has been placed
+
+            for (Worker worker : this.game.getCurrentPlayer().getAllWorkers()) {
+                if (worker.getCurrentSpace() == null) {
+                    throw new NotExecutedException("You need to place all your workers!");
+                }
+            }
+        }
+        else if (this.game.getStatus() == GameStatus.PLAYING) {
+            // ensure move then build
+            int buildBlockIndex = this.currentActions.lastIndexOf(WorkerActionType.BUILD);
+            int buildDomeIndex = this.currentActions.lastIndexOf(WorkerActionType.BUILD_DOME);
+            int buildIndex = Integer.max(buildBlockIndex, buildDomeIndex);
+            if(!this.currentActions.contains(WorkerActionType.MOVE)) {
+                throw new NotExecutedException("You must move at least once before ending the turn");
+            }
+            if(buildIndex < this.currentActions.indexOf(WorkerActionType.MOVE)) {
+                throw new NotExecutedException("You must move then build before ending the turn");
+            }
+        }
+        this.game.goToNextTurn();
+        this.resetTurn();
+    }
+
+    public void setCurrentPlayer(int index) {
         game.setCurrentPlayer(index);
     }
 
@@ -132,7 +157,6 @@ public class LocalGameController implements GameController {
         } else {
             worker.move(targetSpace);
         }
-
     }
 
     public void build(Worker worker, Space targetSpace) throws NotExecutedException {
@@ -149,46 +173,10 @@ public class LocalGameController implements GameController {
         worker.buildDome(targetSpace);
     }
 
-    public void handleDefeat(Player player) {
-        if (!(player.getIndex() == game.getNumberOfActivePlayers() - 1)) {
-            nextTurn();
-        }
-        game.getListOfPlayers().remove(player);
-        player.getAllWorkers().get(0).removeWorkerWhenDefeated();
-        player.getAllWorkers().get(1).removeWorkerWhenDefeated();
-
-    }
-
-    public void checkDefeat(WorkerActionType type, Worker worker) {
-        throw new InternalError("Not implemented");
-    }
-
     @Override
-    public void setGameStatus(GameStatus status) {
-        switch (status) {
-            case SETUP -> this.setupGame();
-            case CHOOSING_GODS -> this.chooseGods();
-            case PLACING -> this.placeWorkers();
-            case PLAYING -> this.playGame();
-        }
+    public void setGameStatus(GameStatus status)  {
+        this.game.setStatus(status);
     }
-
-    public void setupGame() {
-        this.game.setStatus(GameStatus.SETUP);
-    }
-
-    public void chooseGods() {
-        this.game.setStatus(GameStatus.CHOOSING_GODS);
-    }
-
-    public void placeWorkers() {
-        this.game.setStatus(GameStatus.PLACING);
-    }
-
-    public void playGame() {
-        this.game.setStatus(GameStatus.PLAYING);
-    }
-
 
     public void setPlayerGod(String player, GodType god) throws NotExecutedException {
         Optional<Player> found = this.game.getListOfPlayers().stream()
@@ -208,9 +196,12 @@ public class LocalGameController implements GameController {
         this.game.clearCurrentWorkerMovedFlag();
     }
 
-    public void undo() {
-        //TODO: some god may have the power activated after the undo!!!
-        game.gameUndo();
+    public void undo() throws NotExecutedException {
+        if(this.currentActions.isEmpty()) {
+            throw new NotExecutedException("Cannot undo because you haven't done anything yet");
+        }
+        this.game.gameUndo();
+        this.currentActions.remove(this.currentActions.size() - 1);
     }
 
     @Override

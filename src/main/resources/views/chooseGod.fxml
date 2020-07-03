@@ -25,7 +25,7 @@
             <Image url="@../images/blankGodCard.png" />
          </image>
       </ImageView>
-      <Button fx:id="confirmButton" layoutX="270.0" layoutY="330.0" mnemonicParsing="false" text="Confirm" />
+      <Button fx:id="confirmButton" layoutX="270.0" layoutY="330.0" mnemonicParsing="false" onAction="#confirmGod" text="Confirm" />
       <Label layoutX="205.0" layoutY="52.0" text="Choose a God!">
          <font>
             <Font name="Arial Black" size="24.0" />

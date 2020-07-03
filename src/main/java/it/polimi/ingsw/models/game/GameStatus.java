@@ -7,10 +7,11 @@ package it.polimi.ingsw.models.game;
  * We use this enumeration to distinguish which methods to call when creating the game
  */
 public enum GameStatus {
-    PLAYER_JOINING,
     SETUP,
     CHOOSING_GODS,
+    BEFORE_PLACING,
     PLACING,
+    BEFORE_PLAYING,
     PLAYING,
     ENDED,
 }
