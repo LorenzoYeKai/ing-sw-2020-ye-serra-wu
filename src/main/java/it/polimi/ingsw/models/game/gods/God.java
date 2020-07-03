@@ -18,20 +18,28 @@ import java.util.stream.Collectors;
  *
  */
 public abstract class God implements Serializable {
-
+    /**
+     *Manages the activation of power at the beginning of the turn
+     * @param rules is modified by  method
+     */
     public void onTurnStarted(ActualRule rules) {
         this.activateGodPower(rules);
     }
 
+    /**
+     *Manages the deactivation of power at the end of the turn
+     * @param workerUsed  benefited from power
+     * @param rules are reset to the default ones
+     */
     public void onTurnEnded(Worker workerUsed, ActualRule rules) {
         this.deactivateGodPower(rules);
     }
 
     /**
-     *
-     * @param phase the phase of the turn
-     * @param worker the worker witch wants to move
-     * @return all possible action that the worker can perform
+     * Manages possible actions during my turn,add all my possible actions in a list; if the list is empty I lost
+     * @param phase
+     * @param worker  selected during my turn
+     * @return contain all my possible actions in a list
      */
     public final List<WorkerActionType> workerActionOrder(int phase, Worker worker) {
         List<WorkerActionType> possibleActionsList = new ArrayList<>();

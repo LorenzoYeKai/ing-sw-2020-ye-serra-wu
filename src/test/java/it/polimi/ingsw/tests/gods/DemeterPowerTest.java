@@ -2,10 +2,7 @@ package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.controller.game.WorkerActionType;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.Player;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
@@ -29,19 +26,14 @@ public class DemeterPowerTest {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.DEMETER));
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
-        player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().get(1, 1);
-        Space secondWorkerPosition = game.getWorld().get(2, 2);
-        player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
-        player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
-        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
-        player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
-        player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.DEMETER));
+        game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,3));
+        game.clearPreviousWorlds();
     }
 
 
@@ -49,20 +41,13 @@ public class DemeterPowerTest {
     @DisplayName("demeter power test")
     public void demeterPowerTest() throws NotExecutedException {
 
-        controller.getGame().getWorld().clearPreviousWorlds();
-        List<WorkerActionType> action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.MOVE));
-        controller.move(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 0));
-        action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.BUILD) && action.contains(WorkerActionType.BUILD_DOME));
-        controller.build(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(1, 0));
-        action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.BUILD) && action.contains(WorkerActionType.BUILD_DOME) && action.contains(WorkerActionType.END_TURN));
-        assertFalse(game.getCurrentPlayer().getAvailableWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(1, 0)));
-        assertTrue(game.getCurrentPlayer().getAvailableWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(0, 1)));
-        controller.build(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 1));
-        action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.END_TURN));
+        game.getCurrentPlayer().selectWorker(0);
+        game.clearPreviousWorlds();
+        game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(3,3));
+        game.getCurrentPlayer().getAllWorkers().get(0).buildBlock(game.getWorld().get(4,3));
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(3,2)));
+        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(4,3)));
+
 
 
     }

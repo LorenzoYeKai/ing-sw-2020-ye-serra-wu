@@ -10,6 +10,14 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ *
+ *
+ *This class contains all the information about the player and we have the reference to his Worker
+ *
+ *
+ */
+
 public class Player {
 
     private final String name;
@@ -19,6 +27,15 @@ public class Player {
     private boolean defeated;
     private int selectedWorker;
 
+
+    /**
+     *
+     *The builder also creates his worker
+     *
+     *
+     * @param game reference to the game he will play
+     * @param name name of player
+     */
     public Player(Game game, String name) {
         this.game = game;
         this.name = name;
@@ -35,10 +52,16 @@ public class Player {
         return this.defeated;
     }
 
+    /**
+     * @return returns all player's worker
+     */
     public List<Worker> getAllWorkers() {
         return this.workers;
     }
 
+    /**
+     * @return returns all player's worker who can take at least one action
+     */
     public List<Worker> getAvailableWorkers() {
         return this.workers.stream()
                 .filter(worker -> worker.computeAvailableSpaces().size() > 0)
@@ -53,6 +76,11 @@ public class Player {
         return this.god;
     }
 
+    /**
+     * Get the God that will be used by this player
+     * @param god
+     * @return
+     */
     public GodType getGodType(God god) {
         return GodType.parseFromGod(god);
     }
@@ -66,6 +94,7 @@ public class Player {
         }
         this.god = god;
     }
+
 
     public Worker getWorker(WorkerData data) {
         if (!this.name.equals(data.getPlayer())) {
@@ -100,10 +129,19 @@ public class Player {
         this.selectedWorker = -1;
     }
 
+    /**
+     *
+     * It is used to find out if a worker has already been chosen for that turn
+     * @return boolean
+     */
     public boolean hasSelectedAWorker() {
         return this.selectedWorker != -1;
     }
 
+    /**
+     * getter of chosen worker
+     * @return
+     */
     public Worker getSelectedWorker() {
         if (this.selectedWorker == 0 || this.selectedWorker == 1) {
             return this.workers.get(this.selectedWorker);

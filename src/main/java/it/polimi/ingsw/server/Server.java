@@ -17,11 +17,10 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private static final int PORT = 12345;
-    private ServerSocket serverSocket;
+    private final ServerSocket serverSocket;
     private final LobbyController lobby = new LocalLobbyController();
-    private ExecutorService executor = Executors.newFixedThreadPool(128);
-    private List<String> nicknames = new ArrayList<>();
-    private Map<String, Socket> lobbyWaitingList = new HashMap<>();
+    private final ExecutorService executor = Executors.newFixedThreadPool(128);
+
     //private Set<GameServer> gameServers;
 
     public Server() throws IOException {
