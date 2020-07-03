@@ -165,30 +165,8 @@ public class LocalGameController implements GameController {
 
     @Override
     public void setGameStatus(GameStatus status) {
-        switch (status) {
-            case SETUP -> this.setupGame();
-            case CHOOSING_GODS -> this.chooseGods();
-            case PLACING -> this.placeWorkers();
-            case PLAYING -> this.playGame();
-        }
+        this.game.setStatus(status);
     }
-
-    public void setupGame() {
-        this.game.setStatus(GameStatus.SETUP);
-    }
-
-    public void chooseGods() {
-        this.game.setStatus(GameStatus.CHOOSING_GODS);
-    }
-
-    public void placeWorkers() {
-        this.game.setStatus(GameStatus.PLACING);
-    }
-
-    public void playGame() {
-        this.game.setStatus(GameStatus.PLAYING);
-    }
-
 
     public void setPlayerGod(String player, GodType god) throws NotExecutedException {
         Optional<Player> found = this.game.getListOfPlayers().stream()

@@ -25,7 +25,7 @@ public class ControllerTest {
     @Test
     @DisplayName("Aggiuntapoteri alla partita")
     public void addAvailableGodsTest() {
-        controller.setupGame();
+        controller.setGameStatus(GameStatus.SETUP);
         controller.addAvailableGods(GodType.APOLLO);
         controller.addAvailableGods(GodType.ARTEMIS);
         controller.addAvailableGods(GodType.ATHENA);
@@ -43,7 +43,7 @@ public class ControllerTest {
     @Test
     @DisplayName("Add gods to the match")
     public void removeAvailableGodsTest() {
-        controller.setupGame();
+        controller.setGameStatus(GameStatus.SETUP);
         assertFalse(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
         controller.addAvailableGods(GodType.APOLLO);
         assertTrue(controller.getGame().getAvailableGods().contains(GodType.APOLLO));
@@ -104,13 +104,13 @@ public class ControllerTest {
     @Test
     @DisplayName("Phase test")
     public void phaseTest() {
-        controller.setupGame();
+        controller.setGameStatus(GameStatus.SETUP);
         assertEquals(controller.getGame().getStatus(), GameStatus.SETUP);
-        controller.chooseGods();
+        controller.setGameStatus(GameStatus.CHOOSING_GODS);
         assertEquals(controller.getGame().getStatus(), GameStatus.CHOOSING_GODS);
-        controller.placeWorkers();
+        controller.setGameStatus(GameStatus.PLACING);
         assertEquals(controller.getGame().getStatus(), GameStatus.PLACING);
-        controller.playGame();
+        controller.setGameStatus(GameStatus.PLAYING);
         assertEquals(controller.getGame().getStatus(), GameStatus.PLAYING);
 
     }
