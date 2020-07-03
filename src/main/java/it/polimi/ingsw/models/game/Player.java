@@ -105,6 +105,7 @@ public class Player {
 
     public void setDefeated() {
         this.defeated = true;
+        this.getAllWorkers().forEach(Worker::removeWorkerWhenDefeated);
     }
 
     public int getIndex() {

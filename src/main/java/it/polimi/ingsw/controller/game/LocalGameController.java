@@ -6,10 +6,7 @@ import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class LocalGameController implements GameController {
     protected final Game game;
@@ -73,12 +70,13 @@ public class LocalGameController implements GameController {
 
         if (action != WorkerActionType.PLACE) {
             // check if the request action is valid
-            if (!this.getValidActions().containsKey(action)) {
-                // this action isn't valid
-                throw new NotExecutedException("Invalid action");
+            List<Vector2> list = this.getValidActions().getOrDefault(action, Collections.emptyList());
+            if(action == WorkerActionType.MOVE) {
+                list.addAll(this.getValidActions().getOrDefault(WorkerActionType.WIN, Collections.emptyList()));
             }
-            if (!this.getValidActions().get(action).contains(new Vector2(x, y))) {
-                // the action is valid, but not valid with this coordinate.
+
+            if(!list.contains(new Vector2(x, y))) {
+                // the action is not valid with this coordinate.
                 throw new NotExecutedException("Invalid action");
             }
         }
