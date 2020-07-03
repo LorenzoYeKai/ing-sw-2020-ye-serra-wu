@@ -48,6 +48,7 @@ public class ServerGameController implements RemoteRequestHandler, AutoCloseable
             GameView view = new ServerGameView(this.requestProcessor);
             try {
                 this.controller.joinGame(nickname, view);
+                return null;
             } catch (IOException e) {
                 // network errors will only happen in these following situations:
                 // - the underlying LobbyController is another ClientGameController
@@ -59,7 +60,7 @@ public class ServerGameController implements RemoteRequestHandler, AutoCloseable
         else {
             RemoteCommand command = (RemoteCommand)request;
             try {
-                command.apply(this.controller);
+                return command.apply(this.controller);
             } catch (IOException e) {
                 // network errors will only happen in these following situations:
                 // - the underlying LobbyController is another ClientGameController
@@ -68,8 +69,6 @@ public class ServerGameController implements RemoteRequestHandler, AutoCloseable
                 throw new InternalError("IOException when processing command");
             }
         }
-
-        return null;
     }
 
 

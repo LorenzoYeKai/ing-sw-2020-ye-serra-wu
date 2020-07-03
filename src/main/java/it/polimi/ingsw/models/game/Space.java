@@ -90,6 +90,9 @@ public class Space implements Serializable {
      * @return the new {@link Space} with the new worker or without worker.
      */
     public Space setWorker(WorkerData worker) {
+        if(this.isOccupiedByDome()) {
+            throw new InternalError("Cannot move to dome space");
+        }
         return new Space(this.position, this.level, worker, this.occupiedByDome);
     }
 

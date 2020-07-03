@@ -33,12 +33,12 @@ public class Apollo extends God {
             // then we can move by forcing the swap position
             return !Objects.equals(worker.getIdentity().getPlayer(), target.getWorkerData().getPlayer());
         });
-        rules.getMovementRules().remove("defaultIsFreeFromWorker");
+        rules.removeMovementRules("defaultIsFreeFromWorker");
     }
 
     @Override
     public void deactivateGodPower(ActualRule rules) {
-        rules.getMovementRules().remove("apolloPower");
+        rules.removeMovementRules("apolloPower");
         rules.addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
 
     }

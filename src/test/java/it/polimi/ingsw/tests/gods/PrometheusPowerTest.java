@@ -28,9 +28,10 @@ public class PrometheusPowerTest {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
-        game.setCurrentPlayer(1);
-        player1 = game.getCurrentPlayer();
+        player1 = game.findPlayerByName("player 2");
+        player1.setGod(new GodFactory().getGod(GodType.PROMETHEUS));
         player2 = game.findPlayerByName("player 1");
+        game.setCurrentPlayer(1);
         spaceSetup();
         Space firstWorkerPosition = game.getWorld().get(1, 1);
         Space secondWorkerPosition = game.getWorld().get(2, 2);
@@ -40,7 +41,7 @@ public class PrometheusPowerTest {
         Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.PROMETHEUS));
+        game.clearPreviousWorlds();
     }
 
 
@@ -55,7 +56,8 @@ public class PrometheusPowerTest {
         assertTrue(action.contains(WorkerActionType.MOVE));
         controller.move(game.getCurrentPlayer().getAvailableWorkers().get(1), game.getWorld().get(2, 3));
         action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(1));
-        assertTrue(action.contains(WorkerActionType.BUILD_DOME) && action.contains(WorkerActionType.BUILD));
+        var possible = player1.getAllWorkers().get(1).computePossibleActions();
+        assertTrue(action.contains(WorkerActionType.BUILD));
 
 
     }

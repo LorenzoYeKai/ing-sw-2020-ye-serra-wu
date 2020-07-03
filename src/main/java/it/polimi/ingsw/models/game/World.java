@@ -1,5 +1,6 @@
 package it.polimi.ingsw.models.game;
 
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.Notifiable;
 
 import java.util.*;
@@ -15,9 +16,10 @@ public class World {
 
     public static final int SIZE = 5;
     private final Notifiable<Space> onSpaceChanged;
+    private boolean enableNotification = true;
     private List<Space> pendingChanges; // see beginBatchUpdate
     private WorldData data; // current world
-    private final Deque<WorldData> previousWorlds;
+    private final LinkedList<WorldData> previousWorlds;
 
     public static boolean isInWorld(int x, int y) {
         return y >= 0 && y < World.SIZE && x >= 0 && x < World.SIZE;
@@ -32,6 +34,7 @@ public class World {
      */
     public World(Notifiable<Space> onSpaceChanged) {
         this.onSpaceChanged = onSpaceChanged;
+        this.pendingChanges = null;
         this.previousWorlds = new LinkedList<>();
         List<Space> spaces = new ArrayList<>(World.SIZE * World.SIZE);
         for (int y = 0; y < World.SIZE; ++y) {
@@ -48,6 +51,23 @@ public class World {
 
     public Space get(Vector2 coordinates) {
         return this.getData().get(coordinates);
+    }
+
+    /**
+     * Disable notification. When notification is disabled, any changes to the
+     * world will not trigger {@link #onSpaceChanged}. Notification is on by
+     * default.
+     * Used mainly by {@link WorkerActionPredictor}.
+     */
+    public void disableNotifications() {
+        this.enableNotification = false;
+    }
+
+    /**
+     * Enable notification. Notification is enabled by default.
+     */
+    public void enableNotifications() {
+        this.enableNotification = true;
     }
 
     /**
@@ -98,6 +118,18 @@ public class World {
     }
 
     /**
+     * Get a previous world by index.
+     * 0 is the most recent previous world.
+     * @return a previous world.
+     */
+    public WorldData getPrevious(int index) {
+        if(index >= this.getNumberOfSavedPreviousWorlds()) {
+            throw new InternalError("Out of range");
+        }
+        return this.previousWorlds.get(index);
+    }
+
+    /**
      * Get the previous world, if it exists.
      * @return The most recent previous world, or {@link Optional#empty()} if
      * it doesn't exist.
@@ -119,6 +151,9 @@ public class World {
             throw new InternalError("Cannot revert world because history is empty");
         }
         this.data = this.previousWorlds.removeFirst();
+        if(!this.enableNotification) {
+            return;
+        }
         for(Space space : this.data) {
             this.onSpaceChanged.notify(space);
         }
@@ -135,6 +170,9 @@ public class World {
     private void update(List<Space> newSpaces) {
         this.previousWorlds.addFirst(this.data);
         this.data = this.data.update(newSpaces);
+        if(!this.enableNotification) {
+            return;
+        }
         for(Space space : newSpaces) {
             this.onSpaceChanged.notify(space);
         }

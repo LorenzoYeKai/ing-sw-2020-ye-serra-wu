@@ -1,7 +1,7 @@
 package it.polimi.ingsw.tests;
 
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.rules.GodPower;
+import it.polimi.ingsw.models.game.gods.Athena;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ public class AthenaTest {
     @Test
     @DisplayName("availableSpaces with athenaPower")
     public void athenaPowerTest(){
-        game.getRules().addMovementRules("athenaPower", GodPower::cannotMoveUpPower);
+        game.getRules().addMovementRules("athenaPower", Athena::cannotMoveUpPower);
         var expected1 = manualAthenaAvailableSpaces1();
         var expected2 = manualAthenaAvailableSpaces2();
         var actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();

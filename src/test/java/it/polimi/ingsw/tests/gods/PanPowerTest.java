@@ -37,6 +37,7 @@ public class PanPowerTest {
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
         game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.PAN));
+        game.getWorld().clearPreviousWorlds();
     }
 
     @Test
@@ -45,7 +46,6 @@ public class PanPowerTest {
         game.getCurrentPlayer().getGod().activateGodPower(game.getRules());
         controller.move(game.getCurrentPlayer().getAllWorkers().get(1),game.getWorld().get(2,3));
         assertFalse(game.getCurrentPlayer().isDefeated());
-        game.getCurrentPlayer().getGod().deactivateGodPower(game.getRules());
         game.getCurrentPlayer().getGod().deactivateGodPower(game.getRules());
     }
 

@@ -29,6 +29,7 @@ public class HephaestusTest {
         Space secondWorkerPosition = game.getWorld().get(2, 2);
         player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
         player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
+        game.clearPreviousWorlds();
     }
 
     @Test

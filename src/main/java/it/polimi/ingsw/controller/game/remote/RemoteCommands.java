@@ -10,6 +10,10 @@ import it.polimi.ingsw.views.game.GameView;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 enum RemoteCommandType {
     JOIN_GAME,
@@ -17,7 +21,7 @@ enum RemoteCommandType {
 }
 
 interface RemoteCommand extends Serializable {
-    void apply(GameController controller)
+    Serializable apply(GameController controller)
             throws NotExecutedException, IOException;
 }
 
@@ -52,9 +56,10 @@ final class WorkerAction implements RemoteCommand {
         this.position = position;
     }
     @Override
-    public void apply(GameController controller)
+    public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
         controller.workerAction(player, type, position.getX(), position.getY());
+        return null;
     }
 }
 
@@ -77,12 +82,13 @@ final class GodCommand implements RemoteCommand {
     }
 
     @Override
-    public void apply(GameController controller)
+    public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
         switch (type) {
             case ADD -> controller.addAvailableGods(god);
             case REMOVE -> controller.removeAvailableGod(god);
         }
+        return null;
     }
 }
 
@@ -99,9 +105,10 @@ final class ChooseGodCommand implements RemoteCommand {
         this.god = god;
     }
     @Override
-    public void apply(GameController controller)
+    public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
         controller.setPlayerGod(player, god);
+        return null;
     }
 }
 
@@ -117,9 +124,10 @@ final class GameStatusCommand implements RemoteCommand {
     }
 
     @Override
-    public void apply(GameController controller)
+    public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
         controller.setGameStatus(newStatus);
+        return null;
     }
 }
 
@@ -144,17 +152,18 @@ final class MiscellaneousCommand implements RemoteCommand {
     }
 
     @Override
-    public void apply(GameController controller) throws NotExecutedException, IOException {
+    public Serializable apply(GameController controller) throws NotExecutedException, IOException {
         switch (type) {
             case RESET_TURN -> controller.resetTurn();
             case NEXT_TURN -> controller.nextTurn();
             case UNDO -> controller.undo();
         }
+        return null;
     }
 }
 
 /**
- * A command which correspons to {@link GameController#setCurrentPlayer(int)}
+ * A command which corresponds to {@link GameController#setCurrentPlayer(int)}
  */
 final class SetCurrentPlayerCommand implements RemoteCommand {
     private final int index;
@@ -164,13 +173,14 @@ final class SetCurrentPlayerCommand implements RemoteCommand {
     }
 
     @Override
-    public void apply(GameController controller) throws NotExecutedException, IOException {
+    public Serializable apply(GameController controller) throws NotExecutedException, IOException {
         controller.setCurrentPlayer(index);
+        return null;
     }
 }
 
 /**
- * A command which correspons to {@link GameController#selectWorker(int)} (int)}
+ * A command which corresponds to {@link GameController#selectWorker(int)}
  */
 final class SelectWorkerCommand implements RemoteCommand {
     private final int index;
@@ -180,8 +190,25 @@ final class SelectWorkerCommand implements RemoteCommand {
     }
 
     @Override
-    public void apply(GameController controller)
+    public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
         controller.selectWorker(index);
+        return null;
+    }
+}
+
+/**
+ * A command which corresponds to {@link GameController#getValidActions()}
+ */
+final class GetValidActionsCommand implements RemoteCommand {
+    @Override
+    public Serializable apply(GameController controller)
+            throws NotExecutedException, IOException {
+        HashMap<WorkerActionType, ArrayList<Vector2>> result = new HashMap<>();
+        Map<WorkerActionType, List<Vector2>> validActions = controller.getValidActions();
+        for(WorkerActionType type : validActions.keySet()) {
+            result.put(type, new ArrayList<>(validActions.get(type)));
+        }
+        return result;
     }
 }

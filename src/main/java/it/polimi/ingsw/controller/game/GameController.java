@@ -6,6 +6,8 @@ import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.views.game.GameView;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public interface GameController {
 
@@ -42,11 +44,12 @@ public interface GameController {
     void setPlayerGod(String player, GodType god)
             throws NotExecutedException, IOException;
 
-
-
     void resetTurn()
             throws NotExecutedException, IOException;
 
     void undo()
+            throws NotExecutedException, IOException;
+
+    Map<WorkerActionType, List<Vector2>> getValidActions()
             throws NotExecutedException, IOException;
 }
