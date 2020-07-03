@@ -10,10 +10,10 @@
 ### Features
 - [X] Complete Game Rules (Basic gods) 
 - [X] CLI
-- [ ] GUI
+- [X] GUI (partial implementation)
 - [X] Socket
-- [ ] Advanced features #1: Undo
-- [ ] Advanced features #2: Lobby and multiple matches in parallel 
+- [X] Advanced features #1: Undo
+- [X] Advanced features #2: Lobby and multiple matches in parallel 
 
 ### Build and test the Game Server:
 ```
@@ -44,3 +44,9 @@ You can also download [the latest version of client](https://github.com/Kishin98
 java -jar client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar
 ```
 If you want to connect to our live server, just write `18.195.117.7` when the game client asks for the server IP address.
+
+### You can launch the GUI with this command:
+```
+java -jar client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar gui
+```
+
