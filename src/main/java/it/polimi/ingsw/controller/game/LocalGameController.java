@@ -31,9 +31,12 @@ public class LocalGameController implements GameController {
         if(!this.game.getCurrentPlayer().getName().equals(player)) {
             throw new NotExecutedException("Not your turn");
         }
-        if(!this.currentActions.isEmpty()) {
-            throw new NotExecutedException("Cannot select worker after performing action");
+        if(this.game.getStatus() != GameStatus.PLAYING) {
+            if(!this.currentActions.isEmpty()) {
+                throw new NotExecutedException("Cannot select worker after performing action");
+            }
         }
+
         this.game.getCurrentPlayer().selectWorker(index);
         this.currentActions.clear();
         // this will be useful to make the game predict actions
