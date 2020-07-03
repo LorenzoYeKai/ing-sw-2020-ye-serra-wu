@@ -144,8 +144,6 @@ public class RequestProcessor implements AutoCloseable {
 
         Request request = new Request(sequenceNumber, command);
 
-        System.out.println("remoteInvoke request: " + request.getCommand());
-
         this.writeAndFlush(request);
 
         while (true) {
@@ -165,7 +163,6 @@ public class RequestProcessor implements AutoCloseable {
             if (response.getSequenceNumber() != sequenceNumber) {
                 throw new InternalError("Sequence number does not match");
             }
-            System.out.println("remoteInvoke response: " + response);
             return response.getResult();
         }
     }
@@ -249,8 +246,6 @@ public class RequestProcessor implements AutoCloseable {
         if (handler.isPresent()) {
             if (request.needReply()) {
                 Response response;
-                System.out.println("Request: " + request);
-                System.out.println("Request: " + request.getCommand());
 
 
                 try {
@@ -258,7 +253,6 @@ public class RequestProcessor implements AutoCloseable {
                 } catch (NotExecutedException e) {
                     response = request.replyError(e);
                 }
-                System.out.println("Response: " + response);
                 this.writeAndFlush(response);
             } else {
                 try {
