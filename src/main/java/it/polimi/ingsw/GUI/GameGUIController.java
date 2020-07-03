@@ -230,7 +230,6 @@ public class GameGUIController implements Initializable{
         buildButton.setDisable(true);
         buildDomeButton.setDisable(true);
         undoButton.setDisable(true);
-        endTurnButton.setDisable(true);
 
     }
 
@@ -342,6 +341,7 @@ public class GameGUIController implements Initializable{
 
     public void initCurrentTurn(GameStatus currentStatus){
         this.utilityCounter = 0;
+        undoButton.setDisable(true);
         System.out.println("Current status: " + currentStatus.toString());
         switch (currentStatus) {
             case CHOOSING_GODS -> chooseGod(this);
@@ -527,7 +527,7 @@ public class GameGUIController implements Initializable{
             if(areAllWorkerPlaced()){
                 client.gameViewInputExec(gameView, "play");
             }
-            endTurnButton.setDisable(false);
+
         }
         selectedY = -1;
         selectedX = -1;
@@ -652,17 +652,36 @@ public class GameGUIController implements Initializable{
     }
 
     public void build(ActionEvent event) {
+        if(selectedWorkerIndex == 0){
+            workerOnePossibleActions.get(WorkerActionType.BUILD).forEach(this::lightUpSpaces);
+        }
+        if(selectedWorkerIndex == 1){
+            workerTwoPossibleActions.get(WorkerActionType.BUILD).forEach(this::lightUpSpaces);
+        }
+        selectedAction = WorkerActionType.BUILD;
+        buildButton.setDisable(true);
     }
 
     public void buildDome(ActionEvent event) {
+        if(selectedWorkerIndex == 0){
+            workerOnePossibleActions.get(WorkerActionType.BUILD_DOME).forEach(this::lightUpSpaces);
+        }
+        if(selectedWorkerIndex == 1){
+            workerTwoPossibleActions.get(WorkerActionType.BUILD_DOME).forEach(this::lightUpSpaces);
+        }
+        selectedAction = WorkerActionType.BUILD_DOME;
+        buildDomeButton.setDisable(true);
     }
 
     public void undo(ActionEvent event) {
+        if(selectedAction == WorkerActionType.MOVE && gameView.getCurrentStatus() == GameStatus.PLAYING){
+            undoButton.setDisable(false);
+        }
     }
 
     public void endTurn(ActionEvent event) {
         client.gameViewInputExec(gameView, "end");
-        endTurnButton.setDisable(true);
+
     }
 
     public void selectSpace(MouseEvent mouseEvent) {
@@ -673,11 +692,18 @@ public class GameGUIController implements Initializable{
             selectWorkerInteraction(mouseEvent);
         }
         if(selectedAction == WorkerActionType.MOVE && isYourTurn){
-            moveSelection(mouseEvent);
+            actionSelection(mouseEvent, WorkerActionType.MOVE);
+            //moveSelection(mouseEvent);
+        }
+        if(selectedAction == WorkerActionType.BUILD && isYourTurn){
+            actionSelection(mouseEvent, WorkerActionType.BUILD);
+        }
+        if(selectedAction == WorkerActionType.BUILD_DOME && isYourTurn){
+            actionSelection(mouseEvent, WorkerActionType.BUILD_DOME);
         }
     }
 
-    private void moveSelection(MouseEvent mouseEvent) {
+    /*private void moveSelection(MouseEvent mouseEvent) {
         Node source = (Node) mouseEvent.getSource();
         int newSelectedX;
         int newSelectedY;
@@ -699,6 +725,34 @@ public class GameGUIController implements Initializable{
                 System.out.println("Worker: " + selectedWorkerIndex);
                 System.out.println("Coordinates: " + newSelectedX + " " + newSelectedY);
                 client.gameViewInputExec(gameView, "move");
+            }
+        }
+        clearSpaces();
+    }*/
+
+    private void actionSelection(MouseEvent mouseEvent, WorkerActionType type) {
+        Node source = (Node) mouseEvent.getSource();
+        int newSelectedX;
+        int newSelectedY;
+        if (GridPane.getRowIndex(source) == null) {
+            newSelectedX = 0;
+        } else {
+            newSelectedX = GridPane.getRowIndex(source);
+        }
+        if (GridPane.getColumnIndex(source) == null) {
+            newSelectedY = 0;
+        } else {
+            newSelectedY = GridPane.getColumnIndex(source);
+        }
+        List<Vector2> vector = this.getPossibleWorkerAction(selectedWorkerIndex).get(type);
+        for(Vector2 v : vector){
+            if(v.getX() == newSelectedX && v.getY() == newSelectedY){
+                selectedX = newSelectedX;
+                selectedY = newSelectedY;
+                System.out.println("Worker: " + selectedWorkerIndex);
+                System.out.println("Coordinates: " + newSelectedX + " " + newSelectedY);
+                String command = type.toString().toLowerCase();
+                client.gameViewInputExec(gameView, command);
             }
         }
         clearSpaces();
@@ -818,24 +872,71 @@ public class GameGUIController implements Initializable{
                                         space.getChildren().removeAll();
                                     }
                                     if(changedSpace.getLevel() == 0){
-                                        space.setStyle("-fx-background-image: none");
+                                        space.setStyle("-fx-background-image: none;");
                                     }
                                     if(changedSpace.getLevel() == 1){
                                         String img = getClass().getResource("/images/ONE.png").toExternalForm();
-                                        space.setStyle("-fx-background-image: url('" + img +"')");
+                                        space.setStyle("-fx-background-image: url('" + img +"');" + "-fx-background-size: cover;");
+
                                     }
                                     if(changedSpace.getLevel() == 2){
                                         String img = getClass().getResource("/images/TWO.png").toExternalForm();
-                                        space.setStyle("-fx-background-image: url('" + img +"')");
+                                        space.setStyle("-fx-background-image: url('" + img +"');" + "-fx-background-size: cover;");
+
                                     }
                                     if(changedSpace.getLevel() == 3){
                                         String img = getClass().getResource("/images/THREE.png").toExternalForm();
-                                        space.setStyle("-fx-background-image: url('" + img +"')");
+                                        space.setStyle("-fx-background-image: url('" + img +"');" + "-fx-background-size: cover;");
+
                                     }
                                     if(changedSpace.isOccupiedByDome()){
                                         String img = getClass().getResource("/images/DOME.png").toExternalForm();
-                                        space.setStyle("-fx-background-image: url('" + img +"')");
+                                        space.setStyle("-fx-background-image: url('" + img +"');" + "-fx-background-size: cover;");
+
                                     }
+                                    if(gameView.getCurrentStatus() == GameStatus.PLAYING){
+                                        sameWorkerSelect();
+                                    }
+
+                                } catch (IndexOutOfBoundsException e) {
+                                    e.printStackTrace();
+                                } finally{
+                                    latch.countDown();
+                                }
+                            }
+                        });
+                        latch.await();
+                        //Keep with the background work
+                        return null;
+                    }
+                };
+            }
+        };
+        service.start();
+
+
+    }
+
+    public void sameWorkerSelect(){
+        Service<Void> service = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        //Background work
+                        final CountDownLatch latch = new CountDownLatch(1);
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    if(selectedWorkerIndex == 0) {
+                                        client.gameViewInputExec(gameView, "validate0");
+                                    }
+                                    if(selectedWorkerIndex == 1) {
+                                        client.gameViewInputExec(gameView, "validate1");
+                                    }
+                                    activateButtons();
                                 } catch (IndexOutOfBoundsException e) {
                                     e.printStackTrace();
                                 } finally{
