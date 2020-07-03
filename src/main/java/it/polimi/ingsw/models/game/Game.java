@@ -255,7 +255,7 @@ public class Game {
     }
 
     public void setCurrentPlayer(int i) {
-        if(this.currentPlayer != -1 || this.status == GameStatus.CHOOSING_GODS) {
+        if(this.currentPlayer != -1 && this.status == GameStatus.PLAYING) {
             // deactivate god power for previous player
             Player player = this.getCurrentPlayer();
             if(player.getGod() != null) {
@@ -302,6 +302,9 @@ public class Game {
     }
 
     public void calculateValidWorkerActions() {
+        if(this.status == GameStatus.PLACING){
+            return;
+        }
         this.currentWorkerValidActions = new HashMap<>();
 
         Worker selectedWorker = this.getCurrentPlayer().getSelectedWorker();
