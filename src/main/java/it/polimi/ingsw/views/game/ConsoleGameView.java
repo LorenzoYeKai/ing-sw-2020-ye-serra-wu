@@ -51,6 +51,10 @@ public class ConsoleGameView implements GameView {
     }
 
     public void showHelp() {
+        if(!this.isMyTurn && (!this.iAmChallenger || this.currentStatus != GameStatus.SETUP)) {
+            this.output.println("Wait for your turn.");
+            return;
+        }
         switch (this.currentStatus) {
             case SETUP -> {
                 if(this.iAmChallenger) {
@@ -93,7 +97,6 @@ public class ConsoleGameView implements GameView {
     public void executeAction(String input)
             throws NotExecutedException, IOException {
 
-
         if (this.currentStatus == GameStatus.SETUP) {
             if (!iAmChallenger) {
                 throw new NotExecutedException("Wait the challenger!");
@@ -111,12 +114,12 @@ public class ConsoleGameView implements GameView {
                     if (!command.equals("ADD_GOD")) {
                         throw new NotExecutedException("You need add god now.");
                     }
-                    this.controller.addAvailableGods(GodType.valueOf(scanner.next()));
+                    this.controller.addAvailableGods(GodType.valueOf(scanner.next().trim()));
                 } else {
                     if (!command.equals("SET_FIRST")) {
                         throw new NotExecutedException("You need set first player now.");
                     }
-                    String playerName = scanner.nextLine();
+                    String playerName = scanner.nextLine().trim();
                     Optional<String> player = this.allPlayers.stream()
                             .filter(x -> x.toUpperCase().equals(playerName))
                             .findAny();
@@ -129,10 +132,14 @@ public class ConsoleGameView implements GameView {
             }
             case CHOOSING_GODS -> {
                 if(command.equals("END")) {
+                    if(!this.playerGods.containsKey(this.player)) {
+                        throw new NotExecutedException("Choose a god first");
+                    }
                     if(this.playerGods.size() == this.allPlayers.size()) {
                         this.controller.setGameStatus(GameStatus.BEFORE_PLACING);
                     }
                     this.controller.nextTurn();
+                    return;
                 }
 
                 if (!command.equals("GOD")) {
@@ -141,7 +148,7 @@ public class ConsoleGameView implements GameView {
 
                 GodType type;
                 try {
-                    type = GodType.valueOf(command);
+                    type = GodType.valueOf(scanner.next().trim());
                 } catch (IllegalArgumentException e) {
                     throw new NotExecutedException("Invalid god name");
                 }
@@ -173,7 +180,7 @@ public class ConsoleGameView implements GameView {
                     if (!command.equals("SELECT")) {
                         throw new NotExecutedException("You need to select worker now");
                     }
-                    this.controller.selectWorker(scanner.nextInt());
+                    this.controller.selectWorker(this.player, scanner.nextInt());
                     this.workerHasBeenSelected = true;
                     return;
                 }
@@ -193,7 +200,22 @@ public class ConsoleGameView implements GameView {
                     throw new NotExecutedException("Invalid coordinates");
                 }
 
-                this.controller.workerAction(this.player, type, x, y);
+                try {
+                    this.controller.workerAction(this.player, type, x, y);
+                }
+                catch (NotExecutedException e) {
+                    this.output.println("You tried to " + command + " which was not possible.");
+                    List<Vector2> hints = this.controller.getValidActions()
+                            .getOrDefault(type, null);
+                    if(hints == null) {
+                        this.output.println("You can't " + command + " on anywhere of the map.");
+                    }
+                    else {
+                        this.output.println("Hint: ");
+                        this.printMap(type, hints);
+                    }
+                }
+
             }
         }
 
@@ -213,13 +235,13 @@ public class ConsoleGameView implements GameView {
         switch (status) {
             case SETUP -> this.output.println("Setup phase");
             case CHOOSING_GODS -> this.output.println("Choosing gods, use `GOD [GOD NAME]` to choose god");
-            case PLACING -> {
+            case BEFORE_PLACING, PLACING -> {
                 this.output.println("Placing workers.");
-                this.printMap();
+                this.printMap(null, null);
             }
-            case PLAYING -> {
+            case BEFORE_PLAYING, PLAYING -> {
                 this.output.println("Game started");
-                this.printMap();
+                this.printMap(null, null);
             }
             case ENDED -> this.output.println("Game ended");
             default -> throw new InternalError("Not implemented yet");
@@ -246,7 +268,7 @@ public class ConsoleGameView implements GameView {
     @Override
     public void notifySpaceChange(Space space) {
         this.spaces[space.getPosition().getY() * World.SIZE + space.getPosition().getX()] = space;
-        this.printMap();
+        this.printMap(null, null);
     }
 
     @Override
@@ -267,7 +289,7 @@ public class ConsoleGameView implements GameView {
         this.output.println(player + " has lost!");
     }
 
-    public void printMap() {
+    public void printMap(WorkerActionType hintType, List<Vector2> hints) {
         String[] levels = new String[]{" ", "1", "2", "3"};
         String dome = "^";
 
@@ -313,7 +335,7 @@ public class ConsoleGameView implements GameView {
             info.println("1 -> " + workerSymbols.get(player + "1"));
         }
 
-        info.println("Command: `[worker index] [place/move/build/build_dome] [X] [Y]`");
+        info.println("Command: `[place/move/build/build_dome] [X] [Y]`");
         info.println("Example: `0 move 0 3`");
 
         // Print row separators
@@ -346,6 +368,22 @@ public class ConsoleGameView implements GameView {
                     WorkerData worker = space.getWorkerData();
                     world.setCharacter(x + 1, y, workerSymbols.get(worker.getPlayer() + worker.getIndex()));
                 }
+            }
+        }
+
+        if(hintType != null && hints != null) {
+            char hint = switch (hintType) {
+                case BUILD -> 'b';
+                case MOVE -> 'm';
+                case BUILD_DOME -> 'd';
+                case WIN -> 'w';
+                default -> '?';
+            };
+            info.println(hint + " means places where you can " + hintType);
+            for (Vector2 position : hints) {
+                int x = position.getX() * 3 + 1;
+                int y = position.getY() * 2 + 1;
+                world.setCharacter(x + 1, y, hint);
             }
         }
 

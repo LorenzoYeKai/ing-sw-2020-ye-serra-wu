@@ -9,7 +9,6 @@ import it.polimi.ingsw.models.game.Space;
 import it.polimi.ingsw.models.game.Vector2;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
-import javafx.scene.control.MultipleSelectionModel;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -103,7 +102,7 @@ public class GUIGameView implements GameView {
             case "end" -> this.controller.nextTurn();
             case "setup" -> this.controller.setGameStatus(GameStatus.SETUP);
             case "god" -> this.controller.setPlayerGod(this.player, gameGUIController.getChosenGod());
-            case "select" -> this.controller.selectWorker(gameGUIController.getSelectedWorkerIndex());
+            case "select" -> this.controller.selectWorker(this.player, gameGUIController.getSelectedWorkerIndex());
             case "validate0" -> {
                 Map<WorkerActionType, List<Vector2>> possibleActions = this.controller.getValidActions();
                 this.gameGUIController.setWorkerOnePossibleActions(possibleActions);

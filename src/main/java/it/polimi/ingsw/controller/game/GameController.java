@@ -14,7 +14,7 @@ public interface GameController {
     void joinGame(String nickname, GameView view)
             throws NotExecutedException, IOException;
 
-    void selectWorker(int index)
+    void selectWorker(String player, int index)
             throws NotExecutedException, IOException;
 
     void workerAction(String player,

@@ -178,19 +178,21 @@ final class SetCurrentPlayerCommand implements RemoteCommand {
 }
 
 /**
- * A command which corresponds to {@link GameController#selectWorker(int)}
+ * A command which corresponds to {@link GameController#selectWorker(String, int)}
  */
 final class SelectWorkerCommand implements RemoteCommand {
+    private final String player;
     private final int index;
 
-    public SelectWorkerCommand(int index) {
+    public SelectWorkerCommand(String player, int index) {
+        this.player = player;
         this.index = index;
     }
 
     @Override
     public Serializable apply(GameController controller)
             throws NotExecutedException, IOException {
-        controller.selectWorker(index);
+        controller.selectWorker(player, index);
         return null;
     }
 }
