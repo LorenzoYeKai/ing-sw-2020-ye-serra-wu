@@ -42,7 +42,6 @@ public class ConsoleGameView implements GameView {
 
         this.controller.joinGame(this.player, this);
         this.output.print("Connected to game");
-        this.controller.setGameStatus(GameStatus.SETUP);
 
         for (int y = 0; y < World.SIZE; ++y) {
             for (int x = 0; x < World.SIZE; ++x) {
@@ -53,6 +52,7 @@ public class ConsoleGameView implements GameView {
 
     public void showHelp() {
         switch (this.currentStatus) {
+            case PLAYER_JOINING -> this.output.println("Player are joining, please wait.");
             case SETUP -> {
                 if(this.iAmChallenger) {
                     if(numberOfAvailableGods != this.allPlayers.size()) {
@@ -88,6 +88,10 @@ public class ConsoleGameView implements GameView {
 
     public void executeAction(String input)
             throws NotExecutedException, IOException {
+
+        if(this.currentStatus == GameStatus.PLAYER_JOINING) {
+
+        }
 
         if (this.currentStatus == GameStatus.SETUP) {
             if (!iAmChallenger) {

@@ -154,7 +154,7 @@ public class LocalGameController implements GameController {
     }
 
     @Override
-    public void setGameStatus(GameStatus status) {
+    public void setGameStatus(GameStatus status) throws NotExecutedException {
         if (this.game.getStatus() == GameStatus.PLAYER_JOINING) {
             throw new NotExecutedException("Wait for player join before changing status");
         }
