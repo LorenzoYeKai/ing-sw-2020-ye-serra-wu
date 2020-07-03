@@ -109,12 +109,26 @@ public class LocalGameController implements GameController {
     }
 
     public void nextTurn() throws NotExecutedException {
-        // ensure all workers has been placed
-        if (this.game.getStatus() == GameStatus.PLACING) {
+        if (this.game.getStatus() == GameStatus.PLACING ||
+                this.game.getStatus() == GameStatus.BEFORE_PLAYING) {
+            // ensure all workers has been placed
+
             for (Worker worker : this.game.getCurrentPlayer().getAllWorkers()) {
                 if (worker.getCurrentSpace() == null) {
                     throw new NotExecutedException("You need to place all your workers!");
                 }
+            }
+        }
+        else if (this.game.getStatus() == GameStatus.PLAYING) {
+            // ensure move then build
+            int buildBlockIndex = this.currentActions.lastIndexOf(WorkerActionType.BUILD);
+            int buildDomeIndex = this.currentActions.lastIndexOf(WorkerActionType.BUILD_DOME);
+            int buildIndex = Integer.max(buildBlockIndex, buildDomeIndex);
+            if(!this.currentActions.contains(WorkerActionType.MOVE)) {
+                throw new NotExecutedException("You must move at least once before ending the turn");
+            }
+            if(buildIndex < this.currentActions.indexOf(WorkerActionType.MOVE)) {
+                throw new NotExecutedException("You must move then build before ending the turn");
             }
         }
         this.game.goToNextTurn();
