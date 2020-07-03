@@ -62,10 +62,6 @@ public class GUIGameView implements GameView {
 
     @Override
     public void notifySpaceChange(Space space) {
-        System.out.println("NotifyPlayerGods");
-        System.out.println(space.isOccupiedByWorker());
-        System.out.println(space.getWorkerData().getPlayer());
-
         gameGUIController.updateWorld(space);
     }
 

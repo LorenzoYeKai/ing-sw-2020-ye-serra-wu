@@ -355,15 +355,16 @@ public class GameGUIController implements Initializable{
         switch (currentStatus) {
             case CHOOSING_GODS -> chooseGod(this);
             case PLACING -> yourTurnMessage(GameStatus.PLACING, "Place your workers and then click End Turn");
-            case PLAYING ->
+            case PLAYING -> {
                 yourTurnMessage(GameStatus.PLAYING, "Select a worker and make a move");
-
+                workerAutoSelect();
+            }
             //case ENDED -> ;*/
             default -> throw new InternalError("Not implemented yet");
         }
     }
 
-    /*private void workerAutoSelect() {
+    private void workerAutoSelect() {
         Service<Void> service = new Service<Void>() {
             @Override
             protected Task<Void> createTask() {
@@ -382,38 +383,6 @@ public class GameGUIController implements Initializable{
                                     selectedWorkerIndex = 1;
                                     client.gameViewInputExec(gameView, "select");
                                     client.gameViewInputExec(gameView, "validate1");
-                                    if(workerOnePossibleActions.isEmpty() && !workerTwoPossibleActions.isEmpty()){
-                                        selectedWorkerIndex = 1;
-                                        if(workerTwoPossibleActions.containsKey(WorkerActionType.MOVE)){
-                                            moveButton.setDisable(false);
-                                        }
-                                        if(workerTwoPossibleActions.containsKey(WorkerActionType.BUILD)){
-                                            buildButton.setDisable(false);
-                                        }
-
-                                        if(workerTwoPossibleActions.containsKey(WorkerActionType.BUILD_DOME)){
-                                            buildDomeButton.setDisable(false);
-                                        }
-
-                                    }
-                                    else if(!workerOnePossibleActions.isEmpty() && workerTwoPossibleActions.isEmpty()){
-                                        selectedWorkerIndex = 0;
-                                        if(workerOnePossibleActions.containsKey(WorkerActionType.MOVE)){
-                                            moveButton.setDisable(false);
-                                        }
-                                        if(workerOnePossibleActions.containsKey(WorkerActionType.BUILD)){
-                                            buildButton.setDisable(false);
-                                        }
-
-                                        if(workerOnePossibleActions.containsKey(WorkerActionType.BUILD_DOME)){
-                                            buildDomeButton.setDisable(false);
-                                        }
-                                    }
-                                    else{
-                                        utilityBoolean = true;
-                                    }
-                                    client.gameViewInputExec(gameView, "select");
-
                                 } catch (IndexOutOfBoundsException e) {
                                     e.printStackTrace();
                                 } finally{
@@ -430,7 +399,7 @@ public class GameGUIController implements Initializable{
         };
         service.start();
 
-    }*/
+    }
 
 
     private void chooseGod(GameGUIController gameGUIController){
@@ -697,7 +666,7 @@ public class GameGUIController implements Initializable{
         if(isYourTurn && utilityCounter < 2 && gameView.getCurrentStatus() == GameStatus.PLACING) {
             placingBoardInteraction(mouseEvent);
         }
-        if(isYourTurn && gameView.getCurrentStatus() == GameStatus.PLAYING && utilityBoolean){
+        if(isYourTurn && gameView.getCurrentStatus() == GameStatus.PLAYING ){
             selectWorkerInteraction(mouseEvent);
         }
     }
@@ -945,6 +914,8 @@ public class GameGUIController implements Initializable{
 
     private void activateButtons(){
         if(this.selectedWorkerIndex == 0){
+            System.out.println("Worker 0: ");
+            workerOnePossibleActions.keySet().forEach(System.out::println);
             if(workerOnePossibleActions.containsKey(WorkerActionType.MOVE)){
                 moveButton.setDisable(false);
             }
@@ -957,6 +928,8 @@ public class GameGUIController implements Initializable{
             }
         }
         if(this.selectedWorkerIndex == 1){
+            System.out.println("Worker 1: ");
+            workerTwoPossibleActions.keySet().forEach(System.out::println);
             if(workerTwoPossibleActions.containsKey(WorkerActionType.MOVE)){
                 moveButton.setDisable(false);
             }

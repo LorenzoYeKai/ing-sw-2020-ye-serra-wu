@@ -264,6 +264,8 @@ public class Game {
             }
         }
         if(this.status == GameStatus.BEFORE_PLAYING){
+            this.clearPreviousWorlds();
+            this.clearCurrentWorkerMovedFlag();
             this.setStatus(GameStatus.PLAYING);
         }
         this.currentPlayer = i;
