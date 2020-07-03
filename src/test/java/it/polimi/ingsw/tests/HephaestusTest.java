@@ -23,6 +23,7 @@ public class HephaestusTest {
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
         game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.HEPHAESTUS));
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         spaceSetup();
@@ -46,10 +47,12 @@ public class HephaestusTest {
     @DisplayName("Second build with Hephaestus")
     public void hephaestusPowerTest() {
         game.getCurrentPlayer().selectWorker(0);
+
         game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(0,1));
         game.getCurrentPlayer().getAllWorkers().get(0).buildBlock(game.getWorld().get(0,0));
-        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(0,0)));
         assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(2,0)));
+        assertTrue(game.getRules().canBuildThere(game.getCurrentPlayer().getAllWorkers().get(0),game.getWorld().get(0,0)));
+
 
 
 

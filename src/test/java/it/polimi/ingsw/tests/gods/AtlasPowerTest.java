@@ -1,10 +1,7 @@
 package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.Player;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
@@ -27,31 +24,24 @@ public class AtlasPowerTest {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
+        game = new Game(names);
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.ATLAS));
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
-        player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().get(1, 1);
-        Space secondWorkerPosition = game.getWorld().get(2, 2);
-        player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
-        player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
-        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
-        player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
-        player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.ATLAS));
+        game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(3,4));
+        game.clearPreviousWorlds();
     }
 
     @Test
     @DisplayName("atlas power test")
     public void atlasPowerTest() throws NotExecutedException {
 
-        controller.move(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 1));
-        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
-        game.getCurrentPlayer().getGod().activateGodPower(game.getRules());
-        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
-        game.getCurrentPlayer().getGod().deactivateGodPower(game.getRules());
-        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(0, 0)));
+        game.getCurrentPlayer().selectWorker(0);
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(4,4)));
+
 
     }
 

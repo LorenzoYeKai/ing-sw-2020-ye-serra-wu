@@ -1,10 +1,7 @@
 package it.polimi.ingsw.tests.gods;
 
 import it.polimi.ingsw.NotExecutedException;
-import it.polimi.ingsw.models.game.Game;
-import it.polimi.ingsw.models.game.Player;
-import it.polimi.ingsw.models.game.Space;
-import it.polimi.ingsw.models.game.World;
+import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.tests.TestGameController;
@@ -31,20 +28,27 @@ public class ApolloPowerTest {
         controller = new TestGameController(names);
         game = controller.getGame();
         game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.HEPHAESTUS));
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         spaceSetup();
+        game.getCurrentPlayer().selectWorker(1);
         game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(1,1));
-        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,2));
+        game.getCurrentPlayer().getAllWorkers().get(1).setStartPosition(game.getWorld().get(2,2));
         game.goToNextTurn();
+        game.setCurrentPlayer(0);
         game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,0));
-        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(3,2));
+        game.getCurrentPlayer().getAllWorkers().get(1).setStartPosition(game.getWorld().get(2,3));
+
     }
 
     @Test
     @DisplayName("apollo power test")
     public void apolloPowerTest() throws NotExecutedException {
-
+        game.goToNextTurn();
+        game.clearPreviousWorlds();
+        game.getCurrentPlayer().selectWorker(1);
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(1).computeAvailableSpaces().contains(game.getWorld().get(2,3)));
     }
 
     void spaceSetup() {

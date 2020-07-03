@@ -24,41 +24,35 @@ public class MinotaurTest {
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
         game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.MINOTAUR));
+        game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space player1FirstWorkerPosition = game.getWorld().get(1, 1);
-        Space player1SecondWorkerPosition = game.getWorld().get(2, 2);
-        player1.getAllWorkers().get(0).setStartPosition(player1FirstWorkerPosition);
-        player1.getAllWorkers().get(1).setStartPosition(player1SecondWorkerPosition);
-        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
-        player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
-        player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
+        game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,3));
+        game.goToNextTurn();
+        game.clearPreviousWorlds();
+        game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(3,3));
+        game.goToNextTurn();
+        game.clearPreviousWorlds();
+
     }
 
     @Test
     @DisplayName("availableSpaces without god powers")
     public void computeAvailableSpacesTest() {
-        List<Space> expected1 = manualAvailableSpaces1();
-        List<Space> expected2 = manualAvailableSpaces2();
-        List<Space> actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        List<Space> actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        asserting(expected1, expected2, actual1, actual2);
+        game.getCurrentPlayer().selectWorker(0);
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeAvailableSpaces().contains(game.getWorld().get(1,3)));
     }
 
     @Test
     @DisplayName("availableSpaces with Minotaur")
     public void minotaurPowerTest() {
-        God minotaur = new GodFactory().getGod(GodType.MINOTAUR);
-        minotaur.activateGodPower(game.getRules());
-        var expected1 = manualMinotaurAvailableSpaces1();
-        var expected2 = manualMinotaurAvailableSpaces2();
-        var actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        var actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        asserting(expected1, expected2, actual1, actual2);
-        minotaur.deactivateGodPower(game.getRules());
+        game.getCurrentPlayer().selectWorker(0);
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeAvailableSpaces().contains(game.getWorld().get(3,3)));
+        game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(3,3));
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
