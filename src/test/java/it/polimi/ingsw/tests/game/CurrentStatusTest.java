@@ -25,8 +25,6 @@ public class CurrentStatusTest {
     @Test
     @DisplayName("Test SU CurrentStatus")
     public void getCurrentStatusTest() {
-        game.setStatus(GameStatus.PLAYER_JOINING);
-        assertEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertNotEquals(game.getStatus(), GameStatus.SETUP);
         assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
         assertNotEquals(game.getStatus(), GameStatus.PLACING);
@@ -35,7 +33,6 @@ public class CurrentStatusTest {
 
         game.setStatus(GameStatus.SETUP);
         assertEquals(game.getStatus(), GameStatus.SETUP);
-        assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
         assertNotEquals(game.getStatus(), GameStatus.PLACING);
         assertNotEquals(game.getStatus(), GameStatus.PLAYING);
@@ -44,7 +41,6 @@ public class CurrentStatusTest {
         game.setStatus(GameStatus.CHOOSING_GODS);
         assertEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
         assertNotEquals(game.getStatus(), GameStatus.SETUP);
-        assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertNotEquals(game.getStatus(), GameStatus.PLACING);
         assertNotEquals(game.getStatus(), GameStatus.PLAYING);
         assertNotEquals(game.getStatus(), GameStatus.ENDED);
@@ -53,7 +49,6 @@ public class CurrentStatusTest {
         assertEquals(game.getStatus(), GameStatus.PLACING);
         assertNotEquals(game.getStatus(), GameStatus.SETUP);
         assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
-        assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertNotEquals(game.getStatus(), GameStatus.PLAYING);
         assertNotEquals(game.getStatus(), GameStatus.ENDED);
 
@@ -62,7 +57,6 @@ public class CurrentStatusTest {
         assertNotEquals(game.getStatus(), GameStatus.SETUP);
         assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
         assertNotEquals(game.getStatus(), GameStatus.PLACING);
-        assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertNotEquals(game.getStatus(), GameStatus.ENDED);
 
         game.setStatus(GameStatus.ENDED);
@@ -70,7 +64,6 @@ public class CurrentStatusTest {
         assertNotEquals(game.getStatus(), GameStatus.CHOOSING_GODS);
         assertNotEquals(game.getStatus(), GameStatus.PLACING);
         assertNotEquals(game.getStatus(), GameStatus.PLAYING);
-        assertNotEquals(game.getStatus(), GameStatus.PLAYER_JOINING);
         assertEquals(game.getStatus(), GameStatus.ENDED);
     }
 }
