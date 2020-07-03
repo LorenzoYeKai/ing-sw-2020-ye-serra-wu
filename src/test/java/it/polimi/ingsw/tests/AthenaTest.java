@@ -2,6 +2,8 @@ package it.polimi.ingsw.tests;
 
 import it.polimi.ingsw.models.game.*;
 import it.polimi.ingsw.models.game.gods.Athena;
+import it.polimi.ingsw.models.game.gods.GodFactory;
+import it.polimi.ingsw.models.game.gods.GodType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,49 +16,42 @@ import static org.junit.jupiter.api.Assertions.*;
 public class AthenaTest {
 
     private Game game;
-    private Player player1;
+    private Player player1,player2;
 
     @BeforeEach
     public void init(){
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.ATHENA));
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
+        player2 = game.getListOfPlayers().get(0);
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().get(1, 1);
+        Space firstWorkerPosition = game.getWorld().get(1, 0);
         Space secondWorkerPosition = game.getWorld().get(2, 2);
         player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
         player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
+         firstWorkerPosition = game.getWorld().get(0, 1);
+         secondWorkerPosition = game.getWorld().get(3, 3);
+        player2.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
+        player2.getAllWorkers().get(1).setStartPosition(firstWorkerPosition);
+        game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(0,0));
+        game.getCurrentPlayer().getAllWorkers().get(0).buildBlock(game.getWorld().get(1,1));
+        game.setCurrentPlayer(0);
     }
 
-    @Test
-    @DisplayName("availableSpaces without god powers")
-    public void computeAvailableSpacesTest(){
-        var expected1 = manualAvailableSpaces1();
-        var expected2 = manualAvailableSpaces2();
-        var actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        var actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        asserting(expected1, expected2, actual1, actual2);
-    }
+
 
     @Test
     @DisplayName("availableSpaces with athenaPower")
     public void athenaPowerTest(){
-        game.getRules().addMovementRules("athenaPower", Athena::cannotMoveUpPower);
-        var expected1 = manualAthenaAvailableSpaces1();
-        var expected2 = manualAthenaAvailableSpaces2();
-        var actual1 = player1.getAllWorkers().get(0).computeAvailableSpaces();
-        var actual2 = player1.getAllWorkers().get(1).computeAvailableSpaces();
-        asserting(expected1, expected2, actual1, actual2);
+        game.getCurrentPlayer().selectWorker(0);
+        assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeAvailableSpaces().contains(game.getWorld().get(1,0)));
+
     }
 
-    void asserting(List<Space> expected1, List<Space> expected2,
-                   List<Space> actual1, List<Space> actual2){
-        expected1.forEach(space -> assertTrue(actual1.contains(space)));
-        actual1.forEach((space -> assertTrue(expected1.contains(space))));
-        expected2.forEach(space -> assertTrue(actual2.contains(space)));
-        actual2.forEach((space -> assertTrue(expected2.contains(space))));
-    }
+
 
     void spaceSetup(){
         World world = game.getWorld();
@@ -67,49 +62,5 @@ public class AthenaTest {
         world.update(world.get(1, 2).setDome());
     }
 
-    List<Space> manualAvailableSpaces1(){
-        World world = game.getWorld();
-        ArrayList<Space> availableSpaces = new ArrayList<>();
-        availableSpaces.add(world.get(0, 0));
-        availableSpaces.add(world.get(0, 1));
-        availableSpaces.add(world.get(0, 2));
-        availableSpaces.add(world.get(1, 0));
-        availableSpaces.add(world.get(2, 0));
-        return availableSpaces;
-    }
-
-    List<Space> manualAvailableSpaces2(){
-        World world = game.getWorld();
-        List<Space> availableSpaces = new ArrayList<>();
-        availableSpaces.add(world.get(3, 3));
-        availableSpaces.add(world.get(3, 2));
-        availableSpaces.add(world.get(3, 1));
-        availableSpaces.add(world.get(1, 3));
-        availableSpaces.add(world.get(2, 3));
-        availableSpaces.add(world.get(2, 1));
-        return availableSpaces;
-    }
-
-    List<Space> manualAthenaAvailableSpaces1(){
-        World world = game.getWorld();
-        List<Space> availableSpaces = new ArrayList<>();
-        availableSpaces.add(world.get(0, 0));
-        availableSpaces.add(world.get(0, 1));
-        availableSpaces.add(world.get(0, 2));
-        availableSpaces.add(world.get(1, 0));
-        availableSpaces.add(world.get(2, 0));
-        return availableSpaces;
-    }
-
-    List<Space> manualAthenaAvailableSpaces2(){
-        World world = game.getWorld();
-        List<Space> availableSpaces = new ArrayList<>();
-        availableSpaces.add(world.get(3, 3));
-        availableSpaces.add(world.get(3, 2));
-        availableSpaces.add(world.get(3, 1));
-        availableSpaces.add(world.get(1, 3));
-        availableSpaces.add(world.get(2, 3));
-        return availableSpaces;
-    }
 
 }

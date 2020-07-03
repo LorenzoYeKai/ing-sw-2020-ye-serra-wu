@@ -30,33 +30,21 @@ public class ApolloPowerTest {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.HEPHAESTUS));
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
-        player2 = game.findPlayerByName("player 1");
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().get(1, 1);
-        Space secondWorkerPosition = game.getWorld().get(2, 2);
-        player1.getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
-        player1.getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
-        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
-        player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
-        player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.APOLLO));
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(1,1));
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,2));
+        game.goToNextTurn();
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,0));
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(3,2));
     }
 
     @Test
     @DisplayName("apollo power test")
     public void apolloPowerTest() throws NotExecutedException {
-        player1.getGod().activateGodPower(game.getRules());
-        assertTrue(game.getWorld().get(3, 2).isOccupiedByWorker());
-        assertTrue(player1.getAllWorkers().get(1).computeAvailableSpaces().contains(game.getWorld().get(3, 2)));
-        controller.move(player1.getAllWorkers().get(1), game.getWorld().get(3, 2));
-        assertTrue(game.getWorld().get(2, 2).isOccupiedByWorker());
-        player1.getGod().deactivateGodPower(game.getRules());
-        assertFalse(player1.getAllWorkers().get(1).computeAvailableSpaces().contains(game.getWorld().get(3, 2)));
-        player1.getGod().forcePower(player1.getAllWorkers().get(0), game.getWorld().get(2, 0));
-        assertEquals(player1.getAvailableWorkers().get(0).getCurrentSpace(), game.getWorld().get(2, 0));
+
     }
 
     void spaceSetup() {

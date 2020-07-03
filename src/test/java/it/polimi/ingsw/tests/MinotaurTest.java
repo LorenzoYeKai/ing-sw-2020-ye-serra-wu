@@ -23,6 +23,7 @@ public class MinotaurTest {
     public void init() {
         List<String> names = List.of("player 1", "player 2");
         game = new Game(names);
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.MINOTAUR));
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         player2 = game.findPlayerByName("player 1");

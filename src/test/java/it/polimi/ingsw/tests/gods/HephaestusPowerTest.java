@@ -29,6 +29,7 @@ public class HephaestusPowerTest {
         List<String> names = List.of("player 1", "player 2");
         controller = new TestGameController(names);
         game = controller.getGame();
+        game.findPlayerByName("player 2").setGod(new GodFactory().getGod(GodType.HEPHAESTUS));
         game.setCurrentPlayer(1);
         player1 = game.getCurrentPlayer();
         player2 = game.findPlayerByName("player 1");
@@ -41,13 +42,13 @@ public class HephaestusPowerTest {
         Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
         player2.getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
         player2.getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.HEPHAESTUS));
     }
 
 
     @Test
     @DisplayName("hephaestus power test")
     public void hephaestusPowerTest() throws NotExecutedException {
+
         controller.getGame().getWorld().clearPreviousWorlds();
         List<WorkerActionType> action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
         assertTrue(action.contains(WorkerActionType.MOVE));
@@ -55,16 +56,13 @@ public class HephaestusPowerTest {
         action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
         assertTrue(action.contains(WorkerActionType.BUILD) && action.contains(WorkerActionType.BUILD_DOME));
         controller.build(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 0));
-        game.getWorld().get(2, 0);
-        game.getWorld().get(2, 0);
-        game.getWorld().get(2, 0); //lv3
         action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.BUILD) && action.contains(WorkerActionType.END_TURN));
+        assertTrue(action.contains(WorkerActionType.BUILD));
         assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(0, 0)));
         assertFalse(game.getCurrentPlayer().getAllWorkers().get(0).computeBuildableSpaces().contains(game.getWorld().get(1, 0)));
         controller.build(game.getCurrentPlayer().getAllWorkers().get(0), game.getWorld().get(0, 0));
         action = game.getCurrentPlayer().getGod().workerActionOrder(game.getTurnPhase(), player1.getAllWorkers().get(0));
-        assertTrue(action.contains(WorkerActionType.END_TURN));
+        assertTrue(action.isEmpty());
 
 
     }
