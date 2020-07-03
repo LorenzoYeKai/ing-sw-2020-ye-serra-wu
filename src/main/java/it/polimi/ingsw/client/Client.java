@@ -131,7 +131,7 @@ public class Client implements AutoCloseable {
             this.dispatch(() -> {
                 try {
                     gameView.executeAction(line);
-                } catch (NotExecutedException e) {
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                 return null;

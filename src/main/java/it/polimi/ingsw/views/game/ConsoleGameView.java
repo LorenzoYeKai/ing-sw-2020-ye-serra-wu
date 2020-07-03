@@ -41,7 +41,7 @@ public class ConsoleGameView implements GameView {
         this.iAmChallenger = this.allPlayers.get(0).equals(this.player);
 
         this.controller.joinGame(this.player, this);
-        this.output.print("Connected to game");
+        this.output.println("Connected to game");
 
         for (int y = 0; y < World.SIZE; ++y) {
             for (int x = 0; x < World.SIZE; ++x) {
@@ -52,7 +52,6 @@ public class ConsoleGameView implements GameView {
 
     public void showHelp() {
         switch (this.currentStatus) {
-            case PLAYER_JOINING -> this.output.println("Player are joining, please wait.");
             case SETUP -> {
                 if(this.iAmChallenger) {
                     if(numberOfAvailableGods != this.allPlayers.size()) {
@@ -66,13 +65,17 @@ public class ConsoleGameView implements GameView {
                     this.output.println("Wait for the challenger.");
                 }
             }
-            case CHOOSING_GODS -> this.output.println("Choose your god using `god [GOD NAME]`");
+            case CHOOSING_GODS -> {
+                this.output.println("Choose your god using `god [GOD NAME]`");
+                this.output.println("Finish choosing god: `end turn`");
+            }
             case PLACING -> {
                 if(!this.workerHasBeenSelected) {
                     this.output.println("Select your worker using `select [INDEX]`");
                 }
                 else {
                     this.output.println("Place your worker using `place [X] [Y]`");
+                    this.output.println("Finish placing: `end turn`");
                 }
             }
             case PLAYING -> {
@@ -81,6 +84,7 @@ public class ConsoleGameView implements GameView {
                 }
                 else {
                     this.output.println("Usage: `move/build/build_dome [X] [Y]`");
+                    this.output.println("End turn: `end turn`");
                 }
             }
         }
@@ -89,9 +93,6 @@ public class ConsoleGameView implements GameView {
     public void executeAction(String input)
             throws NotExecutedException, IOException {
 
-        if(this.currentStatus == GameStatus.PLAYER_JOINING) {
-
-        }
 
         if (this.currentStatus == GameStatus.SETUP) {
             if (!iAmChallenger) {
@@ -127,6 +128,13 @@ public class ConsoleGameView implements GameView {
                 }
             }
             case CHOOSING_GODS -> {
+                if(command.equals("END")) {
+                    if(this.playerGods.size() == this.allPlayers.size()) {
+                        this.controller.setGameStatus(GameStatus.BEFORE_PLACING);
+                    }
+                    this.controller.nextTurn();
+                }
+
                 if (!command.equals("GOD")) {
                     throw new NotExecutedException("You must choose god now.");
                 }
@@ -140,6 +148,19 @@ public class ConsoleGameView implements GameView {
                 this.controller.setPlayerGod(this.player, type);
             }
             case PLACING, PLAYING -> {
+                if (command.equals("END")) {
+                    if(this.currentStatus == GameStatus.PLACING) {
+                        long numberOfAllWorkers = Arrays.stream(this.spaces)
+                                .filter(Space::isOccupiedByWorker)
+                                .count();
+                        // all workers has been placed
+                        if(numberOfAllWorkers == this.allPlayers.size() * 2) {
+                            this.controller.setGameStatus(GameStatus.BEFORE_PLAYING);
+                        }
+                    }
+                    this.controller.nextTurn();
+                }
+
                 if (this.currentStatus == GameStatus.PLAYING) {
                     if (command.equals("UNDO")) {
                         this.controller.undo();
@@ -232,8 +253,10 @@ public class ConsoleGameView implements GameView {
     public void notifyPlayerTurn(String player) {
         if (this.player.equals(player)) {
             this.output.println("Your turn!");
+            this.isMyTurn = true;
             this.workerHasBeenSelected = false;
         } else {
+            this.isMyTurn = false;
             this.output.println("Turn of " + player);
         }
 
