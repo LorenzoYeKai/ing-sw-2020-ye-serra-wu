@@ -1,10 +1,8 @@
 package it.polimi.ingsw.models.game;
 
-import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.Notifier;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.InternalError;
-import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodFactory;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
@@ -52,11 +50,11 @@ public class Game {
         this.playerLostNotifier = new Notifier<>();
 
         this.factory = new GodFactory();
-        this.availableGods = new HashSet<GodType>();
+        this.availableGods = new HashSet<>();
         this.world = new World(this.spaceChangedNotifier);
         this.rules = new ActualRule(this.world);
 
-        this.listOfPlayers = new ArrayList<Player>();
+        this.listOfPlayers = new ArrayList<>();
         nicknames.forEach(n -> listOfPlayers.add(new Player(this, n)));
         this.playerGods = new HashMap<>();
         this.gameViews = new HashMap<>();
@@ -66,6 +64,10 @@ public class Game {
     }
 
     public void attachView(String name, GameView view) {
+        if(this.listOfPlayers.stream().noneMatch(player -> player.getName().equals(name))) {
+            throw new InternalError("Invalid player name");
+        }
+
         if (this.gameViews.containsKey(name)) {
             throw new InternalError("Player already exist");
         }
@@ -76,6 +78,10 @@ public class Game {
         this.spaceChangedNotifier.addListener(view, view::notifySpaceChange);
         this.turnChangedNotifier.addListener(view, view::notifyPlayerTurn);
         this.playerLostNotifier.addListener(view, view::notifyPlayerDefeat);
+
+        if(this.gameViews.size() == this.listOfPlayers.size()) {
+            this.status = GameStatus.SETUP;
+        }
     }
 
     public void detachView(String name, GameView view) {
@@ -188,7 +194,10 @@ public class Game {
      * Go to the next turn, and notify every attached view that turn has changed
      */
     public void goToNextTurn() {
-        this.setCurrentPlayer((this.currentPlayer + 1) % this.listOfPlayers.size());
+        do {
+            this.setCurrentPlayer((this.currentPlayer + 1) % this.listOfPlayers.size());
+        }
+        while (this.getCurrentPlayer().isDefeated());
     }
 
     // solo per i test //
