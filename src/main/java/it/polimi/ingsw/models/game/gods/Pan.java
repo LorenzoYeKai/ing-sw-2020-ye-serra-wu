@@ -3,9 +3,6 @@ package it.polimi.ingsw.models.game.gods;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.models.game.rules.DefaultRule;
 
-/**
- * Not implemented yet
- */
 public class Pan extends God {
 
     //Default action order

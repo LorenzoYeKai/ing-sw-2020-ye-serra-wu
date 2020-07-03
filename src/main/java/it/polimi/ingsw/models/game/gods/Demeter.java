@@ -12,9 +12,7 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 
-/**
- * Not implemented yet
- */
+
 public class Demeter extends God {
 
     @Override

@@ -7,9 +7,6 @@ import it.polimi.ingsw.models.game.rules.DefaultRule;
 
 import java.util.Objects;
 
-/**
- * Not implemented yet
- */
 public class Apollo extends God {
 
     //Default action order

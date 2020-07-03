@@ -6,9 +6,7 @@ import it.polimi.ingsw.models.game.rules.DefaultRule;
 
 import java.util.Optional;
 
-/**
- * Not implemented yet
- */
+
 public class Hephaestus extends God {
 
     @Override
