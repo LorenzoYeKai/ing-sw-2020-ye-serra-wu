@@ -1,10 +1,14 @@
 package it.polimi.ingsw.models.game;
 
 import it.polimi.ingsw.InternalError;
+import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Worker {
@@ -79,6 +83,35 @@ public class Worker {
     }
 
     /**
+     * Computes the spaces where the worker will win by moving there
+     */
+    public List<Space> computeWinSpaces() {
+        return this.world.getData().stream()
+                .filter(space -> rules.winCondition(this, space))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the possible actions in the current phase
+     * @return the possible actions for the current phase
+     */
+    public final Map<WorkerActionType, List<Vector2>> computePossibleActions() {
+        Function<List<Space>, List<Vector2>> spaceToPosition = list ->
+                list.stream().map(Space::getPosition).collect(Collectors.toList());
+        Map<WorkerActionType, List<Vector2>> result = new HashMap<>();
+        List<Vector2> possibleMoves = spaceToPosition.apply(this.computeAvailableSpaces());
+        List<Vector2> possibleBuilds = spaceToPosition.apply(this.computeBuildableSpaces());
+        List<Vector2> possibleDomes = spaceToPosition.apply(this.computeDomeSpaces());
+        List<Vector2> possibleWins = spaceToPosition.apply(this.computeWinSpaces());
+
+        result.put(WorkerActionType.MOVE, possibleMoves);
+        result.put(WorkerActionType.BUILD, possibleBuilds);
+        result.put(WorkerActionType.BUILD_DOME, possibleDomes);
+        result.put(WorkerActionType.WIN, possibleWins);
+        return result;
+    }
+    
+    /**
      * Get the previous space occupied by the worker in the current turn.
      *
      * @return the previous space occupied by the worker in the current turn,
@@ -150,11 +183,11 @@ public class Worker {
 
     /**
      * Get the {@link Space} in the current {@link World} where the worker
-     * has built a block or a dome.
+     * has built a block or a dome in the previous action.
      *
-     * @return the {@link Space} on which a block or a  dome has been built
-     * previously, or {@link Optional#empty()} if worker didn't build dome in
-     * the last action, or if this worker hasn't performed any action yet in the
+     * @return the {@link Space} on which a block or a dome has been built
+     * previously, or {@link Optional#empty()} if worker didn't build in the
+     * last action, or if this worker hasn't performed any action yet in the
      * current turn.
      */
     public Optional<Space> getPreviousBuild() {

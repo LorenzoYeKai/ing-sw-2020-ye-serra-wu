@@ -5,5 +5,6 @@ public enum  WorkerActionType {
     MOVE,
     BUILD,
     BUILD_DOME,
+    WIN,
     END_TURN,
 }

@@ -9,7 +9,7 @@ public class Atlas extends God {
 
     @Override
     public void activateGodPower(ActualRule rules) {
-        rules.getBuildDomeRules().remove("defaultCanBuildDomeLevel");
+        rules.removeBuildDomeRules("defaultCanBuildDomeLevel");
     }
 
     @Override

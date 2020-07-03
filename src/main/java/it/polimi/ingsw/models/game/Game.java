@@ -34,6 +34,10 @@ public class Game {
     private int currentPlayer;
     private GameStatus status;
 
+    // this will be reset by each selectWorker() of controller
+    private boolean currentWorkerHasAlreadyMoved = false;
+    private Map<WorkerActionType, List<Vector2>> currentWorkerValidActions = null;
+
     /**
      * Creates a new game
      *
@@ -212,6 +216,24 @@ public class Game {
         this.world.clearPreviousWorlds();
     }
 
+    /**
+     * Set the worker moved flag, which is helpful to
+     * {@link #calculateValidWorkerActions()}
+     */
+    public void clearCurrentWorkerMovedFlag() {
+        this.currentWorkerHasAlreadyMoved = false;
+        this.currentWorkerValidActions = null;
+    }
+
+    /**
+     * Clear the worker moved flag, which is helpful to
+     * {@link #calculateValidWorkerActions()}
+     */
+    public void setCurrentWorkerMovedFlag() {
+        this.currentWorkerHasAlreadyMoved = true;
+        this.currentWorkerValidActions = null;
+    }
+
     public WorldData getPreviousWorld() {
         return this.world.peekPrevious().orElseThrow(() -> {
             //TODO: handle empty previousWorlds
@@ -233,8 +255,19 @@ public class Game {
     }
 
     public void setCurrentPlayer(int i) {
+        if(this.currentPlayer != -1) {
+            // deactivate god power for previous player
+            Player player = this.getCurrentPlayer();
+            if(player.getGod() != null) {
+                player.getGod().onTurnEnded(player.getSelectedWorker(), this.getRules());
+            }
+        }
         this.currentPlayer = i;
         this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
+        // activate god power for current player
+        if(this.getCurrentPlayer().getGod() != null) {
+            this.getCurrentPlayer().getGod().onTurnStarted(this.getRules());
+        }
     }
 
     public Worker getWorker(WorkerData identity) {
@@ -258,37 +291,40 @@ public class Game {
         return this.status;
     }
 
-    public Map<WorkerActionType, List<Vector2>> workerActionTypeListMap() {
-        Map<WorkerActionType, List<Vector2>> actions = new HashMap<>();
-        Worker selectedWorker = this.getCurrentPlayer().getSelectedWorker();
-        List<WorkerActionType> possibleActions = this.getRules().possibleActions(this.getTurnPhase(), selectedWorker);
-        for (WorkerActionType w : possibleActions) {
-            if (w == WorkerActionType.MOVE) {
-                List<Vector2> availableSpacesCoordinates = new ArrayList<>();
-                List<Space> availableSpaces = selectedWorker.computeAvailableSpaces();
-                availableSpaces.forEach(s -> availableSpacesCoordinates.add(s.getPosition()));
-                actions.put(w, availableSpacesCoordinates);
-            } else if (w == WorkerActionType.BUILD) {
-                List<Vector2> buildableSpacesCoordinates = new ArrayList<>();
-                List<Space> buildableSpaces = selectedWorker.computeBuildableSpaces();
-                buildableSpaces.forEach(s -> buildableSpacesCoordinates.add(s.getPosition()));
-                actions.put(w, buildableSpacesCoordinates);
-            } else if (w == WorkerActionType.BUILD_DOME) {
-                List<Vector2> buildDomeSpacesCoordinates = new ArrayList<>();
-                List<Space> buildDomeSpaces = selectedWorker.computeDomeSpaces();
-                buildDomeSpaces.forEach(s -> buildDomeSpacesCoordinates.add(s.getPosition()));
-                actions.put(w, buildDomeSpacesCoordinates);
-            } else if (w == WorkerActionType.END_TURN) {
-                actions.put(w, null);
-            }
-        }
-        if (!(actions.keySet().size() == 1 && actions.containsKey(WorkerActionType.END_TURN))) {
-            if (this.checkDefeat(actions)) {
-                this.announceDefeat(this.getCurrentPlayer());
-            }
-        }
-        return actions;
+    /**
+     * Get the already calculated valid worker actions.
+     * If there isn't any valid worker actions for each workers,
+     * then player can be defeated.
+     * @return the list of valid actions
+     */
+    public Map<WorkerActionType, List<Vector2>> getValidWorkerActions() {
+        return this.currentWorkerValidActions;
     }
+
+    public void calculateValidWorkerActions() {
+        this.currentWorkerValidActions = new HashMap<>();
+
+        Worker selectedWorker = this.getCurrentPlayer().getSelectedWorker();
+        var possibleActions = selectedWorker.computePossibleActions();
+        for(WorkerActionType type : possibleActions.keySet()) {
+            List<Vector2> possibleTargets = possibleActions.get(type);
+            for (Vector2 targetPosition: possibleTargets) {
+                WorkerActionPredictor predictor =
+                        new WorkerActionPredictor(this, this.currentWorkerHasAlreadyMoved);
+                boolean isValid = predictor.verify(selectedWorker, type, targetPosition);
+                if(isValid) {
+                    // create the list if necessary
+                    if(!this.currentWorkerValidActions.containsKey(type)) {
+                        this.currentWorkerValidActions.put(type, new ArrayList<>());
+                    }
+                    // this is a valid action which contains move-then-build
+                    this.currentWorkerValidActions.get(type).add(targetPosition);
+                }
+            }
+        }
+    }
+
+
 
     private boolean checkDefeat(Map<WorkerActionType, List<Vector2>> actions) {
         for (WorkerActionType w : actions.keySet()) {

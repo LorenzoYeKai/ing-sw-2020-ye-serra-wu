@@ -1,5 +1,6 @@
 package it.polimi.ingsw.models.game.rules;
 
+import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.*;
 
@@ -20,7 +21,6 @@ public class ActualRule implements Serializable {
     private final Map<String, BiPredicate<Worker, Space>> buildDomeRules;
     private final Map<String, BiPredicate<Worker, Space>> winConditions;
     private int domeLevel;
-    private GodPower godPower;
 
     /**
      * The constructor creates the default rule
@@ -31,7 +31,6 @@ public class ActualRule implements Serializable {
         this.buildDomeRules = new HashMap<>();
         this.winConditions = new HashMap<>();
         this.domeLevel = 3;
-        this.godPower = new GodPower(world);
         resetDefaultRules();
     }
 
@@ -80,17 +79,20 @@ public class ActualRule implements Serializable {
     /**
      * Merges all the winCondition methods of all the active rules
      * Used in {@link Worker#victory(Space)}
+     *
      * @param worker the current {@link Space} of the worker.
      * @param target the target {@link Space}
      * @return if it will win
      */
     public boolean winCondition(Worker worker, Space target) {
         return this.winConditions.values().stream()
-                .anyMatch(predicate -> predicate.test(worker, target));
+                .allMatch(predicate -> predicate.test(worker, target));
     }
 
-    public List<WorkerActionType> possibleActions(int phase, Worker worker){
-        return worker.getPlayer().getGod().workerActionOrder(phase, worker);
+    // TODO: REMOVE
+    @Deprecated
+    public List<WorkerActionType> possibleActions(int phase, Worker worker) {
+        throw new InternalError("Deleted");
     }
 
     private void resetDefaultRules() {
@@ -105,25 +107,25 @@ public class ActualRule implements Serializable {
         this.movementRules.put("defaultLevelDifference", DefaultRule::defaultLevelDifference);
         this.movementRules.put("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
         this.movementRules.put("defaultIsFreeByDome", DefaultRule::defaultIsFreeFromDome);
-        this.movementRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
+        this.movementRules.put("defaultMoveWillBeFirstAction", DefaultRule::defaultMoveWillBeFirstAction);
 
         //build
 
         this.buildRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
-        this.buildRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
         this.buildRules.put("defaultIsFree", DefaultRule::defaultIsFree);
         this.buildRules.put("defaultBuildLevelLimit", DefaultRule::defaultBuildLevelLimit);
+        this.buildRules.put("defaultBuildAfterMove", DefaultRule::defaultBuildAfterMove);
 
         //win condition
 
         this.winConditions.put("defaultWinCondition", DefaultRule::defaultWinCondition);
-
+        this.winConditions.put("movementRules", this::canMoveThere);
         //build dome
 
         this.buildDomeRules.put("defaultIsNeighbor", DefaultRule::defaultIsNeighbor);
-        this.buildDomeRules.put("defaultIsInWorld", DefaultRule::defaultIsInWorld);
         this.buildDomeRules.put("defaultIsFree", DefaultRule::defaultIsFree);
         this.buildDomeRules.put("defaultCanBuildDomeLevel", DefaultRule::defaultCanBuildDomeLevel);
+        this.buildDomeRules.put("defaultBuildAfterMove", DefaultRule::defaultBuildAfterMove);
     }
 
     public Map<String, BiPredicate<Worker, Space>> getMovementRules() {
@@ -144,24 +146,51 @@ public class ActualRule implements Serializable {
 
 
     public void addMovementRules(String key, BiPredicate<Worker, Space> value) {
-        this.movementRules.put(key, value);
+        this.put(this.movementRules, key, value);
+    }
+
+    public void removeMovementRules(String key) {
+        this.remove(movementRules, key);
     }
 
     public void addBuildRules(String key, BiPredicate<Worker, Space> value) {
-        this.buildRules.put(key, value);
+        this.put(this.buildRules, key, value);
+    }
+
+    public void removeBuildRules(String key) {
+        this.remove(buildRules, key);
     }
 
     public void addWinConditions(String key, BiPredicate<Worker, Space> value) {
-        this.winConditions.put(key, value);
+        this.put(this.winConditions, key, value);
+    }
+
+    public void removeWinConditions(String key) {
+        this.remove(winConditions, key);
     }
 
     public void addBuildDomeRules(String key, BiPredicate<Worker, Space> value) {
-        this.buildDomeRules.put(key, value);
+        this.put(this.buildDomeRules, key, value);
     }
 
-    @Deprecated
-    public void setDomeLevel(int level) {
-        this.domeLevel = level;
+    public void removeBuildDomeRules(String key) {
+        this.remove(this.buildDomeRules, key);
+    }
+
+    private void put(Map<String, BiPredicate<Worker, Space>> destination,
+                     String key, BiPredicate<Worker, Space> value) {
+        if (destination.containsKey(key)) {
+            throw new InternalError("Adding duplicate rules");
+        }
+        destination.put(key, value);
+    }
+
+    private void remove(Map<String, BiPredicate<Worker, Space>> destination,
+                        String key) {
+        if (!destination.containsKey(key)) {
+            throw new InternalError("Removing non-existing rules");
+        }
+        destination.remove(key);
     }
 
 }

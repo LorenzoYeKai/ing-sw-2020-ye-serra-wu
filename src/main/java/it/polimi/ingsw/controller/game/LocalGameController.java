@@ -8,7 +8,9 @@ import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class LocalGameController implements GameController {
@@ -28,6 +30,9 @@ public class LocalGameController implements GameController {
 
     public void selectWorker(int index) {
         game.getCurrentPlayer().selectWorker(index);
+        // this will be useful to make the game predict actions
+        game.clearCurrentWorkerMovedFlag();
+        game.calculateValidWorkerActions();
     }
 
     public void workerAction(String player,
@@ -41,7 +46,7 @@ public class LocalGameController implements GameController {
             throw new NotExecutedException("Not your turn");
         }
 
-        if(!this.game.getCurrentPlayer().hasSelectedAWorker()) {
+        if (!this.game.getCurrentPlayer().hasSelectedAWorker()) {
             throw new NotExecutedException("You need to select worker first");
         }
 
@@ -55,12 +60,30 @@ public class LocalGameController implements GameController {
             throw new NotExecutedException("Game not started yet");
         }
 
+        if (action != WorkerActionType.PLACE) {
+            // check if the request action is valid
+            if(!this.getValidActions().containsKey(action)) {
+                // this action isn't valid
+                throw new NotExecutedException("Invalid action");
+            }
+            if(!this.getValidActions().get(action).contains(new Vector2(x, y))) {
+                // the action is valid, but not valid with this coordinate.
+                throw new NotExecutedException("Invalid action");
+            }
+        }
+
         switch (action) {
-            case PLACE -> this.place(worker, targetSpace); // TODO: Da togliere
+            case PLACE -> this.place(worker, targetSpace);
             case MOVE -> this.move(worker, targetSpace);
+            case WIN -> this.move(worker, targetSpace);
             case BUILD -> this.build(worker, targetSpace);
             case BUILD_DOME -> this.buildDome(worker, targetSpace);
         }
+
+        if (action == WorkerActionType.MOVE) {
+            this.game.setCurrentWorkerMovedFlag();
+        }
+        this.game.calculateValidWorkerActions();
     }
 
     public void addAvailableGods(GodType type) {
@@ -92,7 +115,8 @@ public class LocalGameController implements GameController {
     }
 
     public void move(Worker worker, Space targetSpace) throws NotExecutedException {
-        if (!worker.computeAvailableSpaces().contains(targetSpace)) {
+        if (!worker.computeAvailableSpaces().contains(targetSpace) &&
+                !worker.computeWinSpaces().contains(targetSpace)) {
             throw new NotExecutedException("Cannot move there!");
         }
         if (targetSpace.isOccupiedByWorker()) {
@@ -128,20 +152,7 @@ public class LocalGameController implements GameController {
     }
 
     public void checkDefeat(WorkerActionType type, Worker worker) {
-        switch (type) {
-            case MOVE:
-                if (worker.computeAvailableSpaces().size() == 0) {
-                    worker.getPlayer().setDefeated();
-                }
-            case BUILD:
-                if (worker.computeBuildableSpaces().size() == 0 && worker.computeDomeSpaces().size() == 0) {
-                    worker.getPlayer().setDefeated();
-                }
-            case BUILD_DOME:
-                if (worker.computeBuildableSpaces().size() == 0 && worker.computeDomeSpaces().size() == 0) {
-                    worker.getPlayer().setDefeated();
-                }
-        }
+        throw new InternalError("Not implemented");
     }
 
     @Override
@@ -174,10 +185,10 @@ public class LocalGameController implements GameController {
     public void setPlayerGod(String player, GodType god) throws NotExecutedException {
         Optional<Player> found = this.game.getListOfPlayers().stream()
                 .filter(p -> p.getName().equals(player)).findAny();
-        if(found.isEmpty()) {
+        if (found.isEmpty()) {
             throw new NotExecutedException("No such player");
         }
-        if(!this.game.isGodAvailable(god)) {
+        if (!this.game.isGodAvailable(god)) {
             throw new NotExecutedException("This god is not available");
         }
         this.game.chooseGod(found.get(), god);
@@ -186,11 +197,20 @@ public class LocalGameController implements GameController {
     public void resetTurn() {
         this.game.clearPreviousWorlds();
         this.game.getCurrentPlayer().deselectWorker();
+        this.game.clearCurrentWorkerMovedFlag();
     }
-
 
     public void undo() {
         //TODO: some god may have the power activated after the undo!!!
         game.gameUndo();
+    }
+
+    @Override
+    public Map<WorkerActionType, List<Vector2>> getValidActions()
+            throws NotExecutedException {
+        if (!this.game.getCurrentPlayer().hasSelectedAWorker()) {
+            throw new NotExecutedException("Select a worker first!");
+        }
+        return this.game.getValidWorkerActions();
     }
 }

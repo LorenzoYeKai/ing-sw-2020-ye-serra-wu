@@ -17,19 +17,18 @@ public class Minotaur extends God {
         rules.addMovementRules("minotaurPower", (worker, target) -> {
             if(target.isOccupiedByWorker()){
                 Vector2 destination = worker.getCurrentSpace().getPosition().getAfter(target.getPosition());
-                // TODO: Check player data
                 return !worker.getIdentity().getPlayer().equals(target.getWorkerData().getPlayer()) &&
                         World.isInWorld(destination) &&
                         !worker.getWorld().get(destination).isOccupied();
             }
             return true;
         });
-        rules.getMovementRules().remove("defaultIsFreeFromWorker");
+        rules.removeMovementRules("defaultIsFreeFromWorker");
     }
 
     @Override
     public void deactivateGodPower(ActualRule rules) {
-        rules.getMovementRules().remove("minotaurPower");
+        rules.removeMovementRules("minotaurPower");
         rules.addMovementRules("defaultIsFreeFromWorker", DefaultRule::defaultIsFreeFromWorker);
     }
 

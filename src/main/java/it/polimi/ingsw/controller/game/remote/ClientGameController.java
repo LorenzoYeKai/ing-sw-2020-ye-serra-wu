@@ -12,6 +12,9 @@ import it.polimi.ingsw.views.game.GameView;
 import it.polimi.ingsw.views.game.remote.ClientGameView;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 public class ClientGameController implements GameController {
     private final RequestProcessor connection;
@@ -112,5 +115,13 @@ public class ClientGameController implements GameController {
         MiscellaneousCommand command =
                 new MiscellaneousCommand(MiscellaneousCommand.Type.UNDO);
         this.connection.remoteInvoke(command);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public Map<WorkerActionType, List<Vector2>> getValidActions()
+            throws NotExecutedException, IOException {
+        GetValidActionsCommand command = new GetValidActionsCommand();
+        return (Map<WorkerActionType, List<Vector2>>)this.connection.remoteInvoke(command);
     }
 }
