@@ -6,6 +6,7 @@ import it.polimi.ingsw.controller.game.GameController;
 import it.polimi.ingsw.controller.game.WorkerActionType;
 import it.polimi.ingsw.models.game.GameStatus;
 import it.polimi.ingsw.models.game.Space;
+import it.polimi.ingsw.models.game.Vector2;
 import it.polimi.ingsw.models.game.World;
 import it.polimi.ingsw.models.game.gods.GodType;
 
@@ -100,10 +101,19 @@ public class GUIGameView implements GameView {
             }
             case "placing" -> this.controller.setGameStatus(GameStatus.PLACING);
             case "place" -> this.controller.workerAction(player, WorkerActionType.PLACE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
-            case "play" -> this.controller.setGameStatus(GameStatus.PLAYING);
+            case "play" -> this.controller.setGameStatus(GameStatus.BEFORE_PLAYING);
             case "end" -> this.controller.nextTurn();
             case "setup" -> this.controller.setGameStatus(GameStatus.SETUP);
             case "god" -> this.controller.setPlayerGod(this.player, gameGUIController.getChosenGod());
+            case "select" -> this.controller.selectWorker(gameGUIController.getSelectedWorkerIndex());
+            case "validate0" -> {
+                Map<WorkerActionType, List<Vector2>> possibleActions = this.controller.getValidActions();
+                this.gameGUIController.setWorkerOnePossibleActions(possibleActions);
+            }
+            case "validate1" -> {
+                Map<WorkerActionType, List<Vector2>> possibleActions = this.controller.getValidActions();
+                this.gameGUIController.setWorkerTwoPossibleActions(possibleActions);
+            }
             //case "SELECT" -> this.controller.selectWorker(scanner.nextInt());*/
         }
     }

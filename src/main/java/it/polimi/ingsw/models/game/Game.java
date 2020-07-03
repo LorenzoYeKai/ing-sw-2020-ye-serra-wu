@@ -264,6 +264,7 @@ public class Game {
     }
 
     public void setCurrentPlayer(int i) {
+
         if(this.currentPlayer != -1 && this.status == GameStatus.PLAYING) {
             // deactivate god power for previous player
             Player player = this.getCurrentPlayer();
@@ -271,10 +272,13 @@ public class Game {
                 player.getGod().onTurnEnded(player.getSelectedWorker(), this.getRules());
             }
         }
+        if(this.status == GameStatus.BEFORE_PLAYING){
+            this.setStatus(GameStatus.PLAYING);
+        }
         this.currentPlayer = i;
         this.turnChangedNotifier.notify(this.getCurrentPlayer().getName());
         // activate god power for current player
-        if(this.getCurrentPlayer().getGod() != null) {
+        if(this.getCurrentPlayer().getGod() != null && this.status == GameStatus.PLAYING) {
             this.getCurrentPlayer().getGod().onTurnStarted(this.getRules());
         }
     }
