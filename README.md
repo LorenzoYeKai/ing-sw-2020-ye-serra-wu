@@ -5,7 +5,6 @@
 
 [Check Live Server Status](http://18.195.117.7:8000)
 
-#### [!!!Descrizione da completare!!!]
 
 ### Features
 - [X] Complete Game Rules (Basic gods) 
@@ -49,4 +48,15 @@ If you want to connect to our live server, just write `18.195.117.7` when the ga
 ```
 java -jar client-progetto-ingegneria-del-software-serra-ye-wu-1.0-SNAPSHOT.jar gui
 ```
+### Test coverage reports:
 
+![Coverage](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/blob/master/coverage%20reports/Coverage.PNG)
+
+![CoverageModel](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/blob/master/coverage%20reports/CoverageModel.PNG)
+Coverage of it.polimi.ingsw.models
+
+![CoverageGame](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/blob/master/coverage%20reports/CoverageGame.PNG)
+Coverage of it.polimi.ingsw.models.game
+
+![CoverageLobby](https://github.com/Kishin98/ing-sw-2020-ye-serra-wu/blob/master/coverage%20reports/CoverageLobby.PNG)
+Coverage of it.polimi.ingsw.models.lobby
