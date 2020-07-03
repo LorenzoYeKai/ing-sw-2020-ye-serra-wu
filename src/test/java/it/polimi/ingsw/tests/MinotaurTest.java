@@ -55,19 +55,7 @@ public class MinotaurTest {
         game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(3,3));
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    @Test
-    @DisplayName("push")
-    public void pushTest() {
-        Worker zero = player1.getAllWorkers().get(1);
-        Worker opponent = player2.getAllWorkers().get(1);
-        zero.push(opponent.getIdentity());
-        assertEquals(zero.getCurrentSpace().getPosition(),
-                opponent.getPreviousSpace().get().getPosition());
 
-        assertEquals(opponent.getCurrentSpace().getPosition(),
-                zero.getPreviousSpace().get().getPosition().getAfter(opponent.getPreviousSpace().get().getPosition()));
-    }
 
     private void asserting(List<Space> expected1, List<Space> expected2,
                            List<Space> actual1, List<Space> actual2) {

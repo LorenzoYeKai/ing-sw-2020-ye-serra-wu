@@ -28,19 +28,13 @@ public class MinotaurPowerTest {
         game.setStatus(GameStatus.PLAYING);
         game.setCurrentPlayer(1);
         spaceSetup();
-        Space firstWorkerPosition = game.getWorld().get(1, 1);
-        Space secondWorkerPosition = game.getWorld().get(2, 2);
-        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(firstWorkerPosition);
-        game.getCurrentPlayer().getAllWorkers().get(1).setStartPosition(secondWorkerPosition);
         game.getCurrentPlayer().selectWorker(0);
-        game.clearPreviousWorlds();
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(1,3));
         game.goToNextTurn();
-        Space player2FirstWorkerPosition = game.getWorld().get(2, 0);
-        Space player2SecondWorkerPosition = game.getWorld().get(3, 2);
-        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(player2FirstWorkerPosition);
-        game.getCurrentPlayer().getAllWorkers().get(1).setStartPosition(player2SecondWorkerPosition);
-        game.getCurrentPlayer().setGod(new GodFactory().getGod(GodType.MINOTAUR));
         game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).setStartPosition(game.getWorld().get(2,3));
+        game.goToNextTurn();
+        game.clearPreviousWorlds();
 
 
     }
@@ -49,11 +43,8 @@ public class MinotaurPowerTest {
     @DisplayName("minotaur power test")
     public void minotaurPowerTest() throws NotExecutedException {
         game.getCurrentPlayer().selectWorker(0);
-        game.setStatus(GameStatus.PLAYING);
-        game.goToNextTurn();
-        game.clearPreviousWorlds();
-        game.getCurrentPlayer().selectWorker(1);
-        assertTrue(game.getCurrentPlayer().getAllWorkers().get(1).computeAvailableSpaces().contains(game.getWorld().get(3,2)));
+        assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeAvailableSpaces().contains(game.getWorld().get(2,3)));
+        game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(2,3));
 
     }
 

@@ -40,6 +40,7 @@ public class AtlasPowerTest {
     public void atlasPowerTest() throws NotExecutedException {
 
         game.getCurrentPlayer().selectWorker(0);
+        game.getCurrentPlayer().getAllWorkers().get(0).move(game.getWorld().get(4,3));
         assertTrue(game.getCurrentPlayer().getAllWorkers().get(0).computeDomeSpaces().contains(game.getWorld().get(4,4)));
 
 
