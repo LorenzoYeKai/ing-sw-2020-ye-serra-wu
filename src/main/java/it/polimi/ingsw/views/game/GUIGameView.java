@@ -96,6 +96,8 @@ public class GUIGameView implements GameView {
                 this.controller.setCurrentPlayer(gameGUIController.getListOfPlayers().indexOf(gameGUIController.getFirstPlayerName()));
             }
             case "move" -> this.controller.workerAction(player, WorkerActionType.MOVE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
+            case "build" -> this.controller.workerAction(player, WorkerActionType.BUILD, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
+            case "build_dome" -> this.controller.workerAction(player, WorkerActionType.BUILD_DOME, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "placing" -> this.controller.setGameStatus(GameStatus.BEFORE_PLACING);
             case "place" -> this.controller.workerAction(player, WorkerActionType.PLACE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "play" -> this.controller.setGameStatus(GameStatus.BEFORE_PLAYING);
