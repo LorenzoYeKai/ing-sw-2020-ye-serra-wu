@@ -14,7 +14,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Manages the default turn of a worker
+ * Abstract class that handles the action orders depending on the God every player has chosen.
+ *
  */
 public abstract class God implements Serializable {
 
@@ -26,7 +27,12 @@ public abstract class God implements Serializable {
         this.deactivateGodPower(rules);
     }
 
-    // TODO: MOVE it to tests, shouldn't be a God's method anymore
+    /**
+     *
+     * @param phase the phase of the turn
+     * @param worker the worker witch wants to move
+     * @return all possible action that the worker can perform
+     */
     public final List<WorkerActionType> workerActionOrder(int phase, Worker worker) {
         List<WorkerActionType> possibleActionsList = new ArrayList<>();
         Map<WorkerActionType, List<Vector2>> possibleActions = worker.computePossibleActions();
@@ -40,6 +46,10 @@ public abstract class God implements Serializable {
         return possibleActionsList;
     }
 
+    /**
+     * Activates the god power in Actual Rules
+     * @param rules
+     */
     abstract public void activateGodPower(ActualRule rules);
 
     abstract public void deactivateGodPower(ActualRule rules);

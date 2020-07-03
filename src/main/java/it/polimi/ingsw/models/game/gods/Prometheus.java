@@ -9,9 +9,7 @@ import it.polimi.ingsw.models.game.rules.DefaultRule;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Not implemented yet
- */
+
 public class Prometheus extends God {
 
     @Override
