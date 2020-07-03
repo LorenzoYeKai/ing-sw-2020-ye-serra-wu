@@ -255,7 +255,7 @@ public class Game {
     }
 
     public void setCurrentPlayer(int i) {
-        if(this.currentPlayer != -1) {
+        if(this.currentPlayer != -1 || this.status == GameStatus.CHOOSING_GODS) {
             // deactivate god power for previous player
             Player player = this.getCurrentPlayer();
             if(player.getGod() != null) {
