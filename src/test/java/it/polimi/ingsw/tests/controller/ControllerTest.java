@@ -127,8 +127,8 @@ public class ControllerTest {
 
     @Test
     @DisplayName("selectWorkerTest")
-    public void selectWorkerTest() {
-        controller.selectWorker(0);
+    public void selectWorkerTest() throws NotExecutedException {
+        controller.selectWorker(controller.getGame().getCurrentPlayer().getName(), 0);
         assertEquals(0, controller.getGame().getCurrentPlayer().getIndexSelectedWorker());
     }
 

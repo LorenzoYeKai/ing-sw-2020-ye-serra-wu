@@ -1,14 +1,11 @@
 package it.polimi.ingsw.controller.game;
 
-import it.polimi.ingsw.InternalError;
 import it.polimi.ingsw.NotExecutedException;
 import it.polimi.ingsw.models.game.*;
-import it.polimi.ingsw.models.game.gods.God;
 import it.polimi.ingsw.models.game.gods.GodType;
 import it.polimi.ingsw.models.game.rules.ActualRule;
 import it.polimi.ingsw.views.game.GameView;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +27,16 @@ public class LocalGameController implements GameController {
         this.game.attachView(nickname, view);
     }
 
-    public void selectWorker(int index) {
+    public void selectWorker(String player, int index) throws NotExecutedException {
+        if(!this.game.getCurrentPlayer().getName().equals(player)) {
+            throw new NotExecutedException("Not your turn");
+        }
+        if(this.game.getStatus() != GameStatus.PLAYING) {
+            if(!this.currentActions.isEmpty()) {
+                throw new NotExecutedException("Cannot select worker after performing action");
+            }
+        }
+
         this.game.getCurrentPlayer().selectWorker(index);
         this.currentActions.clear();
         // this will be useful to make the game predict actions
@@ -52,12 +58,6 @@ public class LocalGameController implements GameController {
             }
         }
 
-        if (action == WorkerActionType.PLACE) {
-            game.getCurrentPlayer().selectWorker(0);
-            if (game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null) {
-                game.getCurrentPlayer().selectWorker(1);
-            }
-        }
         Worker worker = this.game.getCurrentPlayer().getSelectedWorker();
         Space targetSpace = this.game.getWorld().get(x, y);
 
@@ -144,6 +144,9 @@ public class LocalGameController implements GameController {
             throw new NotExecutedException("Cannot place in an occupied space!");
         }
 
+        if (worker.getCurrentSpace() != null) {
+            throw new NotExecutedException("Cannot change start position");
+        }
         worker.setStartPosition(targetSpace);
     }
 
@@ -191,6 +194,7 @@ public class LocalGameController implements GameController {
     }
 
     public void resetTurn() {
+        this.currentActions.clear();
         this.game.clearPreviousWorlds();
         this.game.getCurrentPlayer().deselectWorker();
         this.game.clearCurrentWorkerMovedFlag();

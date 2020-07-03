@@ -148,10 +148,6 @@ public class RequestProcessor implements AutoCloseable {
 
         this.writeAndFlush(request);
 
-        if(this.sequenceNumber == 6){
-            System.out.println("ciao");
-        }
-
         while (true) {
             Object input = this.takeNext();
             if (input instanceof Poison) {

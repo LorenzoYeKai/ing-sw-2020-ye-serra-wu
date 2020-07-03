@@ -12,7 +12,6 @@ import it.polimi.ingsw.views.game.GameView;
 import it.polimi.ingsw.views.game.remote.ClientGameView;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -98,8 +97,8 @@ public class ClientGameController implements GameController {
     }
 
     @Override
-    public void selectWorker(int index) throws NotExecutedException, IOException {
-        SelectWorkerCommand command = new SelectWorkerCommand(index);
+    public void selectWorker(String player, int index) throws NotExecutedException, IOException {
+        SelectWorkerCommand command = new SelectWorkerCommand(player, index);
         this.connection.remoteInvoke(command);
     }
 

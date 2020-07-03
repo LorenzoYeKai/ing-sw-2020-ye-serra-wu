@@ -62,12 +62,12 @@ public class GUIGameView implements GameView {
 
     @Override
     public void notifySpaceChange(Space space) {
+        System.out.println("Space changed!");
         gameGUIController.updateWorld(space);
     }
 
     @Override
     public void notifyPlayerTurn(String player) {
-
         if(player.equals(this.player)) {
             gameGUIController.initCurrentTurn(this.currentStatus);
         }
@@ -95,13 +95,14 @@ public class GUIGameView implements GameView {
                 this.controller.setGameStatus(GameStatus.CHOOSING_GODS);
                 this.controller.setCurrentPlayer(gameGUIController.getListOfPlayers().indexOf(gameGUIController.getFirstPlayerName()));
             }
+            case "move" -> this.controller.workerAction(player, WorkerActionType.MOVE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "placing" -> this.controller.setGameStatus(GameStatus.BEFORE_PLACING);
             case "place" -> this.controller.workerAction(player, WorkerActionType.PLACE, gameGUIController.getSelectedX(), gameGUIController.getSelectedY());
             case "play" -> this.controller.setGameStatus(GameStatus.BEFORE_PLAYING);
             case "end" -> this.controller.nextTurn();
             case "setup" -> this.controller.setGameStatus(GameStatus.SETUP);
             case "god" -> this.controller.setPlayerGod(this.player, gameGUIController.getChosenGod());
-            case "select" -> this.controller.selectWorker(gameGUIController.getSelectedWorkerIndex());
+            case "select" -> this.controller.selectWorker(this.player, gameGUIController.getSelectedWorkerIndex());
             case "validate0" -> {
                 Map<WorkerActionType, List<Vector2>> possibleActions = this.controller.getValidActions();
                 this.gameGUIController.setWorkerOnePossibleActions(possibleActions);
