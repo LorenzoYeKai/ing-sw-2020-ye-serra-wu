@@ -42,9 +42,17 @@ public class LocalGameController implements GameController {
         }
 
         if(!this.game.getCurrentPlayer().hasSelectedAWorker()) {
-            throw new NotExecutedException("You need to select worker first");
+            if(action != WorkerActionType.PLACE) {
+                throw new NotExecutedException("You need to select worker first");
+            }
         }
 
+        if(action == WorkerActionType.PLACE){
+            game.getCurrentPlayer().selectWorker(0);
+            if(game.getCurrentPlayer().getSelectedWorker().getCurrentSpace() != null){
+                game.getCurrentPlayer().selectWorker(1);
+            }
+        }
         Worker worker = this.game.getCurrentPlayer().getSelectedWorker();
         Space targetSpace = this.game.getWorld().get(x, y);
 
@@ -56,7 +64,7 @@ public class LocalGameController implements GameController {
         }
 
         switch (action) {
-            case PLACE -> this.place(worker, targetSpace); // TODO: Da togliere
+            case PLACE -> this.place(worker, targetSpace);
             case MOVE -> this.move(worker, targetSpace);
             case BUILD -> this.build(worker, targetSpace);
             case BUILD_DOME -> this.buildDome(worker, targetSpace);
