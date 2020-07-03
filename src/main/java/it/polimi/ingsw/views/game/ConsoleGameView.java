@@ -176,14 +176,12 @@ public class ConsoleGameView implements GameView {
                     }
                 }
 
-                if (!this.workerHasBeenSelected) {
-                    if (!command.equals("SELECT")) {
-                        throw new NotExecutedException("You need to select worker now");
-                    }
+                if (command.equals("SELECT")) {
                     this.controller.selectWorker(this.player, scanner.nextInt());
                     this.workerHasBeenSelected = true;
                     return;
                 }
+
 
                 WorkerActionType type;
                 int x;
@@ -204,6 +202,9 @@ public class ConsoleGameView implements GameView {
                     this.controller.workerAction(this.player, type, x, y);
                 }
                 catch (NotExecutedException e) {
+                    if(this.currentStatus != GameStatus.PLAYING) {
+                        return;
+                    }
                     this.output.println("You tried to " + command + " which was not possible.");
                     List<Vector2> hints = this.controller.getValidActions()
                             .getOrDefault(type, null);
@@ -331,12 +332,12 @@ public class ConsoleGameView implements GameView {
                 godName = god.toString();
             }
             info.println("Player " + player + "(" + godName + ")'s workers: ");
-            info.println("0 -> " + workerSymbols.get(player + "0"));
+            info.print("0 -> " + workerSymbols.get(player + "0") + "; ");
             info.println("1 -> " + workerSymbols.get(player + "1"));
         }
 
-        info.println("Command: `[place/move/build/build_dome] [X] [Y]`");
-        info.println("Example: `0 move 0 3`");
+        info.println("Command: `place/move/build/build_dome [X] [Y]`");
+        info.println("Example: `move 0 3`");
 
         // Print row separators
         for (int j = 0; j < 11; j += 2) {
