@@ -735,14 +735,14 @@ public class GameGUIController implements Initializable{
         int newSelectedX;
         int newSelectedY;
         if (GridPane.getRowIndex(source) == null) {
-            newSelectedX = 0;
-        } else {
-            newSelectedX = GridPane.getRowIndex(source);
-        }
-        if (GridPane.getColumnIndex(source) == null) {
             newSelectedY = 0;
         } else {
-            newSelectedY = GridPane.getColumnIndex(source);
+            newSelectedY = GridPane.getRowIndex(source);
+        }
+        if (GridPane.getColumnIndex(source) == null) {
+            newSelectedX = 0;
+        } else {
+            newSelectedX = GridPane.getColumnIndex(source);
         }
         List<Vector2> vector = this.getPossibleWorkerAction(selectedWorkerIndex).get(type);
         for(Vector2 v : vector){
@@ -774,17 +774,15 @@ public class GameGUIController implements Initializable{
         for (Node node : children) {
             int newSelectedX;
             int newSelectedY;
-            if(GridPane.getRowIndex(node) == null){
-                newSelectedX = 0;
-            }
-            else {
-                newSelectedX = GridPane.getRowIndex(node);
-            }
-            if(GridPane.getColumnIndex(node) == null){
+            if (GridPane.getRowIndex(node) == null) {
                 newSelectedY = 0;
+            } else {
+                newSelectedY = GridPane.getRowIndex(node);
             }
-            else {
-                newSelectedY = GridPane.getColumnIndex(node);
+            if (GridPane.getColumnIndex(node) == null) {
+                newSelectedX = 0;
+            } else {
+                newSelectedX = GridPane.getColumnIndex(node);
             }
             if(newSelectedX == row && newSelectedY == column) {
                 result = node;
@@ -961,14 +959,14 @@ public class GameGUIController implements Initializable{
         int newSelectedX;
         int newSelectedY;
         if (GridPane.getRowIndex(source) == null) {
-            newSelectedX = 0;
-        } else {
-            newSelectedX = GridPane.getRowIndex(source);
-        }
-        if (GridPane.getColumnIndex(source) == null) {
             newSelectedY = 0;
         } else {
-            newSelectedY = GridPane.getColumnIndex(source);
+            newSelectedY = GridPane.getRowIndex(source);
+        }
+        if (GridPane.getColumnIndex(source) == null) {
+            newSelectedX = 0;
+        } else {
+            newSelectedX = GridPane.getColumnIndex(source);
         }
         StackPane space = (StackPane)getNodeByRowColumnIndex(newSelectedX, newSelectedY, boardGrid);
         if(!isSpaceOccupied(space)) { //the space is not occupied
@@ -998,14 +996,14 @@ public class GameGUIController implements Initializable{
         int newSelectedX;
         int newSelectedY;
         if (GridPane.getRowIndex(source) == null) {
-            newSelectedX = 0;
-        } else {
-            newSelectedX = GridPane.getRowIndex(source);
-        }
-        if (GridPane.getColumnIndex(source) == null) {
             newSelectedY = 0;
         } else {
-            newSelectedY = GridPane.getColumnIndex(source);
+            newSelectedY = GridPane.getRowIndex(source);
+        }
+        if (GridPane.getColumnIndex(source) == null) {
+            newSelectedX = 0;
+        } else {
+            newSelectedX = GridPane.getColumnIndex(source);
         }
         StackPane space = (StackPane)getNodeByRowColumnIndex(newSelectedX, newSelectedY, boardGrid);
         if(isSpaceOccupied(space)) { //the space is occupied
@@ -1102,17 +1100,15 @@ public class GameGUIController implements Initializable{
             StackPane space = (StackPane) node;
             int newSelectedX;
             int newSelectedY;
-            if(GridPane.getRowIndex(node) == null){
-                newSelectedX = 0;
-            }
-            else {
-                newSelectedX = GridPane.getRowIndex(node);
-            }
-            if(GridPane.getColumnIndex(node) == null){
+            if (GridPane.getRowIndex(node) == null) {
                 newSelectedY = 0;
+            } else {
+                newSelectedY = GridPane.getRowIndex(node);
             }
-            else {
-                newSelectedY = GridPane.getColumnIndex(node);
+            if (GridPane.getColumnIndex(node) == null) {
+                newSelectedX = 0;
+            } else {
+                newSelectedX = GridPane.getColumnIndex(node);
             }
             if(newSelectedX == vector.getX() && newSelectedY == vector.getY()){
                 space.setStyle("-fx-background-color: rgba(0, 0, 252, 0.7)");
@@ -1143,7 +1139,7 @@ public class GameGUIController implements Initializable{
             return workerOnePossibleActions;
         }
         else{
-           return workerTwoPossibleActions;
+            return workerTwoPossibleActions;
         }
     }
 
